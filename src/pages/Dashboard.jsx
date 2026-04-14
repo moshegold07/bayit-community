@@ -17,7 +17,12 @@ function MemberModal({ m, onClose }) {
           <div style={{ width:52, height:52, borderRadius:"50%", background:avColor(m.phone||m.uid), color:"#fff", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:500, fontSize:17, flexShrink:0 }}>{initials(m)}</div>
           <div style={{ flex:1 }}>
             <div style={{ fontWeight:500, fontSize:18 }}>{m.first} {m.last}</div>
-            <div style={{ fontSize:13, color:"#888", marginTop:2 }}>{m.city || ""}{m.city && m.domain ? " · " : ""}{m.domain || ""}</div>
+            <div style={{ fontSize:13, color:"#888", marginTop:2 }}>{m.city || ""}</div>
+            <div style={{ display:"flex", flexWrap:"wrap", gap:4, marginTop:4 }}>
+              {(m.categories?.length ? m.categories : m.domain ? [m.domain] : []).map(cat => (
+                <span key={cat} style={{ fontSize:11, padding:"2px 9px", borderRadius:20, background:"#E6F1FB", color:"#0C447C", fontWeight:500 }}>{cat}</span>
+              ))}
+            </div>
           </div>
           <button onClick={onClose} style={{ background:"none", border:"none", fontSize:24, cursor:"pointer", color:"#aaa", lineHeight:1 }}>×</button>
         </div>
@@ -80,14 +85,14 @@ export default function Dashboard({ user, onLogout, onAdmin, onEditProfile }) {
   }, []);
 
   const domains = [...new Set(
-    members.flatMap(m => (m.domain || '').split(/[,،،;\/\\|]+/).map(d => d.trim()).filter(Boolean))
+    members.flatMap(m => m.categories?.length ? m.categories : (m.domain ? [m.domain] : []))
   )].sort();
   const cities  = [...new Set(members.map(m => m.city).filter(Boolean))].sort();
 
   const list = members.filter(m => {
     const txt = [m.first,m.last,m.city,m.domain,m.does,m.needs].join(" ").toLowerCase();
     return (!search || txt.includes(search.toLowerCase())) &&
-           (!filterDomain || (m.domain || '').toLowerCase().includes(filterDomain.toLowerCase())) &&
+           (!filterDomain || (m.categories || []).includes(filterDomain) || (m.domain || '').toLowerCase().includes(filterDomain.toLowerCase())) &&
            (!filterCity || m.city === filterCity);
   });
 
@@ -143,7 +148,11 @@ export default function Dashboard({ user, onLogout, onAdmin, onEditProfile }) {
                     <div style={{ fontSize: 12, color: "#888" }}>{m.city}</div>
                   </div>
                 </div>
-                {m.domain && <div style={{ display: "inline-block", fontSize: 11, padding: "2px 9px", borderRadius: 20, background: BLUE_LT, color: BLUE_DK, marginBottom: 8, fontWeight: 500 }}>{m.domain}</div>}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 8 }}>
+                  {(m.categories?.length ? m.categories : m.domain ? [m.domain] : []).map(cat => (
+                    <span key={cat} style={{ fontSize: 11, padding: "2px 9px", borderRadius: 20, background: BLUE_LT, color: BLUE_DK, fontWeight: 500 }}>{cat}</span>
+                  ))}
+                </div>
                 {m.does && <div style={{ fontSize: 13, color: "#666", marginBottom: 4 }}>עושה: <span style={{ color: "#222" }}>{m.does.slice(0,60)}{m.does.length>60?"...":""}</span></div>}
                 {m.needs && <div style={{ fontSize: 13, color: "#666", marginBottom: 4 }}>צריך: <span style={{ color: "#222" }}>{m.needs.slice(0,60)}{m.needs.length>60?"...":""}</span></div>}
                 <div style={{ marginTop: 8, paddingTop: 8, borderTop: "0.5px solid #eee", display: "flex", justifyContent: "space-between", alignItems: "center" }}>

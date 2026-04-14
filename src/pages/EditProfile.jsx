@@ -2,14 +2,16 @@ import { useState } from "react";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { s, Header, FieldRow } from "../components/shared";
+import CategoryPicker from "../components/CategoryPicker";
 
 export default function EditProfile({ user, onBack, onSaved }) {
   const [form, setForm] = useState({
     first: user.first || "",
     last: user.last || "",
     city: user.city || "",
-    domain: user.domain || "",
-    li: user.li || "", website: user.website || "",
+    categories: user.categories || [],
+    li: user.li || "",
+    website: user.website || "",
     does: user.does || "",
     needs: user.needs || "",
   });
@@ -24,18 +26,22 @@ export default function EditProfile({ user, onBack, onSaved }) {
     setLoading(true);
     setErr("");
     try {
+      let website = form.website.trim();
+      if (website && !website.startsWith("http")) website = "https://" + website;
+
       await updateDoc(doc(db, "users", user.uid), {
         first: form.first.trim(),
         last: form.last.trim(),
         city: form.city.trim(),
-        domain: form.domain.trim(),
+        categories: form.categories,
+        domain: form.categories.join(", "),
         li: form.li.trim(),
-        website: form.website.trim() && !form.website.trim().startsWith("http") ? "https://" + form.website.trim() : form.website.trim(),
+        website,
         does: form.does.trim(),
         needs: form.needs.trim(),
       });
       setSuccess(true);
-      onSaved({ ...user, ...form });
+      onSaved({ ...user, ...form, domain: form.categories.join(", ") });
     } catch (e) {
       setErr("שגיאה בשמירה: " + e.message);
     }
@@ -71,20 +77,18 @@ export default function EditProfile({ user, onBack, onSaved }) {
               <input style={s.input} dir="auto" value={form.last} onChange={e => set("last", e.target.value)} />
             </FieldRow>
           </div>
-          <div style={s.twoCol}>
-            <FieldRow label="עיר מגורים">
-              <input style={s.input} dir="auto" value={form.city} onChange={e => set("city", e.target.value)} />
-            </FieldRow>
-            <FieldRow label="תחום עיסוק">
-              <input style={s.input} dir="auto" value={form.domain} onChange={e => set("domain", e.target.value)} />
-            </FieldRow>
-          </div>
+          <FieldRow label="עיר מגורים">
+            <input style={s.input} dir="auto" value={form.city} onChange={e => set("city", e.target.value)} />
+          </FieldRow>
           <FieldRow label="לינקדין">
             <input style={s.input} placeholder="https://linkedin.com/in/..." dir="ltr" value={form.li} onChange={e => set("li", e.target.value)} />
           </FieldRow>
           <FieldRow label="אתר אינטרנט">
             <input style={s.input} placeholder="https://yourwebsite.com" dir="ltr" value={form.website} onChange={e => set("website", e.target.value)} />
           </FieldRow>
+
+          <div style={s.sectionTitle}>תחומי עיסוק (עד 4)</div>
+          <CategoryPicker value={form.categories} onChange={v => set("categories", v)} />
 
           <div style={s.sectionTitle}>פרופיל מקצועי</div>
           <FieldRow label="מה אני עושה">
@@ -94,9 +98,7 @@ export default function EditProfile({ user, onBack, onSaved }) {
             <textarea style={s.textarea} dir="auto" value={form.needs} onChange={e => set("needs", e.target.value)} />
           </FieldRow>
 
-          <div style={{ fontSize: 12, color: "#888", marginBottom: 8 }}>
-            טלפון ואימייל אינם ניתנים לשינוי — הם המזהה הייחודי שלך
-          </div>
+          <div style={{ fontSize: 12, color: "#888", marginBottom: 8 }}>טלפון ואימייל אינם ניתנים לשינוי</div>
           <div style={s.twoCol}>
             <div style={{ padding: "8px 10px", background: "#f5f5f3", borderRadius: 8, fontSize: 13, color: "#888", direction: "ltr" }}>{user.phone}</div>
             <div style={{ padding: "8px 10px", background: "#f5f5f3", borderRadius: 8, fontSize: 13, color: "#888" }}>{user.email}</div>

@@ -3,11 +3,12 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import { s, Header, FieldRow, StrengthBar, BLUE } from "../components/shared";
+import CategoryPicker from "../components/CategoryPicker";
 
 const ADMIN_PHONE = import.meta.env.VITE_ADMIN_PHONE;
 
 export default function Register({ onLogin }) {
-  const [form, setForm] = useState({ first: "", last: "", phone: "", email: "", city: "", domain: "", li: "", website: "", does: "", needs: "", pass: "", pass2: "" });
+  const [form, setForm] = useState({ first: "", last: "", phone: "", email: "", city: "", categories: [], li: "", website: "", does: "", needs: "", pass: "", pass2: "" });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [globalErr, setGlobalErr] = useState("");
@@ -48,12 +49,16 @@ export default function Register({ onLogin }) {
       const uid = cred.user.uid;
       const isAdmin = phoneId === ADMIN_PHONE;
 
+      let website = form.website.trim();
+      if (website && !website.startsWith("http")) website = "https://" + website;
+
       const userData = {
         first: form.first.trim(), last: form.last.trim(),
         phone: phoneId, email: form.email.trim(),
-        city: form.city.trim(), domain: form.domain.trim(),
-        li: form.li.trim(),
-        website: form.website.trim() && !form.website.trim().startsWith("http") ? "https://" + form.website.trim() : form.website.trim(),
+        city: form.city.trim(),
+        categories: form.categories,
+        domain: form.categories.join(", "),
+        li: form.li.trim(), website,
         does: form.does.trim(), needs: form.needs.trim(),
         status: isAdmin ? "active" : "pending",
         role: isAdmin ? "admin" : "member",
@@ -104,20 +109,18 @@ export default function Register({ onLogin }) {
             <input style={s.input} placeholder="+972501234567" dir="ltr" value={form.phone} onChange={e => set("phone", e.target.value)} />
             {errors.phone && <div style={s.err}>{errors.phone}</div>}
           </FieldRow>
-          <div style={s.twoCol}>
-            <FieldRow label="עיר מגורים">
-              <input style={s.input} dir="auto" value={form.city} onChange={e => set("city", e.target.value)} />
-            </FieldRow>
-            <FieldRow label="תחום עיסוק">
-              <input style={s.input} dir="auto" value={form.domain} onChange={e => set("domain", e.target.value)} />
-            </FieldRow>
-          </div>
+          <FieldRow label="עיר מגורים">
+            <input style={s.input} dir="auto" value={form.city} onChange={e => set("city", e.target.value)} />
+          </FieldRow>
           <FieldRow label="לינקדין">
             <input style={s.input} placeholder="https://linkedin.com/in/..." dir="ltr" value={form.li} onChange={e => set("li", e.target.value)} />
           </FieldRow>
           <FieldRow label="אתר אינטרנט">
             <input style={s.input} placeholder="https://yourwebsite.com" dir="ltr" value={form.website} onChange={e => set("website", e.target.value)} />
           </FieldRow>
+
+          <div style={s.sectionTitle}>תחומי עיסוק (עד 4)</div>
+          <CategoryPicker value={form.categories} onChange={v => set("categories", v)} />
 
           <div style={s.sectionTitle}>פרופיל מקצועי</div>
           <FieldRow label="מה אני עושה">
@@ -145,17 +148,10 @@ export default function Register({ onLogin }) {
           {rulesText && (
             <div style={{ marginTop: 16, padding: "12px 14px", background: "#f9f9f7", borderRadius: 8, border: "0.5px solid #e0e0da" }}>
               <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer" }}>
-                <input
-                  type="checkbox"
-                  checked={rulesAccepted}
-                  onChange={e => setRulesAccepted(e.target.checked)}
-                  style={{ marginTop: 3, flexShrink: 0 }}
-                />
+                <input type="checkbox" checked={rulesAccepted} onChange={e => setRulesAccepted(e.target.checked)} style={{ marginTop: 3, flexShrink: 0 }} />
                 <span style={{ fontSize: 13, color: "#444", lineHeight: 1.5 }}>
                   קראתי ואני מסכים/ה ל
-                  <button onClick={() => setShowRules(true)} style={{ background: "none", border: "none", color: BLUE, fontSize: 13, cursor: "pointer", padding: "0 2px", textDecoration: "underline" }}>
-                    חוקי הבית
-                  </button>
+                  <button onClick={() => setShowRules(true)} style={{ background: "none", border: "none", color: BLUE, fontSize: 13, cursor: "pointer", padding: "0 2px", textDecoration: "underline" }}>חוקי הבית</button>
                 </span>
               </label>
               {errors.rules && <div style={{ ...s.err, marginTop: 6 }}>{errors.rules}</div>}
