@@ -79,13 +79,15 @@ export default function Dashboard({ user, onLogout, onAdmin, onEditProfile }) {
     load();
   }, []);
 
-  const domains = [...new Set(members.map(m => m.domain).filter(Boolean))].sort();
+  const domains = [...new Set(
+    members.flatMap(m => (m.domain || '').split(/[,،،;\/\\|]+/).map(d => d.trim()).filter(Boolean))
+  )].sort();
   const cities  = [...new Set(members.map(m => m.city).filter(Boolean))].sort();
 
   const list = members.filter(m => {
     const txt = [m.first,m.last,m.city,m.domain,m.does,m.needs].join(" ").toLowerCase();
     return (!search || txt.includes(search.toLowerCase())) &&
-           (!filterDomain || m.domain === filterDomain) &&
+           (!filterDomain || (m.domain || '').toLowerCase().includes(filterDomain.toLowerCase())) &&
            (!filterCity || m.city === filterCity);
   });
 
