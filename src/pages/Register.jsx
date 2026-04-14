@@ -4,7 +4,7 @@ import { doc, setDoc, getDoc } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import { s, Header, FieldRow, StrengthBar, BLUE } from "../components/shared";
 
-const ADMIN_PHONE = "+351910311584";
+const ADMIN_PHONE = import.meta.env.VITE_ADMIN_PHONE;
 
 export default function Register({ onLogin }) {
   const [form, setForm] = useState({ first: "", last: "", phone: "", email: "", city: "", domain: "", li: "", website: "", does: "", needs: "", pass: "", pass2: "" });
