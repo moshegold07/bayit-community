@@ -128,7 +128,12 @@ export default function ProjectForm() {
           </FieldRow>
 
           <FieldRow label="סטטוס">
-            <select style={s.input} dir="rtl" value={status} onChange={(e) => setStatus(e.target.value)}>
+            <select
+              style={s.input}
+              dir="rtl"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}

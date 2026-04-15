@@ -111,7 +111,12 @@ export default function Projects() {
             </option>
           ))}
         </select>
-        <select style={selStyle} dir="rtl" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+        <select
+          style={selStyle}
+          dir="rtl"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+        >
           {SORT_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}

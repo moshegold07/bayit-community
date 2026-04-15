@@ -208,9 +208,7 @@ export default function ForumPost() {
                     : ''}
                 </span>
               </div>
-              <div
-                style={{ fontSize: 14, color: '#444', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}
-              >
+              <div style={{ fontSize: 14, color: '#444', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
                 {r.body}
               </div>
             </div>
@@ -218,9 +216,7 @@ export default function ForumPost() {
         </div>
       )}
 
-      {replyError && (
-        <div style={{ ...s.err, marginBottom: 8, fontSize: 13 }}>{replyError}</div>
-      )}
+      {replyError && <div style={{ ...s.err, marginBottom: 8, fontSize: 13 }}>{replyError}</div>}
       <form
         onSubmit={handleReply}
         style={{ ...s.card, display: 'flex', gap: 8, alignItems: 'flex-start' }}

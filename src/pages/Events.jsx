@@ -260,7 +260,12 @@ export default function Events() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <select style={selStyle} dir="rtl" value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+        <select
+          style={selStyle}
+          dir="rtl"
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+        >
           <option value="">כל הסוגים</option>
           {TYPE_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>

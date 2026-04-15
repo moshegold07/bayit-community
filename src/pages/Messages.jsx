@@ -40,9 +40,7 @@ export default function Messages() {
             { field: 'participants', op: 'ARRAY_CONTAINS', value: user.uid },
           ]);
           convs = docs.map((d) => ({ id: d.id, ...d.data() }));
-          convs.sort(
-            (a, b) => (b.lastMessageAt || '').localeCompare(a.lastMessageAt || ''),
-          );
+          convs.sort((a, b) => (b.lastMessageAt || '').localeCompare(a.lastMessageAt || ''));
           if (!cancelled) setConversations(convs);
         } catch (err2) {
           console.error('Load conversations fallback error:', err2);

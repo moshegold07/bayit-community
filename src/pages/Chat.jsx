@@ -169,9 +169,7 @@ export default function Chat() {
       </div>
 
       {/* Messages */}
-      <div
-        style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}
-      >
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
         {messages.length === 0 && (
           <div style={{ textAlign: 'center', color: '#aaa', padding: '2rem 0', fontSize: 14 }}>
             התחל שיחה עם {otherName}
@@ -226,9 +224,7 @@ export default function Chat() {
       </div>
 
       {/* Message input */}
-      {sendError && (
-        <div style={{ ...s.err, marginBottom: 4, fontSize: 12 }}>{sendError}</div>
-      )}
+      {sendError && <div style={{ ...s.err, marginBottom: 4, fontSize: 12 }}>{sendError}</div>}
       <form
         onSubmit={handleSend}
         style={{
