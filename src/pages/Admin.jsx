@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { s, BLUE } from '../components/shared';
+import { s, BLUE, safeHref } from '../components/shared';
 import BadgeDisplay, { BADGE_DEFS } from '../components/BadgeDisplay';
 
 const AV_COLORS = ['#1A6FBF', '#0F4F8A', '#1A8080', '#7A4F9A', '#B05020'];
@@ -111,7 +111,7 @@ function UserModal({ user: u, onClose, onApprove, onDelete, onBadgeToggle }) {
                 u.website ? (
                   <a
                     key="website"
-                    href={u.website}
+                    href={safeHref(u.website)}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ color: BLUE }}
@@ -127,7 +127,7 @@ function UserModal({ user: u, onClose, onApprove, onDelete, onBadgeToggle }) {
                 u.li ? (
                   <a
                     key="linkedin"
-                    href={u.li}
+                    href={safeHref(u.li)}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ color: BLUE }}

@@ -7,7 +7,7 @@ export const AMBER_LT = '#FEF3C7';
 export const GREEN = '#059669';
 
 export const s = {
-  wrap: { fontFamily: 'sans-serif', minHeight: '100vh', background: '#F8FAFC' },
+  wrap: { fontFamily: 'sans-serif', minHeight: '100vh', background: '#F8FAFC', direction: 'rtl' },
   hdr: {
     background: BLUE,
     padding: '1rem 1.5rem',
@@ -138,6 +138,18 @@ export function FieldRow({ label, children }) {
       {children}
     </div>
   );
+}
+
+export function maskPhone(phone) {
+  if (!phone || phone.length < 7) return '***';
+  return phone.slice(0, 4) + '****' + phone.slice(-2);
+}
+
+export function safeHref(url) {
+  if (!url) return '#';
+  const t = url.trim().toLowerCase();
+  if (t.startsWith('http://') || t.startsWith('https://')) return url;
+  return '#';
 }
 
 export function StrengthBar({ password }) {

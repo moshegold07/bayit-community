@@ -17,29 +17,50 @@ export default function Messages() {
   const [searchParams] = useSearchParams();
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      // Step 1: Load conversations
+      let convs = [];
       try {
         const docs = await db.getDocs(
           'conversations',
           [{ field: 'participants', op: 'ARRAY_CONTAINS', value: user.uid }],
           { field: 'lastMessageAt', direction: 'DESCENDING' },
         );
-        const convs = docs.map((d) => ({ id: d.id, ...d.data() }));
-        if (cancelled) return;
-        setConversations(convs);
+        convs = docs.map((d) => ({ id: d.id, ...d.data() }));
+        if (!cancelled) setConversations(convs);
+      } catch (err) {
+        console.error('Load conversations error:', err);
+        // Try loading without orderBy (may be missing composite index)
+        try {
+          const docs = await db.getDocs('conversations', [
+            { field: 'participants', op: 'ARRAY_CONTAINS', value: user.uid },
+          ]);
+          convs = docs.map((d) => ({ id: d.id, ...d.data() }));
+          convs.sort(
+            (a, b) => (b.lastMessageAt || '').localeCompare(a.lastMessageAt || ''),
+          );
+          if (!cancelled) setConversations(convs);
+        } catch (err2) {
+          console.error('Load conversations fallback error:', err2);
+        }
+      }
 
-        // Handle ?to= param — open or create conversation
-        const toUid = searchParams.get('to');
-        const toName = searchParams.get('name');
-        if (toUid && toUid !== user.uid) {
-          const existing = convs.find((c) => (c.participants || []).includes(toUid));
-          if (existing) {
-            navigate('/messages/' + existing.id, { replace: true });
-            return;
-          }
+      if (cancelled) return;
+
+      // Step 2: Handle ?to= param — open or create conversation (separate try block)
+      const toUid = searchParams.get('to');
+      const toName = searchParams.get('name');
+      if (toUid && toUid !== user.uid) {
+        const existing = convs.find((c) => (c.participants || []).includes(toUid));
+        if (existing) {
+          navigate('/messages/' + existing.id, { replace: true });
+          return;
+        }
+        try {
           const now = new Date().toISOString();
           const newId = await db.addDoc('conversations', {
             participants: [user.uid, toUid],
@@ -51,12 +72,14 @@ export default function Messages() {
             lastMessageAt: now,
             createdAt: now,
           });
-          navigate('/messages/' + newId, { replace: true });
+          if (!cancelled) navigate('/messages/' + newId, { replace: true });
           return;
+        } catch (err) {
+          console.error('Create conversation error:', err);
+          if (!cancelled) setError('שגיאה ביצירת השיחה: ' + (err.message || 'נסה שוב'));
         }
-      } catch {
-        // Failed to load conversations
       }
+
       if (!cancelled) setLoading(false);
     })();
     return () => {
@@ -73,6 +96,22 @@ export default function Messages() {
   return (
     <div style={s.body}>
       <h2 style={{ margin: '0 0 16px', fontSize: 22, color: '#222' }}>הודעות</h2>
+
+      {error && (
+        <div
+          style={{
+            background: '#FEF2F2',
+            border: '1px solid #FECACA',
+            borderRadius: 8,
+            padding: '10px 14px',
+            marginBottom: 12,
+            color: '#991B1B',
+            fontSize: 13,
+          }}
+        >
+          {error}
+        </div>
+      )}
 
       {conversations.length === 0 ? (
         <div style={{ textAlign: 'center', color: '#aaa', padding: '2rem 0', fontSize: 15 }}>

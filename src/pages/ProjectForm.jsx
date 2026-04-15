@@ -71,8 +71,8 @@ export default function ProjectForm() {
       });
       navigate('/projects/' + newId);
     } catch (err) {
-      // Failed to create project
-      setErrors({ submit: 'שגיאה ביצירת הפרויקט. נסה שוב.' });
+      console.error('Project create error:', err);
+      setErrors({ submit: 'שגיאה ביצירת הפרויקט: ' + (err.message || 'נסה שוב') });
       setSaving(false);
     }
   }
@@ -128,7 +128,7 @@ export default function ProjectForm() {
           </FieldRow>
 
           <FieldRow label="סטטוס">
-            <select style={s.input} value={status} onChange={(e) => setStatus(e.target.value)}>
+            <select style={s.input} dir="rtl" value={status} onChange={(e) => setStatus(e.target.value)}>
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}

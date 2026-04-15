@@ -36,13 +36,16 @@ export default function EditProfile() {
       let website = form.website.trim();
       if (website && !website.startsWith('http')) website = 'https://' + website;
 
+      let li = form.li.trim();
+      if (li && !li.startsWith('http')) li = 'https://' + li;
+
       await db.updateDoc('users', user.uid, {
         first: form.first.trim(),
         last: form.last.trim(),
         city: form.city.trim(),
         categories: form.categories,
         domain: form.categories.join(', '),
-        li: form.li.trim(),
+        li,
         website,
         does: form.does.trim(),
         needs: form.needs.trim(),

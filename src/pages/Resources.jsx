@@ -168,8 +168,8 @@ export default function Resources() {
       setForm(EMPTY_FORM);
       setShowForm(false);
     } catch (err) {
-      // Submit failed
-      setError('שגיאה בשיתוף התוכן');
+      console.error('Resource create error:', err);
+      setError('שגיאה בשיתוף התוכן: ' + (err.message || 'נסה שוב'));
     } finally {
       setSubmitting(false);
     }

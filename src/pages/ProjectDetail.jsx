@@ -21,6 +21,7 @@ export default function ProjectDetail() {
   const [commentText, setCommentText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [joining, setJoining] = useState(false);
+  const [commentError, setCommentError] = useState('');
 
   useEffect(() => {
     async function load() {
@@ -95,6 +96,7 @@ export default function ProjectDetail() {
   async function handleAddComment(e) {
     e.preventDefault();
     if (!commentText.trim() || submitting) return;
+    setCommentError('');
     setSubmitting(true);
     try {
       const newId = await db.addDoc('projects/' + id + '/comments', {
@@ -115,7 +117,8 @@ export default function ProjectDetail() {
       ]);
       setCommentText('');
     } catch (err) {
-      // Failed to add comment
+      console.error('Comment error:', err);
+      setCommentError('שגיאה בהוספת תגובה: ' + (err.message || 'נסה שוב'));
     }
     setSubmitting(false);
   }
@@ -388,6 +391,9 @@ export default function ProjectDetail() {
           </div>
         )}
 
+        {commentError && (
+          <div style={{ ...s.err, marginBottom: 8, fontSize: 13 }}>{commentError}</div>
+        )}
         <form onSubmit={handleAddComment} style={{ display: 'flex', gap: 8 }}>
           <input
             style={{ ...s.input, flex: 1 }}

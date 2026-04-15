@@ -101,6 +101,7 @@ export default function Projects() {
         />
         <select
           style={selStyle}
+          dir="rtl"
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
         >
@@ -110,7 +111,7 @@ export default function Projects() {
             </option>
           ))}
         </select>
-        <select style={selStyle} value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+        <select style={selStyle} dir="rtl" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
           {SORT_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}

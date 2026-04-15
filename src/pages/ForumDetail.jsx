@@ -88,8 +88,9 @@ export default function ForumDetail() {
       setTitle('');
       setBody('');
       setShowForm(false);
-    } catch {
-      setError('שגיאה ביצירת הפוסט');
+    } catch (err) {
+      console.error('Post create error:', err);
+      setError('שגיאה ביצירת הפוסט: ' + (err.message || 'נסה שוב'));
     }
     setSubmitting(false);
   }

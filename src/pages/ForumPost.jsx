@@ -21,6 +21,7 @@ export default function ForumPost() {
   const [notFound, setNotFound] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [replyError, setReplyError] = useState('');
 
   const postPath = 'forums/' + forumId + '/posts';
   const replyPath = postPath + '/' + postId + '/replies';
@@ -56,6 +57,7 @@ export default function ForumPost() {
   async function handleReply(e) {
     e.preventDefault();
     if (!replyText.trim() || submitting) return;
+    setReplyError('');
     setSubmitting(true);
     try {
       const now = new Date().toISOString();
@@ -73,8 +75,9 @@ export default function ForumPost() {
       setReplies((prev) => [...prev, { id: newId, ...data }]);
       setPost((prev) => ({ ...prev, replyCount: (prev.replyCount || 0) + 1 }));
       setReplyText('');
-    } catch {
-      // Failed to add reply
+    } catch (err) {
+      console.error('Reply error:', err);
+      setReplyError('שגיאה בשליחת התגובה: ' + (err.message || 'נסה שוב'));
     }
     setSubmitting(false);
   }
@@ -215,6 +218,9 @@ export default function ForumPost() {
         </div>
       )}
 
+      {replyError && (
+        <div style={{ ...s.err, marginBottom: 8, fontSize: 13 }}>{replyError}</div>
+      )}
       <form
         onSubmit={handleReply}
         style={{ ...s.card, display: 'flex', gap: 8, alignItems: 'flex-start' }}

@@ -155,7 +155,7 @@ export default function EventDetail() {
           marginBottom: 12,
         }}
       >
-        &larr; חזרה לאירועים
+        &rarr; חזרה לאירועים
       </Link>
 
       {/* Event card */}

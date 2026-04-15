@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { s, Header, FieldRow } from '../components/shared';
@@ -11,6 +11,21 @@ export default function Login() {
   const [pass, setPass] = useState('');
   const [err, setErr] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+
+  async function resetPassword() {
+    setErr('');
+    if (!email.trim()) {
+      setErr('יש להזין אימייל לאיפוס סיסמה');
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, email.trim());
+      setResetSent(true);
+    } catch (_e) {
+      setErr('שגיאה בשליחת אימייל לאיפוס. בדוק שהאימייל נכון.');
+    }
+  }
 
   async function login() {
     setErr('');
@@ -93,6 +108,28 @@ export default function Login() {
           >
             {loading ? 'מתחבר...' : 'התחבר/י'}
           </button>
+          {resetSent ? (
+            <div style={{ textAlign: 'center', marginTop: 10, fontSize: 13, color: '#059669' }}>
+              נשלח אימייל לאיפוס סיסמה
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={resetPassword}
+              style={{
+                display: 'block',
+                margin: '10px auto 0',
+                background: 'none',
+                border: 'none',
+                color: '#2563EB',
+                fontSize: 13,
+                cursor: 'pointer',
+                textDecoration: 'underline',
+              }}
+            >
+              שכחתי סיסמה
+            </button>
+          )}
         </div>
       </div>
     </div>

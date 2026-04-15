@@ -5,8 +5,6 @@ import { auth, db } from '../firebase';
 import { s, Header, FieldRow, StrengthBar, BLUE } from '../components/shared';
 import CategoryPicker from '../components/CategoryPicker';
 
-const ADMIN_PHONE = import.meta.env.VITE_ADMIN_PHONE;
-
 export default function Register() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -65,10 +63,11 @@ export default function Register() {
 
       const cred = await createUserWithEmailAndPassword(auth, form.email.trim(), form.pass);
       const uid = cred.user.uid;
-      const isAdmin = phoneId === ADMIN_PHONE;
-
       let website = form.website.trim();
       if (website && !website.startsWith('http')) website = 'https://' + website;
+
+      let li = form.li.trim();
+      if (li && !li.startsWith('http')) li = 'https://' + li;
 
       const userData = {
         first: form.first.trim(),
@@ -78,12 +77,12 @@ export default function Register() {
         city: form.city.trim(),
         categories: form.categories,
         domain: form.categories.join(', '),
-        li: form.li.trim(),
+        li,
         website,
         does: form.does.trim(),
         needs: form.needs.trim(),
-        status: isAdmin ? 'active' : 'pending',
-        role: isAdmin ? 'admin' : 'member',
+        status: 'pending',
+        role: 'member',
         createdAt: new Date().toISOString(),
       };
 

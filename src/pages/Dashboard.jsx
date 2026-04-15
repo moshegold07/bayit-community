@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '../firebase';
-import { s, BLUE, BLUE_LT, BLUE_DK, AMBER } from '../components/shared';
+import { s, BLUE, BLUE_LT, BLUE_DK, AMBER, maskPhone, safeHref } from '../components/shared';
 import BadgeDisplay from '../components/BadgeDisplay';
 
 const AV_COLORS = ['#1A6FBF', '#0F4F8A', '#1A8080', '#7A4F9A', '#B05020'];
@@ -146,13 +146,13 @@ function MemberModal({ m, onClose }) {
         <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
             <span style={{ color: '#888' }}>טלפון</span>
-            <span style={{ fontFamily: 'monospace', direction: 'ltr' }}>{m.phone}</span>
+            <span style={{ fontFamily: 'monospace', direction: 'ltr' }}>{maskPhone(m.phone)}</span>
           </div>
           {m.li && (
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
               <span style={{ color: '#888' }}>לינקדין</span>
               <a
-                href={m.li}
+                href={safeHref(m.li)}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: BLUE, textDecoration: 'none' }}
@@ -165,7 +165,7 @@ function MemberModal({ m, onClose }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
               <span style={{ color: '#888' }}>אתר</span>
               <a
-                href={m.website}
+                href={safeHref(m.website)}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: BLUE, textDecoration: 'none' }}
@@ -270,6 +270,7 @@ export default function Dashboard() {
           />
           <select
             style={selStyle}
+            dir="rtl"
             value={filterDomain}
             onChange={(e) => setFilterDomain(e.target.value)}
           >
@@ -282,6 +283,7 @@ export default function Dashboard() {
           </select>
           <select
             style={selStyle}
+            dir="rtl"
             value={filterCity}
             onChange={(e) => setFilterCity(e.target.value)}
           >
@@ -427,7 +429,7 @@ export default function Dashboard() {
                       direction: 'ltr',
                     }}
                   >
-                    {m.phone}
+                    {maskPhone(m.phone)}
                   </span>
                   <span style={{ fontSize: 11, color: '#aaa' }}>לחץ לפרטים ›</span>
                 </div>

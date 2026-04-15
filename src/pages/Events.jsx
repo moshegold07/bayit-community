@@ -116,7 +116,8 @@ export default function Events() {
       setForm(EMPTY_FORM);
       setShowForm(false);
     } catch (err) {
-      setError('שגיאה ביצירת האירוע: ' + (err.message || ''));
+      console.error('Event create error:', err);
+      setError('שגיאה ביצירת האירוע: ' + (err.message || 'נסה שוב'));
     }
     setSaving(false);
   }
@@ -220,6 +221,7 @@ export default function Events() {
                 <label style={s.label}>סוג</label>
                 <select
                   style={s.input}
+                  dir="rtl"
                   value={form.type}
                   onChange={(e) => handleChange('type', e.target.value)}
                 >
@@ -258,7 +260,7 @@ export default function Events() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <select style={selStyle} value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+        <select style={selStyle} dir="rtl" value={filterType} onChange={(e) => setFilterType(e.target.value)}>
           <option value="">כל הסוגים</option>
           {TYPE_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>

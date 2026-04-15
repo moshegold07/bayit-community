@@ -69,8 +69,9 @@ export default function Forums() {
       setTitle('');
       setDesc('');
       setShowForm(false);
-    } catch {
-      setError('שגיאה ביצירת הנושא');
+    } catch (err) {
+      console.error('Forum create error:', err);
+      setError('שגיאה ביצירת הנושא: ' + (err.message || 'נסה שוב'));
     }
     setSubmitting(false);
   }

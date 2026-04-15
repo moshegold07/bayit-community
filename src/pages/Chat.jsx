@@ -20,6 +20,7 @@ export default function Chat() {
   const [loading, setLoading] = useState(true);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState('');
   const bottomRef = useRef(null);
   const msgPath = 'conversations/' + conversationId + '/messages';
 
@@ -73,6 +74,7 @@ export default function Chat() {
   async function handleSend(e) {
     e.preventDefault();
     if (!text.trim() || sending) return;
+    setSendError('');
     setSending(true);
     try {
       const now = new Date().toISOString();
@@ -89,8 +91,9 @@ export default function Chat() {
       });
       setMessages((prev) => [...prev, { id: newId, ...msgData }]);
       setText('');
-    } catch {
-      // Failed to send message
+    } catch (err) {
+      console.error('Send message error:', err);
+      setSendError('שגיאה בשליחת ההודעה: ' + (err.message || 'נסה שוב'));
     }
     setSending(false);
   }
@@ -223,6 +226,9 @@ export default function Chat() {
       </div>
 
       {/* Message input */}
+      {sendError && (
+        <div style={{ ...s.err, marginBottom: 4, fontSize: 12 }}>{sendError}</div>
+      )}
       <form
         onSubmit={handleSend}
         style={{

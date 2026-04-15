@@ -1,4 +1,4 @@
-import { s, BLUE, BLUE_DK, BLUE_LT } from './shared';
+import { s, BLUE, BLUE_DK, BLUE_LT, safeHref } from './shared';
 
 const CATEGORY_LABELS = {
   article: 'מאמר',
@@ -48,7 +48,7 @@ export default function ResourceCard({ resource, currentUserId, onUpvote }) {
         }}
       >
         <a
-          href={resource.url}
+          href={safeHref(resource.url)}
           target="_blank"
           rel="noopener noreferrer"
           style={{ fontWeight: 500, fontSize: 16, color: BLUE_DK, textDecoration: 'none', flex: 1 }}
