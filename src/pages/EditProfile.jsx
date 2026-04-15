@@ -6,6 +6,50 @@ import { s, FieldRow } from '../components/shared';
 import CategoryPicker from '../components/CategoryPicker';
 import BadgeDisplay from '../components/BadgeDisplay';
 
+const VISIBILITY_FIELDS = [
+  { key: 'phone', label: 'טלפון' },
+  { key: 'city', label: 'עיר מגורים' },
+  { key: 'li', label: 'לינקדין' },
+  { key: 'website', label: 'אתר אינטרנט' },
+  { key: 'does', label: 'מה אני עושה' },
+  { key: 'needs', label: 'מה אני מחפש / צריך' },
+];
+
+const defaultVisibility = Object.fromEntries(VISIBILITY_FIELDS.map((f) => [f.key, true]));
+
+function VisibilityToggle({ checked, onChange }) {
+  return (
+    <button
+      type="button"
+      onClick={onChange}
+      style={{
+        width: 40,
+        height: 22,
+        borderRadius: 11,
+        border: 'none',
+        background: checked ? '#2563EB' : '#ccc',
+        position: 'relative',
+        cursor: 'pointer',
+        transition: 'background 0.2s',
+        flexShrink: 0,
+      }}
+    >
+      <div
+        style={{
+          width: 18,
+          height: 18,
+          borderRadius: '50%',
+          background: '#fff',
+          position: 'absolute',
+          top: 2,
+          transition: 'right 0.2s, left 0.2s',
+          ...(checked ? { left: 2, right: 'auto' } : { right: 2, left: 'auto' }),
+        }}
+      />
+    </button>
+  );
+}
+
 export default function EditProfile() {
   const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
@@ -19,6 +63,7 @@ export default function EditProfile() {
     does: user?.does || '',
     needs: user?.needs || '',
   });
+  const [visibility, setVisibility] = useState({ ...defaultVisibility, ...user?.visibility });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [err, setErr] = useState('');
@@ -49,6 +94,7 @@ export default function EditProfile() {
         website,
         does: form.does.trim(),
         needs: form.needs.trim(),
+        visibility,
       });
       setSuccess(true);
       await refreshUser();
@@ -179,6 +225,52 @@ export default function EditProfile() {
             </div>
           </div>
         )}
+
+        <div style={s.sectionTitle}>הגדרות פרטיות</div>
+        <div
+          style={{
+            fontSize: 12,
+            color: '#888',
+            marginBottom: 10,
+            lineHeight: 1.6,
+          }}
+        >
+          בחר אילו פרטים יוצגו לחברי הקהילה. מנהלים יכולים לראות את כל הפרטים תמיד.
+        </div>
+        <div
+          style={{
+            background: '#f9f9f7',
+            borderRadius: 10,
+            padding: '10px 14px',
+            marginBottom: 16,
+          }}
+        >
+          {VISIBILITY_FIELDS.map((f) => (
+            <div
+              key={f.key}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '8px 0',
+                borderBottom: '0.5px solid #eee',
+              }}
+            >
+              <span style={{ fontSize: 13, color: '#333' }}>{f.label}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 11, color: '#aaa' }}>
+                  {visibility[f.key] ? 'גלוי' : 'מוסתר'}
+                </span>
+                <VisibilityToggle
+                  checked={visibility[f.key]}
+                  onChange={() =>
+                    setVisibility((v) => ({ ...v, [f.key]: !v[f.key] }))
+                  }
+                />
+              </div>
+            </div>
+          ))}
+        </div>
 
         <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>
           טלפון ואימייל אינם ניתנים לשינוי

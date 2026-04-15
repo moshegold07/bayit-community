@@ -1,8 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '../firebase';
+import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE, BLUE_LT, BLUE_DK, AMBER, maskPhone, safeHref } from '../components/shared';
 import BadgeDisplay from '../components/BadgeDisplay';
+
+function visibleField(member, field, isAdmin) {
+  if (isAdmin) return true;
+  if (!member.visibility) return true; // backward compat — no setting = all visible
+  return member.visibility[field] !== false;
+}
 
 const AV_COLORS = ['#1A6FBF', '#0F4F8A', '#1A8080', '#7A4F9A', '#B05020'];
 function avColor(id) {
@@ -14,7 +21,7 @@ function initials(m) {
   return (m.first?.[0] || '') + (m.last?.[0] || '');
 }
 
-function MemberModal({ m, onClose }) {
+function MemberModal({ m, onClose, isAdmin }) {
   return (
     <div
       style={{
@@ -72,7 +79,9 @@ function MemberModal({ m, onClose }) {
             <div style={{ fontWeight: 500, fontSize: 18 }}>
               {m.first} {m.last}
             </div>
-            <div style={{ fontSize: 13, color: '#888', marginTop: 2 }}>{m.city || ''}</div>
+            {visibleField(m, 'city', isAdmin) && m.city && (
+              <div style={{ fontSize: 13, color: '#888', marginTop: 2 }}>{m.city}</div>
+            )}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 4 }}>
               {(m.categories?.length ? m.categories : m.domain ? [m.domain] : []).map((cat) => (
                 <span
@@ -112,7 +121,7 @@ function MemberModal({ m, onClose }) {
           </div>
         )}
 
-        {m.does && (
+        {visibleField(m, 'does', isAdmin) && m.does && (
           <div
             style={{
               marginBottom: 12,
@@ -127,7 +136,7 @@ function MemberModal({ m, onClose }) {
             </div>
           </div>
         )}
-        {m.needs && (
+        {visibleField(m, 'needs', isAdmin) && m.needs && (
           <div
             style={{
               marginBottom: 12,
@@ -144,11 +153,13 @@ function MemberModal({ m, onClose }) {
         )}
 
         <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-            <span style={{ color: '#888' }}>טלפון</span>
-            <span style={{ fontFamily: 'monospace', direction: 'ltr' }}>{maskPhone(m.phone)}</span>
-          </div>
-          {m.li && (
+          {visibleField(m, 'phone', isAdmin) && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+              <span style={{ color: '#888' }}>טלפון</span>
+              <span style={{ fontFamily: 'monospace', direction: 'ltr' }}>{maskPhone(m.phone)}</span>
+            </div>
+          )}
+          {visibleField(m, 'li', isAdmin) && m.li && (
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
               <span style={{ color: '#888' }}>לינקדין</span>
               <a
@@ -161,7 +172,7 @@ function MemberModal({ m, onClose }) {
               </a>
             </div>
           )}
-          {m.website && (
+          {visibleField(m, 'website', isAdmin) && m.website && (
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
               <span style={{ color: '#888' }}>אתר</span>
               <a
@@ -219,6 +230,8 @@ function MemberModal({ m, onClose }) {
 }
 
 export default function Dashboard() {
+  const { user: currentUser } = useAuth();
+  const isAdmin = currentUser?.role === 'admin';
   const [members, setMembers] = useState([]);
   const [search, setSearch] = useState('');
   const [filterDomain, setFilterDomain] = useState('');
@@ -257,7 +270,7 @@ export default function Dashboard() {
 
   return (
     <>
-      {selected && <MemberModal m={selected} onClose={() => setSelected(null)} />}
+      {selected && <MemberModal m={selected} onClose={() => setSelected(null)} isAdmin={isAdmin} />}
 
       <div style={{ ...s.body, maxWidth: 900 }}>
         <div style={{ display: 'flex', gap: 10, marginBottom: '1rem', flexWrap: 'wrap' }}>
@@ -372,7 +385,9 @@ export default function Dashboard() {
                     <div style={{ fontWeight: 500, fontSize: 15 }}>
                       {m.first} {m.last}
                     </div>
-                    <div style={{ fontSize: 12, color: '#888' }}>{m.city}</div>
+                    {visibleField(m, 'city', isAdmin) && m.city && (
+                      <div style={{ fontSize: 12, color: '#888' }}>{m.city}</div>
+                    )}
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>
@@ -393,7 +408,7 @@ export default function Dashboard() {
                   ))}
                 </div>
                 <BadgeDisplay badges={m.badges} />
-                {m.does && (
+                {visibleField(m, 'does', isAdmin) && m.does && (
                   <div style={{ fontSize: 13, color: '#666', marginBottom: 4 }}>
                     עושה:{' '}
                     <span style={{ color: '#222' }}>
@@ -402,7 +417,7 @@ export default function Dashboard() {
                     </span>
                   </div>
                 )}
-                {m.needs && (
+                {visibleField(m, 'needs', isAdmin) && m.needs && (
                   <div style={{ fontSize: 13, color: '#666', marginBottom: 4 }}>
                     צריך:{' '}
                     <span style={{ color: '#222' }}>
@@ -429,7 +444,7 @@ export default function Dashboard() {
                       direction: 'ltr',
                     }}
                   >
-                    {maskPhone(m.phone)}
+                    {visibleField(m, 'phone', isAdmin) ? maskPhone(m.phone) : ''}
                   </span>
                   <span style={{ fontSize: 11, color: '#aaa' }}>לחץ לפרטים ›</span>
                 </div>

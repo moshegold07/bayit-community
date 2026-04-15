@@ -84,6 +84,7 @@ export default function Register() {
         status: 'pending',
         role: 'member',
         createdAt: new Date().toISOString(),
+        visibility: { phone: true, city: true, li: true, website: true, does: true, needs: true },
       };
 
       await db.setDoc('users', uid, userData);
