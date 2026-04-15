@@ -1,10 +1,13 @@
-export const BLUE = '#1A6FBF';
-export const BLUE_DK = '#0F4F8A';
-export const BLUE_LT = '#E6F1FB';
+export const BLUE = '#2563EB';
+export const BLUE_DK = '#1E40AF';
+export const BLUE_LT = '#EFF6FF';
 export const CREAM = '#F5F0E8';
+export const AMBER = '#F59E0B';
+export const AMBER_LT = '#FEF3C7';
+export const GREEN = '#059669';
 
 export const s = {
-  wrap: { fontFamily: 'sans-serif', minHeight: '100vh', background: '#f4f4f2' },
+  wrap: { fontFamily: 'sans-serif', minHeight: '100vh', background: '#F8FAFC' },
   hdr: {
     background: BLUE,
     padding: '1rem 1.5rem',
@@ -16,8 +19,8 @@ export const s = {
   },
   logo: { color: CREAM, fontSize: 28, fontWeight: 500, lineHeight: 1 },
   sub: { color: 'rgba(245,240,232,0.65)', fontSize: 11, letterSpacing: 1, marginTop: 2 },
-  body: { padding: '1.5rem', maxWidth: 640, margin: '0 auto' },
-  card: { background: '#fff', border: '0.5px solid #e0e0da', borderRadius: 12, padding: '1.25rem' },
+  body: { padding: '1.5rem', maxWidth: 640, margin: '0 auto', textAlign: 'right' },
+  card: { background: '#fff', border: '0.5px solid #E2E8F0', borderRadius: 12, padding: '1.25rem' },
   label: { display: 'block', fontSize: 12, color: '#666', marginBottom: 4 },
   input: {
     width: '100%',

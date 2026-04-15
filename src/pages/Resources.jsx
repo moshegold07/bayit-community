@@ -169,7 +169,7 @@ export default function Resources() {
       setShowForm(false);
     } catch (err) {
       // Submit failed
-      setError('שגיאה בשיתוף המשאב');
+      setError('שגיאה בשיתוף התוכן');
     } finally {
       setSubmitting(false);
     }
@@ -194,7 +194,7 @@ export default function Resources() {
           marginBottom: 16,
         }}
       >
-        <h2 style={{ margin: 0, fontSize: 22, color: '#222' }}>ספריית משאבים</h2>
+        <h2 style={{ margin: 0, fontSize: 22, color: '#222' }}>תוכן</h2>
         <button
           onClick={() => setShowForm((v) => !v)}
           style={{
@@ -205,7 +205,7 @@ export default function Resources() {
             fontSize: 14,
           }}
         >
-          {showForm ? 'ביטול' : 'שיתוף משאב חדש'}
+          {showForm ? 'ביטול' : 'שיתוף תוכן חדש'}
         </button>
       </div>
 
@@ -213,7 +213,7 @@ export default function Resources() {
       {showForm && (
         <form onSubmit={handleSubmit} style={{ ...s.card, marginBottom: 16 }}>
           <div style={{ fontWeight: 500, fontSize: 15, marginBottom: 12, color: '#333' }}>
-            שיתוף משאב חדש
+            שיתוף תוכן חדש
           </div>
 
           <div style={{ marginBottom: 10 }}>
@@ -223,7 +223,7 @@ export default function Resources() {
               value={form.title}
               onChange={(e) => setField('title', e.target.value)}
               maxLength={100}
-              placeholder="שם המשאב"
+              placeholder="כותרת"
               dir="rtl"
             />
           </div>
@@ -305,7 +305,7 @@ export default function Resources() {
             style={{ ...s.input, flex: 1, minWidth: 160 }}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="חיפוש משאבים..."
+            placeholder="חיפוש תוכן..."
             dir="rtl"
           />
           <select
@@ -367,7 +367,7 @@ export default function Resources() {
 
       {/* Stats */}
       <div style={{ fontSize: 13, color: '#888', marginBottom: 12 }}>
-        {filtered.length} משאבים
+        {filtered.length} פריטי תוכן
         {catFilter ? ` ב${CATEGORIES[catFilter]}` : ''}
         {search.trim() ? ` - חיפוש: "${search.trim()}"` : ''}
       </div>
@@ -375,7 +375,7 @@ export default function Resources() {
       {/* Resource list */}
       {filtered.length === 0 ? (
         <div style={{ textAlign: 'center', color: '#aaa', padding: '2rem 0', fontSize: 15 }}>
-          אין משאבים כרגע
+          אין תוכן כרגע
         </div>
       ) : (
         filtered.map((r) => (

@@ -9,8 +9,10 @@ import SearchDropdown from './SearchDropdown';
 const NAV_LINKS = [
   { to: '/', label: 'חברים' },
   { to: '/events', label: 'אירועים' },
+  { to: '/forums', label: 'פורומים' },
   { to: '/projects', label: 'פרויקטים' },
-  { to: '/resources', label: 'משאבים' },
+  { to: '/resources', label: 'תוכן' },
+  { to: '/messages', label: 'הודעות' },
 ];
 
 export default function Navbar() {

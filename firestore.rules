@@ -37,5 +37,58 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
+
+    match /events/{eventId} {
+      allow read: if isActiveUser();
+      allow create, update: if isActiveUser();
+      allow delete: if isAdmin();
+    }
+
+    match /projects/{projectId} {
+      allow read: if isActiveUser();
+      allow create, update: if isActiveUser();
+      allow delete: if isAdmin();
+      match /comments/{commentId} {
+        allow read: if isActiveUser();
+        allow create: if isActiveUser();
+        allow delete: if isAdmin();
+      }
+    }
+
+    match /resources/{resourceId} {
+      allow read: if isActiveUser();
+      allow create, update: if isActiveUser();
+      allow delete: if isAdmin();
+    }
+
+    match /badges/{badgeId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /forums/{forumId} {
+      allow read: if isActiveUser();
+      allow create, update: if isActiveUser();
+      allow delete: if isAdmin();
+      match /posts/{postId} {
+        allow read: if isActiveUser();
+        allow create, update: if isActiveUser();
+        allow delete: if isAdmin();
+        match /replies/{replyId} {
+          allow read: if isActiveUser();
+          allow create: if isActiveUser();
+          allow delete: if isAdmin();
+        }
+      }
+    }
+
+    match /conversations/{convId} {
+      allow read: if isActiveUser();
+      allow create, update: if isActiveUser();
+      match /messages/{msgId} {
+        allow read: if isActiveUser();
+        allow create: if isActiveUser();
+      }
+    }
   }
 }

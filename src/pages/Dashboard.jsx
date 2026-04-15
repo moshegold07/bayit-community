@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { db } from '../firebase';
-import { s, BLUE, BLUE_LT, BLUE_DK } from '../components/shared';
+import { s, BLUE, BLUE_LT, BLUE_DK, AMBER } from '../components/shared';
 import BadgeDisplay from '../components/BadgeDisplay';
 
 const AV_COLORS = ['#1A6FBF', '#0F4F8A', '#1A8080', '#7A4F9A', '#B05020'];
@@ -175,10 +176,31 @@ function MemberModal({ m, onClose }) {
           )}
         </div>
 
+        <Link
+          to={`/messages?to=${m.uid}&name=${encodeURIComponent((m.first || '') + ' ' + (m.last || ''))}`}
+          onClick={onClose}
+          style={{
+            display: 'block',
+            width: '100%',
+            padding: 10,
+            background: AMBER,
+            color: '#fff',
+            border: 'none',
+            borderRadius: 8,
+            fontSize: 14,
+            cursor: 'pointer',
+            textAlign: 'center',
+            textDecoration: 'none',
+            marginTop: '1.25rem',
+            boxSizing: 'border-box',
+          }}
+        >
+          שלח הודעה
+        </Link>
         <button
           onClick={onClose}
           style={{
-            marginTop: '1.25rem',
+            marginTop: 8,
             width: '100%',
             padding: 10,
             background: BLUE,

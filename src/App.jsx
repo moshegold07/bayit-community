@@ -17,6 +17,11 @@ import ProjectDetail from './pages/ProjectDetail';
 import Resources from './pages/Resources';
 import EditProfile from './pages/EditProfile';
 import Admin from './pages/Admin';
+import Forums from './pages/Forums';
+import ForumDetail from './pages/ForumDetail';
+import ForumPost from './pages/ForumPost';
+import Messages from './pages/Messages';
+import Chat from './pages/Chat';
 
 export default function App() {
   return (
@@ -61,6 +66,11 @@ export default function App() {
             <Route path="projects/new" element={<ProjectForm />} />
             <Route path="projects/:id" element={<ProjectDetail />} />
             <Route path="resources" element={<Resources />} />
+            <Route path="forums" element={<Forums />} />
+            <Route path="forums/:id" element={<ForumDetail />} />
+            <Route path="forums/:forumId/posts/:postId" element={<ForumPost />} />
+            <Route path="messages" element={<Messages />} />
+            <Route path="messages/:conversationId" element={<Chat />} />
             <Route path="edit-profile" element={<EditProfile />} />
             <Route
               path="admin"
