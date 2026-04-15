@@ -263,9 +263,7 @@ export default function EditProfile() {
                 </span>
                 <VisibilityToggle
                   checked={visibility[f.key]}
-                  onChange={() =>
-                    setVisibility((v) => ({ ...v, [f.key]: !v[f.key] }))
-                  }
+                  onChange={() => setVisibility((v) => ({ ...v, [f.key]: !v[f.key] }))}
                 />
               </div>
             </div>

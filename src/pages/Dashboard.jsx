@@ -156,7 +156,9 @@ function MemberModal({ m, onClose, isAdmin }) {
           {visibleField(m, 'phone', isAdmin) && (
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
               <span style={{ color: '#888' }}>טלפון</span>
-              <span style={{ fontFamily: 'monospace', direction: 'ltr' }}>{maskPhone(m.phone)}</span>
+              <span style={{ fontFamily: 'monospace', direction: 'ltr' }}>
+                {maskPhone(m.phone)}
+              </span>
             </div>
           )}
           {visibleField(m, 'li', isAdmin) && m.li && (
