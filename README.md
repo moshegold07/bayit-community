@@ -36,29 +36,74 @@
 | **Backend** | Firebase (Firestore, Auth) |
 | **Hosting** | Firebase Hosting |
 | **CI/CD** | GitHub Actions |
+| **Linting** | ESLint 9, Prettier |
+| **Testing** | Vitest, Testing Library |
+| **Local Dev** | Firebase Emulators (no keys needed) |
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js (LTS version recommended)
-- npm
+- Java Runtime (for Firebase Emulators) — `sudo apt install default-jre`
 
-### Installation
+### Quick Start (Zero Config)
+
+No Firebase keys needed! The app auto-connects to local emulators:
 
 ```bash
-# Clone the repository
+# Clone and install
 git clone https://github.com/moshegold07/bayit-community.git
 cd bayit-community
-
-# Install dependencies
 npm install
 
-# Start development server
-npm run dev
+# Terminal 1 — Start emulators
+npm run emulators
+
+# Terminal 2 — Seed test data (run once)
+npm run seed
+
+# Terminal 3 — Start the app
+npm run dev:app
 ```
 
-The app will be available at [http://localhost:5173](http://localhost:5173).
+Open [http://localhost:5173](http://localhost:5173) — the app is running with test data.
+
+Emulator UI at [http://localhost:4000](http://localhost:4000) — browse the local DB.
+
+### Test Accounts
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@bayit.dev | admin123 |
+| User | dana@bayit.dev | test1234 |
+| Pending | pending@bayit.dev | test1234 |
+
+### Connect to Production Firebase
+
+If you have Firebase keys (from the project owner), create a `.env` file:
+
+```bash
+cp .env.example .env
+# Fill in the real Firebase values
+npm run dev:prod
+```
+
+The app auto-detects: no `.env` = emulators, `.env` present = production Firebase.
+
+### Available Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev:app` | Start Vite dev server |
+| `npm run dev:prod` | Start with real Firebase (requires .env) |
+| `npm run emulators` | Start Firebase Auth + Firestore emulators |
+| `npm run seed` | Populate emulators with test data |
+| `npm run lint` | Check code with ESLint |
+| `npm run lint:fix` | Auto-fix lint issues |
+| `npm run format` | Format code with Prettier |
+| `npm test` | Run tests |
+| `npm run build` | Build for production |
 
 ### Build for Production
 
@@ -88,11 +133,22 @@ bayit-community/
 │   │   ├── Pending.jsx
 │   │   └── Register.jsx
 │   ├── App.jsx
-│   ├── firebase.js
+│   ├── firebase.js       # Auto-detects emulator vs production
 │   └── main.jsx
+├── scripts/
+│   ├── dev.sh            # Full local dev startup script
+│   └── seed-emulator.mjs # Populates emulators with test data
+├── tests/
+│   ├── setup.js
+│   └── App.test.jsx
 ├── .github/
-│   ├── workflows/ci.yml
+│   ├── workflows/ci.yml  # CI: format → lint → test → build
 │   └── PULL_REQUEST_TEMPLATE.md
+├── .env.example          # Firebase env vars template
+├── eslint.config.js
+├── vitest.config.js
+├── firebase.json         # Emulator + hosting config
+├── firestore.rules
 ├── CONTRIBUTING.md
 └── README.md
 ```
