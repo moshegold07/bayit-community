@@ -2,7 +2,18 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { s, BLUE, BLUE_LT, BLUE_DK, AMBER, TEAL, GOLD, NAVY, maskPhone, safeHref } from '../components/shared';
+import {
+  s,
+  BLUE,
+  BLUE_LT,
+  BLUE_DK,
+  AMBER,
+  TEAL,
+  GOLD,
+  NAVY,
+  maskPhone,
+  safeHref,
+} from '../components/shared';
 import BadgeDisplay from '../components/BadgeDisplay';
 
 function visibleField(member, field, isAdmin) {
