@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { s, BLUE, BLUE_LT, BLUE_DK, AMBER, maskPhone, safeHref } from '../components/shared';
+import { s, BLUE, BLUE_LT, BLUE_DK, AMBER, TEAL, GOLD, NAVY, maskPhone, safeHref } from '../components/shared';
 import BadgeDisplay from '../components/BadgeDisplay';
 
 function visibleField(member, field, isAdmin) {
@@ -11,7 +11,7 @@ function visibleField(member, field, isAdmin) {
   return member.visibility[field] !== false;
 }
 
-const AV_COLORS = ['#1A6FBF', '#0F4F8A', '#1A8080', '#7A4F9A', '#B05020'];
+const AV_COLORS = ['#1A8A7D', '#2A5A8A', '#8B6AAE', '#C47A3A', '#5A8A6A'];
 function avColor(id) {
   let h = 0;
   for (let c of id) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
@@ -196,11 +196,12 @@ function MemberModal({ m, onClose, isAdmin }) {
             display: 'block',
             width: '100%',
             padding: 10,
-            background: AMBER,
+            background: `linear-gradient(135deg, ${AMBER} 0%, #D4922E 100%)`,
             color: '#fff',
             border: 'none',
             borderRadius: 8,
             fontSize: 14,
+            fontWeight: 500,
             cursor: 'pointer',
             textAlign: 'center',
             textDecoration: 'none',
@@ -216,8 +217,8 @@ function MemberModal({ m, onClose, isAdmin }) {
             marginTop: 8,
             width: '100%',
             padding: 10,
-            background: BLUE,
-            color: '#fff',
+            background: NAVY,
+            color: CREAM,
             border: 'none',
             borderRadius: 8,
             fontSize: 14,
@@ -313,22 +314,23 @@ export default function Dashboard() {
 
         <div style={{ display: 'flex', gap: 10, marginBottom: '1rem' }}>
           {[
-            ['חברים', members.length],
-            ['ערים', cities.length],
-            ['תחומים', domains.length],
-          ].map(([label, val]) => (
+            ['חברים', members.length, TEAL],
+            ['ערים', cities.length, GOLD],
+            ['תחומים', domains.length, '#8B6AAE'],
+          ].map(([label, val, color]) => (
             <div
               key={label}
               style={{
                 background: '#fff',
-                border: '0.5px solid #e0e0da',
-                borderRadius: 8,
+                border: '1px solid #E8E5DE',
+                borderRadius: 10,
                 padding: '10px 16px',
                 flex: 1,
+                borderTop: `3px solid ${color}`,
               }}
             >
               <div style={{ fontSize: 11, color: '#888', marginBottom: 2 }}>{label}</div>
-              <div style={{ fontSize: 22, fontWeight: 500, color: BLUE }}>{val}</div>
+              <div style={{ fontSize: 22, fontWeight: 600, color }}>{val}</div>
             </div>
           ))}
         </div>
@@ -356,14 +358,14 @@ export default function Dashboard() {
                 onClick={() => setSelected(m)}
                 style={{
                   background: '#fff',
-                  border: '0.5px solid #e0e0da',
+                  border: '1px solid #E8E5DE',
                   borderRadius: 12,
                   padding: '1rem',
                   cursor: 'pointer',
-                  transition: 'border-color 0.15s',
+                  transition: 'border-color 0.2s, box-shadow 0.2s',
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = BLUE)}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#e0e0da')}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = TEAL)}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#E8E5DE')}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                   <div

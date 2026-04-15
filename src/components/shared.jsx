@@ -1,15 +1,18 @@
-export const BLUE = '#2563EB';
-export const BLUE_DK = '#1E40AF';
-export const BLUE_LT = '#EFF6FF';
-export const CREAM = '#F5F0E8';
-export const AMBER = '#F59E0B';
-export const AMBER_LT = '#FEF3C7';
-export const GREEN = '#059669';
+export const BLUE = '#3B7DD8';
+export const BLUE_DK = '#1C2638';
+export const BLUE_LT = '#EDF4FB';
+export const CREAM = '#F5EDE0';
+export const AMBER = '#E8A838';
+export const AMBER_LT = '#FFF8EB';
+export const GREEN = '#2E8B6A';
+export const TEAL = '#1A8A7D';
+export const NAVY = '#1C2638';
+export const GOLD = '#D4A34A';
 
 export const s = {
-  wrap: { fontFamily: 'sans-serif', minHeight: '100vh', background: '#F8FAFC', direction: 'rtl' },
+  wrap: { fontFamily: 'sans-serif', minHeight: '100vh', background: '#F7F6F2', direction: 'rtl' },
   hdr: {
-    background: BLUE,
+    background: `linear-gradient(135deg, ${NAVY} 0%, #2A3650 100%)`,
     padding: '1rem 1.5rem',
     display: 'flex',
     alignItems: 'center',
@@ -17,15 +20,15 @@ export const s = {
     flexWrap: 'wrap',
     gap: 10,
   },
-  logo: { color: CREAM, fontSize: 28, fontWeight: 500, lineHeight: 1 },
-  sub: { color: 'rgba(245,240,232,0.65)', fontSize: 11, letterSpacing: 1, marginTop: 2 },
+  logo: { color: GOLD, fontSize: 28, fontWeight: 600, lineHeight: 1 },
+  sub: { color: 'rgba(212,163,74,0.6)', fontSize: 11, letterSpacing: 1, marginTop: 2 },
   body: { padding: '1.5rem', maxWidth: 640, margin: '0 auto', textAlign: 'right' },
-  card: { background: '#fff', border: '0.5px solid #E2E8F0', borderRadius: 12, padding: '1.25rem' },
+  card: { background: '#fff', border: '1px solid #E8E5DE', borderRadius: 12, padding: '1.25rem' },
   label: { display: 'block', fontSize: 12, color: '#666', marginBottom: 4 },
   input: {
     width: '100%',
     padding: '8px 10px',
-    border: '0.5px solid #ccc',
+    border: '1px solid #D5D0C8',
     borderRadius: 8,
     fontSize: 14,
     fontFamily: 'sans-serif',
@@ -34,7 +37,7 @@ export const s = {
   textarea: {
     width: '100%',
     padding: '8px 10px',
-    border: '0.5px solid #ccc',
+    border: '1px solid #D5D0C8',
     borderRadius: 8,
     fontSize: 14,
     fontFamily: 'sans-serif',
@@ -45,7 +48,7 @@ export const s = {
   btnPrimary: {
     width: '100%',
     padding: 10,
-    background: BLUE,
+    background: `linear-gradient(135deg, ${TEAL} 0%, #1A7A6F 100%)`,
     color: '#fff',
     border: 'none',
     borderRadius: 8,
@@ -56,21 +59,21 @@ export const s = {
   },
   btnOutline: {
     padding: '6px 14px',
-    background: 'transparent',
+    background: 'rgba(255,255,255,0.08)',
     color: CREAM,
-    border: '0.5px solid rgba(245,240,232,0.4)',
+    border: '1px solid rgba(212,163,74,0.35)',
     borderRadius: 8,
     fontSize: 13,
     cursor: 'pointer',
   },
   btnSolid: {
     padding: '6px 14px',
-    background: CREAM,
-    color: BLUE_DK,
+    background: GOLD,
+    color: NAVY,
     border: 'none',
     borderRadius: 8,
     fontSize: 13,
-    fontWeight: 500,
+    fontWeight: 600,
     cursor: 'pointer',
   },
   err: { color: '#A32D2D', fontSize: 11, marginTop: 3 },
@@ -80,12 +83,12 @@ export const s = {
     color: '#888',
     margin: '16px 0 8px',
     paddingBottom: 6,
-    borderBottom: '0.5px solid #eee',
+    borderBottom: '1px solid #E8E5DE',
   },
   twoCol: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 12px' },
   fieldRow: { marginBottom: 12 },
   navWrap: {
-    background: BLUE,
+    background: `linear-gradient(135deg, ${NAVY} 0%, #2A3650 100%)`,
     padding: '0.75rem 1.5rem',
     display: 'flex',
     alignItems: 'center',
@@ -93,26 +96,27 @@ export const s = {
     flexWrap: 'wrap',
     gap: 10,
     direction: 'rtl',
+    borderBottom: `2px solid ${GOLD}`,
   },
   navLink: {
-    color: 'rgba(245,240,232,0.75)',
+    color: 'rgba(245,237,224,0.7)',
     textDecoration: 'none',
     fontSize: 14,
-    padding: '4px 10px',
+    padding: '5px 12px',
     borderRadius: 6,
-    transition: 'background 0.15s',
+    transition: 'all 0.2s',
   },
   navLinkActive: {
-    color: CREAM,
-    background: 'rgba(255,255,255,0.15)',
-    fontWeight: 500,
+    color: GOLD,
+    background: 'rgba(212,163,74,0.12)',
+    fontWeight: 600,
   },
   tag: {
     fontSize: 11,
     padding: '2px 9px',
     borderRadius: 20,
     background: BLUE_LT,
-    color: BLUE_DK,
+    color: '#2A5A8A',
     fontWeight: 500,
   },
 };

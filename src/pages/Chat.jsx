@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE } from '../components/shared';
 
-const AV = ['#2563EB', '#1E40AF', '#059669', '#7A4F9A', '#B05020'];
+const AV = ['#1A8A7D', '#2A5A8A', '#8B6AAE', '#C47A3A', '#5A8A6A'];
 function avColor(id) {
   let h = 0;
   for (const c of id) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
@@ -24,7 +24,7 @@ export default function Chat() {
   const bottomRef = useRef(null);
   const msgPath = 'conversations/' + conversationId + '/messages';
 
-  async function loadMessages() {
+  const loadMessages = useCallback(async () => {
     try {
       const docs = await db.getDocs(msgPath, [], {
         field: 'createdAt',
@@ -34,7 +34,7 @@ export default function Chat() {
     } catch {
       // Failed to load messages
     }
-  }
+  }, [msgPath]);
 
   useEffect(() => {
     let cancelled = false;
@@ -57,14 +57,14 @@ export default function Chat() {
     return () => {
       cancelled = true;
     };
-  }, [conversationId]);
+  }, [conversationId, loadMessages]);
 
   // Auto-refresh messages every 10 seconds
   useEffect(() => {
     if (!conv) return;
     const interval = setInterval(loadMessages, 10000);
     return () => clearInterval(interval);
-  }, [conv]);
+  }, [conv, loadMessages]);
 
   // Scroll to bottom on new messages
   useEffect(() => {

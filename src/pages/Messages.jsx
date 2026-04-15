@@ -4,7 +4,7 @@ import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE } from '../components/shared';
 
-const AV = ['#2563EB', '#1E40AF', '#059669', '#7A4F9A', '#B05020'];
+const AV = ['#1A8A7D', '#2A5A8A', '#8B6AAE', '#C47A3A', '#5A8A6A'];
 function avColor(id) {
   let h = 0;
   for (const c of id) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
@@ -15,6 +15,8 @@ export default function Messages() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const toParam = searchParams.get('to');
+  const toNameParam = searchParams.get('name');
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -50,10 +52,8 @@ export default function Messages() {
       if (cancelled) return;
 
       // Step 2: Handle ?to= param — open or create conversation (separate try block)
-      const toUid = searchParams.get('to');
-      const toName = searchParams.get('name');
-      if (toUid && toUid !== user.uid) {
-        const existing = convs.find((c) => (c.participants || []).includes(toUid));
+      if (toParam && toParam !== user.uid) {
+        const existing = convs.find((c) => (c.participants || []).includes(toParam));
         if (existing) {
           navigate('/messages/' + existing.id, { replace: true });
           return;
@@ -61,10 +61,10 @@ export default function Messages() {
         try {
           const now = new Date().toISOString();
           const newId = await db.addDoc('conversations', {
-            participants: [user.uid, toUid],
+            participants: [user.uid, toParam],
             participantNames: {
               [user.uid]: (user.first || '') + ' ' + (user.last || ''),
-              [toUid]: toName || 'משתמש',
+              [toParam]: toNameParam || 'משתמש',
             },
             lastMessage: '',
             lastMessageAt: now,
@@ -83,7 +83,7 @@ export default function Messages() {
     return () => {
       cancelled = true;
     };
-  }, [user.uid]);
+  }, [user.uid, toParam, toNameParam, navigate]);
 
   if (loading) {
     return (

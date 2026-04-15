@@ -304,7 +304,7 @@ export default function Register() {
                 padding: '12px 14px',
                 background: '#f9f9f7',
                 borderRadius: 8,
-                border: '0.5px solid #e0e0da',
+                border: '1px solid #E8E5DE',
               }}
             >
               <label

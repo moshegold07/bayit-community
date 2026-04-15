@@ -121,7 +121,7 @@ export default function Login() {
                 margin: '10px auto 0',
                 background: 'none',
                 border: 'none',
-                color: '#2563EB',
+                color: '#1A8A7D',
                 fontSize: 13,
                 cursor: 'pointer',
                 textDecoration: 'underline',

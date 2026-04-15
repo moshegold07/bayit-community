@@ -27,7 +27,7 @@ function VisibilityToggle({ checked, onChange }) {
         height: 22,
         borderRadius: 11,
         border: 'none',
-        background: checked ? '#2563EB' : '#ccc',
+        background: checked ? '#1A8A7D' : '#ccc',
         position: 'relative',
         cursor: 'pointer',
         transition: 'background 0.2s',
