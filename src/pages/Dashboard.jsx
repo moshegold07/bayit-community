@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { s, Header, BLUE, BLUE_LT, BLUE_DK } from '../components/shared';
-import HouseRulesModal from '../components/HouseRulesModal';
+import { s, BLUE, BLUE_LT, BLUE_DK } from '../components/shared';
+import BadgeDisplay from '../components/BadgeDisplay';
 
 const AV_COLORS = ['#1A6FBF', '#0F4F8A', '#1A8080', '#7A4F9A', '#B05020'];
 function avColor(id) {
@@ -105,6 +105,12 @@ function MemberModal({ m, onClose }) {
           </button>
         </div>
 
+        {m.badges?.length > 0 && (
+          <div style={{ marginBottom: 12 }}>
+            <BadgeDisplay badges={m.badges} size="md" />
+          </div>
+        )}
+
         {m.does && (
           <div
             style={{
@@ -190,13 +196,12 @@ function MemberModal({ m, onClose }) {
   );
 }
 
-export default function Dashboard({ user, onLogout, onAdmin, onEditProfile }) {
+export default function Dashboard() {
   const [members, setMembers] = useState([]);
   const [search, setSearch] = useState('');
   const [filterDomain, setFilterDomain] = useState('');
   const [filterCity, setFilterCity] = useState('');
   const [loading, setLoading] = useState(true);
-  const [showRules, setShowRules] = useState(false);
   const [selected, setSelected] = useState(null);
 
   useEffect(() => {
@@ -229,27 +234,8 @@ export default function Dashboard({ user, onLogout, onAdmin, onEditProfile }) {
   const selStyle = { ...s.input, flex: 1, minWidth: 130 };
 
   return (
-    <div style={s.wrap}>
-      {showRules && <HouseRulesModal onClose={() => setShowRules(false)} />}
+    <>
       {selected && <MemberModal m={selected} onClose={() => setSelected(null)} />}
-
-      <Header>
-        <span style={{ fontSize: 13, color: 'rgba(245,240,232,0.7)' }}>שלום, {user.first}</span>
-        <button style={s.btnOutline} onClick={() => setShowRules(true)}>
-          חוקי הבית
-        </button>
-        <button style={s.btnOutline} onClick={onEditProfile}>
-          עריכת פרופיל
-        </button>
-        {user.role === 'admin' && (
-          <button style={s.btnOutline} onClick={onAdmin}>
-            ניהול
-          </button>
-        )}
-        <button style={s.btnOutline} onClick={onLogout}>
-          התנתקות
-        </button>
-      </Header>
 
       <div style={{ ...s.body, maxWidth: 900 }}>
         <div style={{ display: 'flex', gap: 10, marginBottom: '1rem', flexWrap: 'wrap' }}>
@@ -382,6 +368,7 @@ export default function Dashboard({ user, onLogout, onAdmin, onEditProfile }) {
                     </span>
                   ))}
                 </div>
+                <BadgeDisplay badges={m.badges} />
                 {m.does && (
                   <div style={{ fontSize: 13, color: '#666', marginBottom: 4 }}>
                     עושה:{' '}
@@ -427,6 +414,6 @@ export default function Dashboard({ user, onLogout, onAdmin, onEditProfile }) {
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }

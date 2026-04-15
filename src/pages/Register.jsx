@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { s, Header, FieldRow, StrengthBar, BLUE } from '../components/shared';
@@ -6,7 +7,8 @@ import CategoryPicker from '../components/CategoryPicker';
 
 const ADMIN_PHONE = import.meta.env.VITE_ADMIN_PHONE;
 
-export default function Register({ onLogin }) {
+export default function Register() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     first: '',
     last: '',
@@ -87,6 +89,9 @@ export default function Register({ onLogin }) {
 
       await db.setDoc('users', uid, userData);
       await db.setDoc('phoneIndex', phoneId, { uid });
+      // Auth state change will pick up the new user via AuthContext
+      // navigate to login so the user can log in fresh, or if admin auto-redirects
+      navigate('/login');
     } catch (e) {
       if (e.code === 'auth/email-already-in-use') setGlobalErr('אימייל זה כבר רשום במערכת');
       else setGlobalErr('שגיאה: ' + e.message);
@@ -156,9 +161,9 @@ export default function Register({ onLogin }) {
 
       <Header>
         <span style={{ fontSize: 13, color: 'rgba(245,240,232,0.7)' }}>כבר רשום?</span>
-        <button style={s.btnSolid} onClick={onLogin}>
+        <Link to="/login" style={{ ...s.btnSolid, textDecoration: 'none', display: 'inline-block' }}>
           התחברות
-        </button>
+        </Link>
       </Header>
       <div style={s.body}>
         <div style={s.card}>

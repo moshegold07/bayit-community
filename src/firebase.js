@@ -82,10 +82,15 @@ export const db = {
     };
   },
 
-  async getDocs(collection, filters = []) {
+  async getDocs(collection, filters = [], orderBy = null) {
+    // For sub-collection paths like "projects/abc/comments",
+    // collectionId is the last segment; runQuery targets the parent doc path
+    const segments = collection.split('/');
+    const collectionId = segments.pop();
+    const parentPath = segments.length > 0 ? '/' + segments.join('/') : '';
     const body = {
       structuredQuery: {
-        from: [{ collectionId: collection }],
+        from: [{ collectionId }],
         where: filters.length > 0 ? {
           compositeFilter: {
             op: 'AND',
@@ -94,9 +99,13 @@ export const db = {
             }))
           }
         } : undefined,
+        orderBy: orderBy ? [{
+          field: { fieldPath: orderBy.field },
+          direction: orderBy.direction || 'DESCENDING',
+        }] : undefined,
       }
     };
-    const results = await firestoreRequest(':runQuery', {
+    const results = await firestoreRequest(`${parentPath}:runQuery`, {
       method: 'POST',
       body: JSON.stringify(body),
     });
@@ -134,5 +143,15 @@ export const db = {
 
   async deleteDoc(collection, docId) {
     await firestoreRequest(`/${collection}/${docId}`, { method: 'DELETE' });
+  },
+
+  async addDoc(collection, data) {
+    const fields = {};
+    for (const [k, v] of Object.entries(data)) fields[k] = toFirestoreValue(v);
+    const result = await firestoreRequest(`/${collection}`, {
+      method: 'POST',
+      body: JSON.stringify({ fields }),
+    });
+    return result.name.split('/').pop();
   },
 };

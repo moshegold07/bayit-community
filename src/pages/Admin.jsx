@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { s, Header, BLUE } from '../components/shared';
+import { s, BLUE } from '../components/shared';
+import BadgeDisplay, { BADGE_DEFS } from '../components/BadgeDisplay';
 
 const AV_COLORS = ['#1A6FBF', '#0F4F8A', '#1A8080', '#7A4F9A', '#B05020'];
 function avColor(id) {
@@ -12,31 +13,14 @@ function initials(m) {
   return (m.first?.[0] || '') + (m.last?.[0] || '');
 }
 
-function UserModal({ user: u, onClose, onApprove, onDelete }) {
+function UserModal({ user: u, onClose, onApprove, onDelete, onBadgeToggle }) {
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.45)',
-        zIndex: 200,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1rem',
-      }}
+      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
       onClick={onClose}
     >
       <div
-        style={{
-          background: '#fff',
-          borderRadius: 14,
-          padding: '1.5rem',
-          width: '100%',
-          maxWidth: 480,
-          maxHeight: '90vh',
-          overflowY: 'auto',
-        }}
+        style={{ background: '#fff', borderRadius: 14, padding: '1.5rem', width: '100%', maxWidth: 480, maxHeight: '90vh', overflowY: 'auto' }}
         onClick={(e) => e.stopPropagation()}
       >
         <div
@@ -93,6 +77,7 @@ function UserModal({ user: u, onClose, onApprove, onDelete }) {
         </div>
 
         <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
+          <tbody>
           {[
             [
               'טלפון',
@@ -145,6 +130,7 @@ function UserModal({ user: u, onClose, onApprove, onDelete }) {
               <td style={{ padding: '6px 0', color: '#222' }}>{val || '—'}</td>
             </tr>
           ))}
+          </tbody>
         </table>
 
         {u.does && (
@@ -167,6 +153,44 @@ function UserModal({ user: u, onClose, onApprove, onDelete }) {
             </div>
           </div>
         )}
+
+        <div style={{ marginTop: 16, padding: '12px 14px', background: '#f9f9f7', borderRadius: 8 }}>
+          <div style={{ fontSize: 12, color: '#888', marginBottom: 8, fontWeight: 500 }}>
+            תגים (Badges)
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {Object.entries(BADGE_DEFS).map(([id, def]) => {
+              const checked = (u.badges || []).includes(id);
+              return (
+                <label
+                  key={id}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                    cursor: 'pointer',
+                    fontSize: 12,
+                    padding: '3px 8px',
+                    borderRadius: 20,
+                    background: checked ? def.color + '26' : '#eee',
+                    color: checked ? def.color : '#888',
+                    fontWeight: checked ? 500 : 400,
+                    transition: 'background 0.15s',
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => onBadgeToggle(u.uid, id, checked)}
+                    style={{ display: 'none' }}
+                  />
+                  <span>{def.icon}</span>
+                  <span>{def.label}</span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
 
         <div style={{ display: 'flex', gap: 10, marginTop: '1.25rem' }}>
           {u.status === 'pending' && (
@@ -208,7 +232,7 @@ function UserModal({ user: u, onClose, onApprove, onDelete }) {
   );
 }
 
-export default function Admin({ user: _user, onLogout, onDashboard }) {
+export default function Admin() {
   const [users, setUsers] = useState([]);
   const [tab, setTab] = useState('pending');
   const [loading, setLoading] = useState(true);
@@ -241,6 +265,22 @@ export default function Admin({ user: _user, onLogout, onDashboard }) {
     if (phone) await db.deleteDoc('phoneIndex', phone).catch(() => {});
     setUsers((u) => u.filter((x) => x.uid !== uid));
     setSelected(null);
+  }
+
+  async function toggleBadge(uid, badgeId, wasChecked) {
+    const user = users.find((u) => u.uid === uid);
+    if (!user) return;
+    const current = user.badges || [];
+    const newBadges = wasChecked
+      ? current.filter((b) => b !== badgeId)
+      : [...current, badgeId];
+    await db.updateDoc('users', uid, { badges: newBadges });
+    setUsers((prev) =>
+      prev.map((u) => (u.uid === uid ? { ...u, badges: newBadges } : u)),
+    );
+    if (selected && selected.uid === uid) {
+      setSelected((s) => ({ ...s, badges: newBadges }));
+    }
   }
 
   async function saveRules() {
@@ -286,24 +326,17 @@ export default function Admin({ user: _user, onLogout, onDashboard }) {
   };
 
   return (
-    <div style={s.wrap}>
+    <>
       {selected && (
         <UserModal
           user={selected}
           onClose={() => setSelected(null)}
           onApprove={approve}
           onDelete={remove}
+          onBadgeToggle={toggleBadge}
         />
       )}
 
-      <Header>
-        <button style={s.btnOutline} onClick={onDashboard}>
-          דשבורד
-        </button>
-        <button style={s.btnOutline} onClick={onLogout}>
-          התנתקות
-        </button>
-      </Header>
       <div style={{ ...s.body, maxWidth: 900 }}>
         <div style={{ ...s.card, marginBottom: 16 }}>
           <div
@@ -391,7 +424,8 @@ export default function Admin({ user: _user, onLogout, onDashboard }) {
                         >
                           {initials(u)}
                         </div>
-                        {u.first} {u.last}
+                        <span>{u.first} {u.last}</span>
+                        <BadgeDisplay badges={u.badges} />
                         {u.deleteRequest && (
                           <span
                             style={{
@@ -444,6 +478,6 @@ export default function Admin({ user: _user, onLogout, onDashboard }) {
           )}
         </div>
       </div>
-    </div>
+    </>
   );
 }

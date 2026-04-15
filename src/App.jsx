@@ -1,119 +1,45 @@
-import { useEffect, useState } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth, db } from './firebase';
-import Register from './pages/Register';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import PublicRoute from './components/guards/PublicRoute';
+import RequireAuth from './components/guards/RequireAuth';
+import RequireActive from './components/guards/RequireActive';
+import RequireAdmin from './components/guards/RequireAdmin';
+import AppLayout from './components/AppLayout';
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import Admin from './pages/Admin';
+import Register from './pages/Register';
 import Pending from './pages/Pending';
+import Dashboard from './pages/Dashboard';
+import Events from './pages/Events';
+import EventDetail from './pages/EventDetail';
+import Projects from './pages/Projects';
+import ProjectForm from './pages/ProjectForm';
+import ProjectDetail from './pages/ProjectDetail';
+import Resources from './pages/Resources';
 import EditProfile from './pages/EditProfile';
+import Admin from './pages/Admin';
 
 export default function App() {
-  const [page, setPage] = useState('login');
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        setUserData(null);
-        setPage('login');
-        setLoading(false);
-        return;
-      }
-      try {
-        const snap = await db.getDoc('users', user.uid);
-        if (!snap.exists()) {
-          setPage('login');
-          setLoading(false);
-          return;
-        }
-        const data = { uid: user.uid, ...snap.data() };
-        setUserData(data);
-        if (data.role === 'admin') setPage('admin');
-        else if (data.status === 'pending') setPage('pending');
-        else setPage('dashboard');
-      } catch (_e) {
-        setPage('login');
-      }
-      setLoading(false);
-    });
-    return unsub;
-  }, []);
-
-  if (loading)
-    return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100vh',
-          fontFamily: 'sans-serif',
-          color: '#888',
-        }}
-      >
-        טוען...
-      </div>
-    );
-
-  const nav = (p) => setPage(p);
-
-  if (page === 'register') return <Register onLogin={() => nav('login')} />;
-  if (page === 'login')
-    return (
-      <Login
-        onRegister={() => nav('register')}
-        onSuccess={(data) => {
-          setUserData(data);
-          nav(
-            data.role === 'admin' ? 'admin' : data.status === 'pending' ? 'pending' : 'dashboard',
-          );
-        }}
-      />
-    );
-  if (page === 'pending')
-    return (
-      <Pending
-        onLogout={() => {
-          auth.signOut();
-          nav('login');
-        }}
-      />
-    );
-  if (page === 'dashboard')
-    return (
-      <Dashboard
-        user={userData}
-        onLogout={() => {
-          auth.signOut();
-          nav('login');
-        }}
-        onAdmin={() => nav('admin')}
-        onEditProfile={() => nav('edit')}
-      />
-    );
-  if (page === 'edit')
-    return (
-      <EditProfile
-        user={userData}
-        onBack={() => nav('dashboard')}
-        onSaved={(updated) => {
-          setUserData(updated);
-          nav('dashboard');
-        }}
-      />
-    );
-  if (page === 'admin')
-    return (
-      <Admin
-        user={userData}
-        onLogout={() => {
-          auth.signOut();
-          nav('login');
-        }}
-        onDashboard={() => nav('dashboard')}
-      />
-    );
-  return null;
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+          <Route path="/pending" element={<RequireAuth><Pending /></RequireAuth>} />
+          <Route element={<RequireActive><AppLayout /></RequireActive>}>
+            <Route index element={<Dashboard />} />
+            <Route path="events" element={<Events />} />
+            <Route path="events/:id" element={<EventDetail />} />
+            <Route path="projects" element={<Projects />} />
+            <Route path="projects/new" element={<ProjectForm />} />
+            <Route path="projects/:id" element={<ProjectDetail />} />
+            <Route path="resources" element={<Resources />} />
+            <Route path="edit-profile" element={<EditProfile />} />
+            <Route path="admin" element={<RequireAdmin><Admin /></RequireAdmin>} />
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
+  );
 }

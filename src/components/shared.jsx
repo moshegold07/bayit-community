@@ -81,6 +81,37 @@ export const s = {
   },
   twoCol: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 12px' },
   fieldRow: { marginBottom: 12 },
+  navWrap: {
+    background: BLUE,
+    padding: '0.75rem 1.5rem',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 10,
+    direction: 'rtl',
+  },
+  navLink: {
+    color: 'rgba(245,240,232,0.75)',
+    textDecoration: 'none',
+    fontSize: 14,
+    padding: '4px 10px',
+    borderRadius: 6,
+    transition: 'background 0.15s',
+  },
+  navLinkActive: {
+    color: CREAM,
+    background: 'rgba(255,255,255,0.15)',
+    fontWeight: 500,
+  },
+  tag: {
+    fontSize: 11,
+    padding: '2px 9px',
+    borderRadius: 20,
+    background: BLUE_LT,
+    color: BLUE_DK,
+    fontWeight: 500,
+  },
 };
 
 export function Header({ children }) {

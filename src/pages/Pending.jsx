@@ -1,10 +1,19 @@
+import { useNavigate } from 'react-router-dom';
+import { auth } from '../firebase';
 import { s, Header } from '../components/shared';
 
-export default function Pending({ onLogout }) {
+export default function Pending() {
+  const navigate = useNavigate();
+
+  async function handleLogout() {
+    await auth.signOut();
+    navigate('/login');
+  }
+
   return (
     <div style={s.wrap}>
       <Header>
-        <button style={s.btnOutline} onClick={onLogout}>
+        <button style={s.btnOutline} onClick={handleLogout}>
           התנתקות
         </button>
       </Header>

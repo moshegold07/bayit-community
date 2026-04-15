@@ -1,9 +1,12 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth, db } from '../firebase';
+import { auth } from '../firebase';
+import { useAuth } from '../contexts/AuthContext';
 import { s, Header, FieldRow } from '../components/shared';
 
-export default function Login({ onRegister, onSuccess }) {
+export default function Login() {
+  const { refreshUser } = useAuth();
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
   const [err, setErr] = useState('');
@@ -17,14 +20,8 @@ export default function Login({ onRegister, onSuccess }) {
     }
     setLoading(true);
     try {
-      const cred = await signInWithEmailAndPassword(auth, email.trim(), pass);
-      const snap = await db.getDoc('users', cred.user.uid);
-      if (!snap.exists()) {
-        setErr('משתמש לא נמצא');
-        setLoading(false);
-        return;
-      }
-      onSuccess({ uid: cred.user.uid, ...snap.data() });
+      await signInWithEmailAndPassword(auth, email.trim(), pass);
+      await refreshUser();
     } catch (e) {
       if (
         e.code === 'auth/invalid-credential' ||
@@ -41,9 +38,9 @@ export default function Login({ onRegister, onSuccess }) {
     <div style={s.wrap}>
       <Header>
         <span style={{ fontSize: 13, color: 'rgba(245,240,232,0.7)' }}>חדש?</span>
-        <button style={s.btnSolid} onClick={onRegister}>
+        <Link to="/register" style={{ ...s.btnSolid, textDecoration: 'none', display: 'inline-block' }}>
           הצטרפות
-        </button>
+        </Link>
       </Header>
       <div style={{ ...s.body, maxWidth: 400 }}>
         <div style={s.card}>
