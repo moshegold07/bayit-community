@@ -4,6 +4,7 @@
 
 **A community-driven platform connecting entrepreneurs, founders, and innovators.**
 
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen.svg)](https://bayit-community.vercel.app)
 [![CI](https://github.com/moshegold07/bayit-community/actions/workflows/ci.yml/badge.svg)](https://github.com/moshegold07/bayit-community/actions/workflows/ci.yml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/moshegold07/bayit-community/pulls)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -34,7 +35,7 @@
 |-------|-----------|
 | **Frontend** | React 18, Vite |
 | **Backend** | Firebase (Firestore, Auth) |
-| **Hosting** | Firebase Hosting |
+| **Hosting** | Vercel |
 | **CI/CD** | GitHub Actions |
 | **Linting** | ESLint 9, Prettier |
 | **Testing** | Vitest, Testing Library |
