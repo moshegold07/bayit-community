@@ -15,7 +15,7 @@ import {
   setDoc,
 } from 'firebase/firestore';
 
-const app = initializeApp({ projectId: 'bait-de724', apiKey: 'fake-api-key' });
+const app = initializeApp({ projectId: 'bayit-community', apiKey: 'fake-api-key' });
 const auth = getAuth(app);
 const db = getFirestore(app);
 
