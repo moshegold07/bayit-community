@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import { s, Header, BLUE, BLUE_LT, BLUE_DK } from '../components/shared';
 import HouseRulesModal from '../components/HouseRulesModal';
@@ -202,9 +201,8 @@ export default function Dashboard({ user, onLogout, onAdmin, onEditProfile }) {
 
   useEffect(() => {
     async function load() {
-      const q = query(collection(db, 'users'), where('status', '==', 'active'));
-      const snap = await getDocs(q);
-      setMembers(snap.docs.map((d) => ({ uid: d.id, ...d.data() })));
+      const docs = await db.getDocs('users', [{ field: 'status', op: 'EQUAL', value: 'active' }]);
+      setMembers(docs.map((d) => ({ uid: d.id, ...d.data() })));
       setLoading(false);
     }
     load();

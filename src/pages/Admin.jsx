@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { collection, getDocs, doc, updateDoc, deleteDoc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { s, Header, BLUE } from '../components/shared';
 
@@ -219,9 +218,9 @@ export default function Admin({ user: _user, onLogout, onDashboard }) {
   const [selected, setSelected] = useState(null);
 
   async function load() {
-    const snap = await getDocs(collection(db, 'users'));
-    setUsers(snap.docs.map((d) => ({ uid: d.id, ...d.data() })));
-    const rulesSnap = await getDoc(doc(db, 'settings', 'houseRules'));
+    const docs = await db.getDocs('users');
+    setUsers(docs.map((d) => ({ uid: d.id, ...d.data() })));
+    const rulesSnap = await db.getDoc('settings', 'houseRules');
     if (rulesSnap.exists()) setRulesText(rulesSnap.data().text || '');
     setLoading(false);
   }
@@ -231,22 +230,22 @@ export default function Admin({ user: _user, onLogout, onDashboard }) {
   }, []);
 
   async function approve(uid) {
-    await updateDoc(doc(db, 'users', uid), { status: 'active' });
+    await db.updateDoc('users', uid, { status: 'active' });
     setUsers((u) => u.map((x) => (x.uid === uid ? { ...x, status: 'active' } : x)));
     setSelected(null);
   }
 
   async function remove(uid, phone) {
     if (!window.confirm('Delete this user permanently?')) return;
-    await deleteDoc(doc(db, 'users', uid));
-    if (phone) await deleteDoc(doc(db, 'phoneIndex', phone)).catch(() => {});
+    await db.deleteDoc('users', uid);
+    if (phone) await db.deleteDoc('phoneIndex', phone).catch(() => {});
     setUsers((u) => u.filter((x) => x.uid !== uid));
     setSelected(null);
   }
 
   async function saveRules() {
     setRulesLoading(true);
-    await setDoc(doc(db, 'settings', 'houseRules'), {
+    await db.setDoc('settings', 'houseRules', {
       text: rulesText,
       updatedAt: new Date().toISOString(),
     });

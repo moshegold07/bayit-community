@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { BLUE } from './shared';
 
@@ -9,7 +8,7 @@ export default function HouseRulesModal({ onClose }) {
 
   useEffect(() => {
     async function load() {
-      const snap = await getDoc(doc(db, 'settings', 'houseRules'));
+      const snap = await db.getDoc('settings', 'houseRules');
       if (snap.exists()) setRules(snap.data().text || '');
       setLoading(false);
     }

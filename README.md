@@ -2,169 +2,226 @@
 
 # בית (Bayit) - Startup Community
 
-**A community-driven platform connecting entrepreneurs, founders, and innovators.**
+**פלטפורמה קהילתית שמחברת יזמים, מייסדים ואנשי חדשנות.**
 
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen.svg)](https://bayit-community.vercel.app)
 [![CI](https://github.com/moshegold07/bayit-community/actions/workflows/ci.yml/badge.svg)](https://github.com/moshegold07/bayit-community/actions/workflows/ci.yml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/moshegold07/bayit-community/pulls)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 </div>
 
 ---
 
-## About
+## What is Bayit?
 
-**Bayit** (בית — "Home" in Hebrew) is an open-source platform designed to bring entrepreneurs together. Register your profile, discover other founders, and connect based on shared interests and expertise.
+**Bayit** (בית — "Home" in Hebrew) is an open-source platform for entrepreneur communities. Members register, discover other founders, and connect based on shared interests and expertise.
 
-### Current Features
+### Features
 
-- Entrepreneur registration form (details, LinkedIn, website, areas of expertise, what you do & what you're looking for)
-- Browse active entrepreneurs
-- Search and filter profiles
-- Profile deletion request
-- Dynamic business categories (add new ones on the fly)
-- **Admin panel:**
-  - Approve new entrepreneur applications
-  - Remove entrepreneurs
-  - Edit community house rules
+- Entrepreneur registration with profile details (LinkedIn, website, expertise, what you do & need)
+- Browse and search active members by name, domain, or city
+- Admin panel: approve members, manage house rules, remove profiles
+- Profile editing and deletion requests
+- Dynamic business categories
 
-## Tech Stack
+---
 
-| Layer | Technology |
-|-------|-----------|
-| **Frontend** | React 18, Vite |
-| **Backend** | Firebase (Firestore, Auth) |
-| **Hosting** | Vercel |
-| **CI/CD** | GitHub Actions |
-| **Linting** | ESLint 9, Prettier |
-| **Testing** | Vitest, Testing Library |
-| **Local Dev** | Firebase Emulators (no keys needed) |
+## Quick Start (for contributors)
 
-## Getting Started
+**No Firebase keys needed.** The app runs locally with Firebase Emulators.
 
 ### Prerequisites
 
-- Node.js (LTS version recommended)
-- Java Runtime (for Firebase Emulators) — `sudo apt install default-jre`
+- **Node.js** (v18+)
+- **Java Runtime** — required by Firebase Emulators
+  ```bash
+  # Ubuntu/Debian
+  sudo apt install default-jre
 
-### Quick Start (Zero Config)
+  # macOS
+  brew install openjdk
+  ```
 
-No Firebase keys needed! The app auto-connects to local emulators:
+### 1. Fork & Clone
 
 ```bash
-# Clone and install
-git clone https://github.com/moshegold07/bayit-community.git
+# Fork the repo on GitHub, then:
+git clone https://github.com/<your-username>/bayit-community.git
 cd bayit-community
 npm install
+```
 
-# Terminal 1 — Start emulators
+### 2. Start Local Dev Environment
+
+Open **3 terminals**:
+
+```bash
+# Terminal 1 — Start Firebase Emulators
 npm run emulators
 
-# Terminal 2 — Seed test data (run once)
+# Terminal 2 — Seed test data (only needed once)
 npm run seed
 
 # Terminal 3 — Start the app
 npm run dev:app
 ```
 
-Open [http://localhost:5173](http://localhost:5173) — the app is running with test data.
+### 3. Open in Browser
 
-Emulator UI at [http://localhost:4000](http://localhost:4000) — browse the local DB.
+- **App:** [http://localhost:5173](http://localhost:5173)
+- **Emulator UI:** [http://localhost:4000](http://localhost:4000) (browse the local DB)
 
-### Test Accounts
+### Test Accounts (local emulator)
 
 | Role | Email | Password |
 |------|-------|----------|
 | Admin | admin@bayit.dev | admin123 |
 | User | dana@bayit.dev | test1234 |
-| Pending | pending@bayit.dev | test1234 |
+| Pending | pending1@bayit.dev | test1234 |
 
-### Connect to Production Firebase
+---
 
-If you have Firebase keys (from the project owner), create a `.env` file:
+## How to Contribute
 
-```bash
-cp .env.example .env
-# Fill in the real Firebase values
-npm run dev:prod
+### Workflow
+
+```
+Fork → Clone → Branch → Code → Test → Push → Pull Request
 ```
 
-The app auto-detects: no `.env` = emulators, `.env` present = production Firebase.
+### Step by Step
 
-### Available Scripts
+1. **Fork** this repo on GitHub
+2. **Clone** your fork locally
+3. **Create a branch** from `main`:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+4. **Make your changes** — write code, test locally
+5. **Run checks** before pushing:
+   ```bash
+   npm run format      # Auto-format code
+   npm run lint        # Check for issues
+   npm test            # Run tests
+   npm run build       # Make sure it builds
+   ```
+6. **Commit & push:**
+   ```bash
+   git add .
+   git commit -m "feat: description of what you did"
+   git push origin feature/your-feature-name
+   ```
+7. **Open a Pull Request** on GitHub against `main`
+8. CI will run automatically (format → lint → test → build)
+9. Once approved — your code gets merged and auto-deployed to production
+
+### Branch Naming
+
+| Type | Format | Example |
+|------|--------|---------|
+| New feature | `feature/short-description` | `feature/add-search-filter` |
+| Bug fix | `fix/short-description` | `fix/login-validation` |
+| Docs | `docs/short-description` | `docs/update-readme` |
+| Refactor | `refactor/short-description` | `refactor/split-dashboard` |
+
+### Code Style
+
+- **Prettier** handles formatting — just run `npm run format`
+- **ESLint** catches issues — run `npm run lint`
+- Hebrew for user-facing text, English for code and comments
+- Keep components small and focused (one file = one component)
+
+---
+
+## Available Scripts
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev:app` | Start Vite dev server |
-| `npm run dev:prod` | Start with real Firebase (requires .env) |
+| `npm run dev:app` | Start Vite dev server (localhost:5173) |
 | `npm run emulators` | Start Firebase Auth + Firestore emulators |
-| `npm run seed` | Populate emulators with test data |
+| `npm run seed` | Populate emulators with test entrepreneurs |
 | `npm run lint` | Check code with ESLint |
 | `npm run lint:fix` | Auto-fix lint issues |
 | `npm run format` | Format code with Prettier |
+| `npm run format:check` | Check formatting (used in CI) |
 | `npm test` | Run tests |
 | `npm run build` | Build for production |
 
-### Build for Production
+---
 
-```bash
-npm run build
-npm run preview
-```
+## Tech Stack
 
-## Contributing
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React 18, Vite |
+| **Backend** | Firebase Auth + Firestore REST API |
+| **Hosting** | Vercel (auto-deploy from GitHub) |
+| **CI/CD** | GitHub Actions |
+| **Linting** | ESLint 9, Prettier |
+| **Testing** | Vitest, Testing Library |
+| **Local Dev** | Firebase Emulators |
 
-We welcome contributions from everyone! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our branching conventions, PR process, and development setup.
+---
 
 ## Project Structure
 
 ```
 bayit-community/
 ├── src/
-│   ├── components/       # Shared UI components
+│   ├── components/          # Shared UI components
 │   │   ├── CategoryPicker.jsx
 │   │   ├── HouseRulesModal.jsx
-│   │   └── shared.jsx
-│   ├── pages/            # Page-level components
-│   │   ├── Admin.jsx
-│   │   ├── Dashboard.jsx
-│   │   ├── EditProfile.jsx
-│   │   ├── Login.jsx
-│   │   ├── Pending.jsx
-│   │   └── Register.jsx
-│   ├── App.jsx
-│   ├── firebase.js       # Auto-detects emulator vs production
-│   └── main.jsx
+│   │   └── shared.jsx       # Common styles and layout
+│   ├── pages/               # Page components
+│   │   ├── Admin.jsx        # Admin panel (approve users, house rules)
+│   │   ├── Dashboard.jsx    # Main member directory
+│   │   ├── EditProfile.jsx  # Edit your profile
+│   │   ├── Login.jsx        # Login page
+│   │   ├── Pending.jsx      # Waiting for approval screen
+│   │   └── Register.jsx     # Registration form
+│   ├── App.jsx              # Main app + routing logic
+│   ├── firebase.js          # Firebase Auth + Firestore REST wrapper
+│   └── main.jsx             # Entry point
 ├── scripts/
-│   ├── dev.sh            # Full local dev startup script
-│   └── seed-emulator.mjs # Populates emulators with test data
+│   └── seed-emulator.mjs    # Seed test data for local dev
 ├── tests/
 │   ├── setup.js
 │   └── App.test.jsx
 ├── .github/
-│   ├── workflows/ci.yml  # CI: format → lint → test → build
+│   ├── workflows/ci.yml     # CI pipeline
 │   └── PULL_REQUEST_TEMPLATE.md
-├── .env.example          # Firebase env vars template
-├── eslint.config.js
-├── vitest.config.js
-├── firebase.json         # Emulator + hosting config
-├── firestore.rules
-├── CONTRIBUTING.md
-└── README.md
+├── .env.example             # Environment variables template
+├── firebase.json            # Emulator config
+├── firestore.rules          # Firestore security rules
+└── package.json
 ```
 
-## Acknowledgments & Credits
+---
 
-### A Huge Thank You to Amit
+## Deployment
 
-This project was initiated and kickstarted by **[Amit](https://github.com/amitost)** — who built the original foundation, designed the core features, and brought this idea to life. The entire community stands on the shoulders of this initial effort. Thank you, Amit, for planting the seed and trusting the community to grow it further.
+The app auto-deploys to [bayit-community.vercel.app](https://bayit-community.vercel.app) when code is merged to `main`.
 
-### To Our Future Contributors
+- **Vercel** builds and hosts the frontend
+- **Firebase** handles auth and database (production keys are set in Vercel env vars)
+- Contributors don't need production keys — local dev uses emulators
 
-This project belongs to the community. Every pull request, bug report, feature idea, and code review makes Bayit better for everyone. Whether you're fixing a typo or building a major feature — **you are what makes this project a home.**
+---
 
-Thank you to all past, present, and future contributors. Your names will live in this project's history.
+## Reporting Bugs
+
+[Open an issue](https://github.com/moshegold07/bayit-community/issues) with:
+- Steps to reproduce
+- Expected vs actual behavior
+- Screenshots if relevant
+
+---
+
+## Credits
+
+This project was started by **[Amit](https://github.com/amitost)** who built the original foundation and core features. The community continues to grow it.
+
+**Every contribution matters** — whether it's fixing a typo, adding a feature, or reviewing code. Thank you to all past, present, and future contributors.
 
 ---
 

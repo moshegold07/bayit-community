@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { s, Header, FieldRow } from '../components/shared';
 import CategoryPicker from '../components/CategoryPicker';
@@ -32,7 +31,7 @@ export default function EditProfile({ user, onBack, onSaved }) {
       let website = form.website.trim();
       if (website && !website.startsWith('http')) website = 'https://' + website;
 
-      await updateDoc(doc(db, 'users', user.uid), {
+      await db.updateDoc('users', user.uid, {
         first: form.first.trim(),
         last: form.last.trim(),
         city: form.city.trim(),
@@ -54,7 +53,7 @@ export default function EditProfile({ user, onBack, onSaved }) {
   async function requestDelete() {
     if (!window.confirm('האם אתה בטוח שברצונך לבקש מחיקת הפרופיל שלך?')) return;
     try {
-      await updateDoc(doc(db, 'users', user.uid), { deleteRequest: true });
+      await db.updateDoc('users', user.uid, { deleteRequest: true });
       alert('הבקשה נשלחה לאדמין. הפרופיל שלך יימחק בהקדם.');
     } catch (_e) {
       setErr('שגיאה בשליחת הבקשה');

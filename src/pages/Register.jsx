@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { s, Header, FieldRow, StrengthBar, BLUE } from '../components/shared';
 import CategoryPicker from '../components/CategoryPicker';
@@ -31,7 +30,7 @@ export default function Register({ onLogin }) {
 
   useEffect(() => {
     async function loadRules() {
-      const snap = await getDoc(doc(db, 'settings', 'houseRules'));
+      const snap = await db.getDoc('settings', 'houseRules');
       if (snap.exists()) setRulesText(snap.data().text || '');
     }
     loadRules();
@@ -55,7 +54,7 @@ export default function Register({ onLogin }) {
     setGlobalErr('');
     try {
       const phoneId = form.phone.trim();
-      const phoneSnap = await getDoc(doc(db, 'phoneIndex', phoneId));
+      const phoneSnap = await db.getDoc('phoneIndex', phoneId);
       if (phoneSnap.exists()) {
         setErrors({ phone: 'מספר זה כבר רשום' });
         setLoading(false);
@@ -86,8 +85,8 @@ export default function Register({ onLogin }) {
         createdAt: new Date().toISOString(),
       };
 
-      await setDoc(doc(db, 'users', uid), userData);
-      await setDoc(doc(db, 'phoneIndex', phoneId), { uid });
+      await db.setDoc('users', uid, userData);
+      await db.setDoc('phoneIndex', phoneId, { uid });
     } catch (e) {
       if (e.code === 'auth/email-already-in-use') setGlobalErr('אימייל זה כבר רשום במערכת');
       else setGlobalErr('שגיאה: ' + e.message);

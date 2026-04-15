@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { s, Header, FieldRow } from '../components/shared';
 
@@ -19,7 +18,7 @@ export default function Login({ onRegister, onSuccess }) {
     setLoading(true);
     try {
       const cred = await signInWithEmailAndPassword(auth, email.trim(), pass);
-      const snap = await getDoc(doc(db, 'users', cred.user.uid));
+      const snap = await db.getDoc('users', cred.user.uid);
       if (!snap.exists()) {
         setErr('משתמש לא נמצא');
         setLoading(false);

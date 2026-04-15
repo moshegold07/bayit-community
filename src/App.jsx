@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
 import Register from './pages/Register';
 import Login from './pages/Login';
@@ -22,17 +21,21 @@ export default function App() {
         setLoading(false);
         return;
       }
-      const snap = await getDoc(doc(db, 'users', user.uid));
-      if (!snap.exists()) {
+      try {
+        const snap = await db.getDoc('users', user.uid);
+        if (!snap.exists()) {
+          setPage('login');
+          setLoading(false);
+          return;
+        }
+        const data = { uid: user.uid, ...snap.data() };
+        setUserData(data);
+        if (data.role === 'admin') setPage('admin');
+        else if (data.status === 'pending') setPage('pending');
+        else setPage('dashboard');
+      } catch (_e) {
         setPage('login');
-        setLoading(false);
-        return;
       }
-      const data = { uid: user.uid, ...snap.data() };
-      setUserData(data);
-      if (data.role === 'admin') setPage('admin');
-      else if (data.status === 'pending') setPage('pending');
-      else setPage('dashboard');
       setLoading(false);
     });
     return unsub;
