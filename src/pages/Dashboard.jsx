@@ -8,6 +8,7 @@ import {
   BLUE_LT,
   BLUE_DK,
   AMBER,
+  CREAM,
   TEAL,
   GOLD,
   NAVY,
