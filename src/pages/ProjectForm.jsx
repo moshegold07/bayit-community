@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { s, BLUE, BLUE_LT, BLUE_DK } from '../components/shared';
+import { s, BLUE, BLUE_DK } from '../components/shared';
 import { FieldRow } from '../components/shared';
 import CategoryPicker from '../components/CategoryPicker';
 
@@ -71,7 +71,7 @@ export default function ProjectForm() {
       });
       navigate('/projects/' + newId);
     } catch (err) {
-      console.error('Failed to create project:', err);
+      // Failed to create project
       setErrors({ submit: 'שגיאה ביצירת הפרויקט. נסה שוב.' });
       setSaving(false);
     }
@@ -128,13 +128,11 @@ export default function ProjectForm() {
           </FieldRow>
 
           <FieldRow label="סטטוס">
-            <select
-              style={s.input}
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-            >
+            <select style={s.input} value={status} onChange={(e) => setStatus(e.target.value)}>
               {STATUS_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
               ))}
             </select>
           </FieldRow>
@@ -233,9 +231,7 @@ export default function ProjectForm() {
             </div>
           </FieldRow>
 
-          {errors.submit && (
-            <div style={{ ...s.err, marginBottom: 8 }}>{errors.submit}</div>
-          )}
+          {errors.submit && <div style={{ ...s.err, marginBottom: 8 }}>{errors.submit}</div>}
 
           <button
             type="submit"

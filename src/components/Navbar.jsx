@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { auth } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { s, BLUE, CREAM } from './shared';
+import { s, CREAM } from './shared';
 import HouseRulesModal from './HouseRulesModal';
 import SearchDropdown from './SearchDropdown';
 
@@ -64,7 +64,13 @@ export default function Navbar() {
 
   const actionItems = (
     <>
-      <button style={s.btnOutline} onClick={() => { setShowRules(true); setMenuOpen(false); }}>
+      <button
+        style={s.btnOutline}
+        onClick={() => {
+          setShowRules(true);
+          setMenuOpen(false);
+        }}
+      >
         חוקי הבית
       </button>
       <Link
@@ -89,16 +95,21 @@ export default function Navbar() {
             <div style={s.logo}>בַּיִת</div>
             <div style={s.sub}>— יזמים עבור יזמים —</div>
           </Link>
-          <nav style={{
-            display: 'flex',
-            gap: 4,
-            alignItems: 'center',
-          }}>
-            <div className="nav-links-desktop" style={{
+          <nav
+            style={{
               display: 'flex',
               gap: 4,
               alignItems: 'center',
-            }}>
+            }}
+          >
+            <div
+              className="nav-links-desktop"
+              style={{
+                display: 'flex',
+                gap: 4,
+                alignItems: 'center',
+              }}
+            >
               {linkItems}
             </div>
           </nav>
@@ -109,15 +120,16 @@ export default function Navbar() {
             <SearchDropdown />
           </div>
           {user && (
-            <span style={{ fontSize: 13, color: 'rgba(245,240,232,0.7)' }}>
-              שלום, {user.first}
-            </span>
+            <span style={{ fontSize: 13, color: 'rgba(245,240,232,0.7)' }}>שלום, {user.first}</span>
           )}
-          <div className="nav-actions-desktop" style={{
-            display: 'flex',
-            gap: 8,
-            alignItems: 'center',
-          }}>
+          <div
+            className="nav-actions-desktop"
+            style={{
+              display: 'flex',
+              gap: 8,
+              alignItems: 'center',
+            }}
+          >
             {actionItems}
           </div>
           <button
@@ -139,18 +151,18 @@ export default function Navbar() {
         </div>
 
         {menuOpen && (
-          <div style={{
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 8,
-            paddingTop: 12,
-            borderTop: '1px solid rgba(245,240,232,0.2)',
-          }}>
+          <div
+            style={{
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 8,
+              paddingTop: 12,
+              borderTop: '1px solid rgba(245,240,232,0.2)',
+            }}
+          >
             <SearchDropdown isMobile />
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {linkItems}
-            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>{linkItems}</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 4 }}>
               {actionItems}
             </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { s, BLUE, BLUE_DK, BLUE_LT } from '../components/shared';
+import { s, BLUE } from '../components/shared';
 import EventCard from '../components/EventCard';
 
 const TYPE_OPTIONS = [
@@ -10,8 +10,6 @@ const TYPE_OPTIONS = [
   { value: 'social', label: 'חברתי' },
   { value: 'online', label: 'אונליין' },
 ];
-
-const TYPE_LABELS = Object.fromEntries(TYPE_OPTIONS.map((o) => [o.value, o.label]));
 
 const EMPTY_FORM = {
   title: '',
@@ -41,7 +39,7 @@ export default function Events() {
         list.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
         setEvents(list);
       } catch (err) {
-        console.error('Failed to load events:', err);
+        // Failed to load events
       }
       setLoading(false);
     }
@@ -52,9 +50,7 @@ export default function Events() {
   const upcomingCount = events.filter((e) => (e.date || '') >= today).length;
 
   const filtered = events.filter((e) => {
-    const txt = [e.title, e.description, e.location, e.createdByName]
-      .join(' ')
-      .toLowerCase();
+    const txt = [e.title, e.description, e.location, e.createdByName].join(' ').toLowerCase();
     const matchSearch = !search || txt.includes(search.toLowerCase());
     const matchType = !filterType || e.type === filterType;
     return matchSearch && matchType;
@@ -69,12 +65,30 @@ export default function Events() {
     e.preventDefault();
     setError('');
 
-    if (!form.title.trim()) { setError('נא להזין כותרת'); return; }
-    if (form.title.length > 100) { setError('כותרת עד 100 תווים'); return; }
-    if (!form.description.trim()) { setError('נא להזין תיאור'); return; }
-    if (form.description.length > 2000) { setError('תיאור עד 2000 תווים'); return; }
-    if (!form.date) { setError('נא לבחור תאריך'); return; }
-    if (!form.time) { setError('נא לבחור שעה'); return; }
+    if (!form.title.trim()) {
+      setError('נא להזין כותרת');
+      return;
+    }
+    if (form.title.length > 100) {
+      setError('כותרת עד 100 תווים');
+      return;
+    }
+    if (!form.description.trim()) {
+      setError('נא להזין תיאור');
+      return;
+    }
+    if (form.description.length > 2000) {
+      setError('תיאור עד 2000 תווים');
+      return;
+    }
+    if (!form.date) {
+      setError('נא לבחור תאריך');
+      return;
+    }
+    if (!form.time) {
+      setError('נא לבחור שעה');
+      return;
+    }
 
     setSaving(true);
     try {
@@ -112,7 +126,14 @@ export default function Events() {
   return (
     <div style={{ ...s.body, maxWidth: 900 }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '1rem',
+        }}
+      >
         <h1 style={{ fontSize: 22, fontWeight: 600, color: '#222', margin: 0 }}>אירועים</h1>
         <button
           onClick={() => setShowForm((v) => !v)}
@@ -203,7 +224,9 @@ export default function Events() {
                   onChange={(e) => handleChange('type', e.target.value)}
                 >
                   {TYPE_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -235,14 +258,12 @@ export default function Events() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <select
-          style={selStyle}
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
-        >
+        <select style={selStyle} value={filterType} onChange={(e) => setFilterType(e.target.value)}>
           <option value="">כל הסוגים</option>
           {TYPE_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
           ))}
         </select>
       </div>
@@ -281,7 +302,9 @@ export default function Events() {
           }}
         >
           {filtered.length === 0 && (
-            <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '2rem', color: '#888' }}>
+            <div
+              style={{ gridColumn: '1/-1', textAlign: 'center', padding: '2rem', color: '#888' }}
+            >
               אין אירועים כרגע
             </div>
           )}

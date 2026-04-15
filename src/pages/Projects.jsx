@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
-import { s, BLUE, BLUE_LT, BLUE_DK } from '../components/shared';
+import { s, BLUE } from '../components/shared';
 import ProjectCard from '../components/ProjectCard';
 
 const STATUS_OPTIONS = [
@@ -28,11 +28,9 @@ export default function Projects() {
     async function load() {
       try {
         const docs = await db.getDocs('projects');
-        setProjects(
-          docs.map((d) => ({ id: d.id, ...d.data() }))
-        );
+        setProjects(docs.map((d) => ({ id: d.id, ...d.data() })));
       } catch (err) {
-        console.error('Failed to load projects:', err);
+        // Failed to load projects
       }
       setLoading(false);
     }
@@ -41,7 +39,13 @@ export default function Projects() {
 
   const filtered = projects
     .filter((p) => {
-      const txt = [p.title, p.description, p.createdByName, ...(p.categories || []), ...(p.lookingFor || [])]
+      const txt = [
+        p.title,
+        p.description,
+        p.createdByName,
+        ...(p.categories || []),
+        ...(p.lookingFor || []),
+      ]
         .join(' ')
         .toLowerCase();
       return (
@@ -54,7 +58,9 @@ export default function Projects() {
       return (b.createdAt || '').localeCompare(a.createdAt || '');
     });
 
-  const activeCount = projects.filter((p) => p.status === 'active' || p.status === 'looking').length;
+  const activeCount = projects.filter(
+    (p) => p.status === 'active' || p.status === 'looking',
+  ).length;
 
   const selStyle = { ...s.input, flex: 1, minWidth: 130 };
 
@@ -70,9 +76,7 @@ export default function Projects() {
           gap: 10,
         }}
       >
-        <h1 style={{ fontSize: 22, fontWeight: 500, margin: 0, color: '#222' }}>
-          פרויקטים
-        </h1>
+        <h1 style={{ fontSize: 22, fontWeight: 500, margin: 0, color: '#222' }}>פרויקטים</h1>
         <button
           onClick={() => navigate('/projects/new')}
           style={{
@@ -101,16 +105,16 @@ export default function Projects() {
           onChange={(e) => setFilterStatus(e.target.value)}
         >
           {STATUS_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
           ))}
         </select>
-        <select
-          style={selStyle}
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-        >
+        <select style={selStyle} value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
           {SORT_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
           ))}
         </select>
       </div>

@@ -16,11 +16,28 @@ function initials(m) {
 function UserModal({ user: u, onClose, onApprove, onDelete, onBadgeToggle }) {
   return (
     <div
-      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(0,0,0,0.45)',
+        zIndex: 200,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '1rem',
+      }}
       onClick={onClose}
     >
       <div
-        style={{ background: '#fff', borderRadius: 14, padding: '1.5rem', width: '100%', maxWidth: 480, maxHeight: '90vh', overflowY: 'auto' }}
+        style={{
+          background: '#fff',
+          borderRadius: 14,
+          padding: '1.5rem',
+          width: '100%',
+          maxWidth: 480,
+          maxHeight: '90vh',
+          overflowY: 'auto',
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         <div
@@ -78,58 +95,58 @@ function UserModal({ user: u, onClose, onApprove, onDelete, onBadgeToggle }) {
 
         <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
           <tbody>
-          {[
-            [
-              'טלפון',
-              <span
-                key="phone"
-                style={{ fontFamily: 'monospace', direction: 'ltr', display: 'inline-block' }}
-              >
-                {u.phone}
-              </span>,
-            ],
-            ['אימייל', u.email],
-            [
-              'אתר',
-              u.website ? (
-                <a
-                  key="website"
-                  href={u.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: BLUE }}
+            {[
+              [
+                'טלפון',
+                <span
+                  key="phone"
+                  style={{ fontFamily: 'monospace', direction: 'ltr', display: 'inline-block' }}
                 >
-                  פתח
-                </a>
-              ) : (
-                '—'
-              ),
-            ],
-            [
-              'לינקדין',
-              u.li ? (
-                <a
-                  key="linkedin"
-                  href={u.li}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: BLUE }}
-                >
-                  פתח
-                </a>
-              ) : (
-                '—'
-              ),
-            ],
-            ['הצטרף', u.createdAt ? new Date(u.createdAt).toLocaleDateString('he-IL') : '—'],
-          ].map(([label, val]) => (
-            <tr key={label}>
-              <td style={{ padding: '6px 0', color: '#888', width: 80, verticalAlign: 'top' }}>
-                {label}
-              </td>
-              <td style={{ padding: '6px 0', color: '#222' }}>{val || '—'}</td>
-            </tr>
-          ))}
+                  {u.phone}
+                </span>,
+              ],
+              ['אימייל', u.email],
+              [
+                'אתר',
+                u.website ? (
+                  <a
+                    key="website"
+                    href={u.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: BLUE }}
+                  >
+                    פתח
+                  </a>
+                ) : (
+                  '—'
+                ),
+              ],
+              [
+                'לינקדין',
+                u.li ? (
+                  <a
+                    key="linkedin"
+                    href={u.li}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: BLUE }}
+                  >
+                    פתח
+                  </a>
+                ) : (
+                  '—'
+                ),
+              ],
+              ['הצטרף', u.createdAt ? new Date(u.createdAt).toLocaleDateString('he-IL') : '—'],
+            ].map(([label, val]) => (
+              <tr key={label}>
+                <td style={{ padding: '6px 0', color: '#888', width: 80, verticalAlign: 'top' }}>
+                  {label}
+                </td>
+                <td style={{ padding: '6px 0', color: '#222' }}>{val || '—'}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
 
@@ -154,7 +171,9 @@ function UserModal({ user: u, onClose, onApprove, onDelete, onBadgeToggle }) {
           </div>
         )}
 
-        <div style={{ marginTop: 16, padding: '12px 14px', background: '#f9f9f7', borderRadius: 8 }}>
+        <div
+          style={{ marginTop: 16, padding: '12px 14px', background: '#f9f9f7', borderRadius: 8 }}
+        >
           <div style={{ fontSize: 12, color: '#888', marginBottom: 8, fontWeight: 500 }}>
             תגים (Badges)
           </div>
@@ -271,13 +290,9 @@ export default function Admin() {
     const user = users.find((u) => u.uid === uid);
     if (!user) return;
     const current = user.badges || [];
-    const newBadges = wasChecked
-      ? current.filter((b) => b !== badgeId)
-      : [...current, badgeId];
+    const newBadges = wasChecked ? current.filter((b) => b !== badgeId) : [...current, badgeId];
     await db.updateDoc('users', uid, { badges: newBadges });
-    setUsers((prev) =>
-      prev.map((u) => (u.uid === uid ? { ...u, badges: newBadges } : u)),
-    );
+    setUsers((prev) => prev.map((u) => (u.uid === uid ? { ...u, badges: newBadges } : u)));
     if (selected && selected.uid === uid) {
       setSelected((s) => ({ ...s, badges: newBadges }));
     }
@@ -424,7 +439,9 @@ export default function Admin() {
                         >
                           {initials(u)}
                         </div>
-                        <span>{u.first} {u.last}</span>
+                        <span>
+                          {u.first} {u.last}
+                        </span>
                         <BadgeDisplay badges={u.badges} />
                         {u.deleteRequest && (
                           <span

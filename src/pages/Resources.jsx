@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase';
-import { s, BLUE, BLUE_DK, BLUE_LT, CREAM } from '../components/shared';
+import { s, BLUE } from '../components/shared';
 import ResourceCard from '../components/ResourceCard';
 
 const CATEGORIES = {
@@ -43,12 +43,14 @@ export default function Resources() {
           setResources(docs.map((d) => ({ id: d.id, ...d.data() })));
         }
       } catch (err) {
-        console.error('Failed to load resources', err);
+        // Failed to load resources
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const filtered = useMemo(() => {
@@ -63,7 +65,7 @@ export default function Resources() {
         (r) =>
           (r.title || '').toLowerCase().includes(q) ||
           (r.description || '').toLowerCase().includes(q) ||
-          (r.tags || []).some((t) => t.toLowerCase().includes(q))
+          (r.tags || []).some((t) => t.toLowerCase().includes(q)),
       );
     }
 
@@ -106,16 +108,14 @@ export default function Resources() {
 
         setResources((prev) =>
           prev.map((r) =>
-            r.id === resourceId
-              ? { ...r, upvotes: newUpvotes, upvoteCount: newCount }
-              : r
-          )
+            r.id === resourceId ? { ...r, upvotes: newUpvotes, upvoteCount: newCount } : r,
+          ),
         );
       } catch (err) {
-        console.error('Upvote failed', err);
+        // Upvote failed
       }
     },
-    [user, resources]
+    [user, resources],
   );
 
   const handleSubmit = async (e) => {
@@ -168,7 +168,7 @@ export default function Resources() {
       setForm(EMPTY_FORM);
       setShowForm(false);
     } catch (err) {
-      console.error('Submit failed', err);
+      // Submit failed
       setError('שגיאה בשיתוף המשאב');
     } finally {
       setSubmitting(false);
@@ -179,16 +179,21 @@ export default function Resources() {
 
   if (loading) {
     return (
-      <div style={{ ...s.body, textAlign: 'center', padding: '3rem', color: '#888' }}>
-        טוען...
-      </div>
+      <div style={{ ...s.body, textAlign: 'center', padding: '3rem', color: '#888' }}>טוען...</div>
     );
   }
 
   return (
     <div style={s.body}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 16,
+        }}
+      >
         <h2 style={{ margin: 0, fontSize: 22, color: '#222' }}>ספריית משאבים</h2>
         <button
           onClick={() => setShowForm((v) => !v)}
@@ -247,7 +252,9 @@ export default function Resources() {
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+          <div
+            style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}
+          >
             <div>
               <label style={s.label}>קטגוריה</label>
               <select
@@ -314,7 +321,15 @@ export default function Resources() {
               </option>
             ))}
           </select>
-          <div style={{ display: 'flex', gap: 0, borderRadius: 8, overflow: 'hidden', border: '1px solid #ddd' }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: 0,
+              borderRadius: 8,
+              overflow: 'hidden',
+              border: '1px solid #ddd',
+            }}
+          >
             <button
               onClick={() => setSortBy('popular')}
               style={{
@@ -364,12 +379,7 @@ export default function Resources() {
         </div>
       ) : (
         filtered.map((r) => (
-          <ResourceCard
-            key={r.id}
-            resource={r}
-            currentUserId={user?.uid}
-            onUpvote={handleUpvote}
-          />
+          <ResourceCard key={r.id} resource={r} currentUserId={user?.uid} onUpvote={handleUpvote} />
         ))
       )}
     </div>

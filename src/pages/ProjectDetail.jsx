@@ -33,14 +33,13 @@ export default function ProjectDetail() {
         }
         setProject({ id: snap.id, ...snap.data() });
 
-        const commentDocs = await db.getDocs(
-          'projects/' + id + '/comments',
-          [],
-          { field: 'createdAt', direction: 'ASCENDING' }
-        );
+        const commentDocs = await db.getDocs('projects/' + id + '/comments', [], {
+          field: 'createdAt',
+          direction: 'ASCENDING',
+        });
         setComments(commentDocs.map((d) => ({ id: d.id, ...d.data() })));
       } catch (err) {
-        console.error('Failed to load project:', err);
+        // Failed to load project
         setNotFound(true);
       }
       setLoading(false);
@@ -69,7 +68,7 @@ export default function ProjectDetail() {
       }
       setProject({ ...project, members, memberCount: members.length });
     } catch (err) {
-      console.error('Failed to join project:', err);
+      // Failed to join project
     }
     setJoining(false);
   }
@@ -88,7 +87,7 @@ export default function ProjectDetail() {
       });
       setProject({ ...project, members, memberCount: members.length });
     } catch (err) {
-      console.error('Failed to leave project:', err);
+      // Failed to leave project
     }
     setJoining(false);
   }
@@ -116,7 +115,7 @@ export default function ProjectDetail() {
       ]);
       setCommentText('');
     } catch (err) {
-      console.error('Failed to add comment:', err);
+      // Failed to add comment
     }
     setSubmitting(false);
   }
@@ -132,9 +131,7 @@ export default function ProjectDetail() {
   if (notFound) {
     return (
       <div style={s.body}>
-        <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
-          הפרויקט לא נמצא
-        </div>
+        <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>הפרויקט לא נמצא</div>
         <button
           onClick={() => navigate('/projects')}
           style={{
@@ -199,7 +196,9 @@ export default function ProjectDetail() {
         {project.categories?.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 12 }}>
             {project.categories.map((cat) => (
-              <span key={cat} style={s.tag}>{cat}</span>
+              <span key={cat} style={s.tag}>
+                {cat}
+              </span>
             ))}
           </div>
         )}
@@ -250,7 +249,8 @@ export default function ProjectDetail() {
         )}
 
         <div style={{ fontSize: 13, color: '#888', marginBottom: 4 }}>
-          נוצר ע"י <span style={{ color: '#444', fontWeight: 500 }}>{project.createdByName}</span>
+          נוצר ע&quot;י{' '}
+          <span style={{ color: '#444', fontWeight: 500 }}>{project.createdByName}</span>
           {project.createdAt && (
             <span> · {new Date(project.createdAt).toLocaleDateString('he-IL')}</span>
           )}
@@ -378,7 +378,9 @@ export default function ProjectDetail() {
                       : ''}
                   </span>
                 </div>
-                <div style={{ fontSize: 14, color: '#444', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                <div
+                  style={{ fontSize: 14, color: '#444', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}
+                >
                   {c.text}
                 </div>
               </div>

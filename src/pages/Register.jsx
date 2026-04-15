@@ -161,7 +161,10 @@ export default function Register() {
 
       <Header>
         <span style={{ fontSize: 13, color: 'rgba(245,240,232,0.7)' }}>כבר רשום?</span>
-        <Link to="/login" style={{ ...s.btnSolid, textDecoration: 'none', display: 'inline-block' }}>
+        <Link
+          to="/login"
+          style={{ ...s.btnSolid, textDecoration: 'none', display: 'inline-block' }}
+        >
           התחברות
         </Link>
       </Header>

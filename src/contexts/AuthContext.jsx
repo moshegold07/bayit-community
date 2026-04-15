@@ -47,9 +47,7 @@ export function AuthProvider({ children }) {
   }, [fetchUserDoc]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, refreshUser }}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={{ user, loading, refreshUser }}>{children}</AuthContext.Provider>
   );
 }
 

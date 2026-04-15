@@ -1,11 +1,11 @@
 export const BADGE_DEFS = {
-  'early-adopter':    { label: 'חלוץ',           color: '#EF9F27', icon: '⭐' },
-  'first-event':      { label: 'אירוע ראשון',    color: '#1A8080', icon: '📅' },
-  'project-creator':  { label: 'יוצר פרויקט',    color: '#7A4F9A', icon: '🚀' },
-  'helpful':          { label: 'עוזר',            color: '#B05020', icon: '🤝' },
-  'active-member':    { label: 'חבר פעיל',        color: '#1A6FBF', icon: '💪' },
-  'mentor':           { label: 'מנטור',           color: '#2D8A4E', icon: '🎓' },
-  'connector':        { label: 'מחבר',            color: '#C44569', icon: '🔗' },
+  'early-adopter': { label: 'חלוץ', color: '#EF9F27', icon: '⭐' },
+  'first-event': { label: 'אירוע ראשון', color: '#1A8080', icon: '📅' },
+  'project-creator': { label: 'יוצר פרויקט', color: '#7A4F9A', icon: '🚀' },
+  helpful: { label: 'עוזר', color: '#B05020', icon: '🤝' },
+  'active-member': { label: 'חבר פעיל', color: '#1A6FBF', icon: '💪' },
+  mentor: { label: 'מנטור', color: '#2D8A4E', icon: '🎓' },
+  connector: { label: 'מחבר', color: '#C44569', icon: '🔗' },
 };
 
 const SIZES = {

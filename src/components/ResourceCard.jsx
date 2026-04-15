@@ -39,7 +39,14 @@ export default function ResourceCard({ resource, currentUserId, onUpvote }) {
 
   return (
     <div style={{ ...s.card, marginBottom: 12 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          gap: 8,
+        }}
+      >
         <a
           href={resource.url}
           target="_blank"
@@ -104,7 +111,9 @@ export default function ResourceCard({ resource, currentUserId, onUpvote }) {
           {resource.upvoteCount || 0}
         </button>
         <div style={{ fontSize: 11, color: '#aaa', display: 'flex', gap: 8, alignItems: 'center' }}>
-          <span>{'\u05E9\u05D5\u05EA\u05E3 \u05E2"\u05D9'} {resource.sharedByName || '---'}</span>
+          <span>
+            {'\u05E9\u05D5\u05EA\u05E3 \u05E2"\u05D9'} {resource.sharedByName || '---'}
+          </span>
           <span>{formatDate(resource.createdAt)}</span>
         </div>
       </div>

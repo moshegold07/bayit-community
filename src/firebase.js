@@ -46,7 +46,8 @@ function parseFirestoreDoc(fields) {
 function toFirestoreValue(val) {
   if (val === null || val === undefined) return { nullValue: null };
   if (typeof val === 'string') return { stringValue: val };
-  if (typeof val === 'number') return Number.isInteger(val) ? { integerValue: String(val) } : { doubleValue: val };
+  if (typeof val === 'number')
+    return Number.isInteger(val) ? { integerValue: String(val) } : { doubleValue: val };
   if (typeof val === 'boolean') return { booleanValue: val };
   if (Array.isArray(val)) return { arrayValue: { values: val.map(toFirestoreValue) } };
   if (typeof val === 'object') {
@@ -91,27 +92,38 @@ export const db = {
     const body = {
       structuredQuery: {
         from: [{ collectionId }],
-        where: filters.length > 0 ? {
-          compositeFilter: {
-            op: 'AND',
-            filters: filters.map(f => ({
-              fieldFilter: { field: { fieldPath: f.field }, op: f.op, value: toFirestoreValue(f.value) }
-            }))
-          }
-        } : undefined,
-        orderBy: orderBy ? [{
-          field: { fieldPath: orderBy.field },
-          direction: orderBy.direction || 'DESCENDING',
-        }] : undefined,
-      }
+        where:
+          filters.length > 0
+            ? {
+                compositeFilter: {
+                  op: 'AND',
+                  filters: filters.map((f) => ({
+                    fieldFilter: {
+                      field: { fieldPath: f.field },
+                      op: f.op,
+                      value: toFirestoreValue(f.value),
+                    },
+                  })),
+                },
+              }
+            : undefined,
+        orderBy: orderBy
+          ? [
+              {
+                field: { fieldPath: orderBy.field },
+                direction: orderBy.direction || 'DESCENDING',
+              },
+            ]
+          : undefined,
+      },
     };
     const results = await firestoreRequest(`${parentPath}:runQuery`, {
       method: 'POST',
       body: JSON.stringify(body),
     });
     return (results || [])
-      .filter(r => r.document)
-      .map(r => ({
+      .filter((r) => r.document)
+      .map((r) => ({
         id: r.document.name.split('/').pop(),
         exists: () => true,
         data: () => parseFirestoreDoc(r.document.fields || {}),
@@ -134,7 +146,7 @@ export const db = {
       fields[k] = toFirestoreValue(v);
       fieldPaths.push(k);
     }
-    const mask = fieldPaths.map(f => `updateMask.fieldPaths=${f}`).join('&');
+    const mask = fieldPaths.map((f) => `updateMask.fieldPaths=${f}`).join('&');
     await firestoreRequest(`/${collection}/${docId}?${mask}`, {
       method: 'PATCH',
       body: JSON.stringify({ fields }),

@@ -38,7 +38,10 @@ export default function Login() {
     <div style={s.wrap}>
       <Header>
         <span style={{ fontSize: 13, color: 'rgba(245,240,232,0.7)' }}>חדש?</span>
-        <Link to="/register" style={{ ...s.btnSolid, textDecoration: 'none', display: 'inline-block' }}>
+        <Link
+          to="/register"
+          style={{ ...s.btnSolid, textDecoration: 'none', display: 'inline-block' }}
+        >
           הצטרפות
         </Link>
       </Header>

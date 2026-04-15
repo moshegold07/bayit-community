@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
-import { BLUE, BLUE_DK, BLUE_LT } from './shared';
+import { BLUE_DK, BLUE_LT } from './shared';
 
 const CATEGORIES = [
   { key: 'users', label: 'חברים' },
@@ -20,34 +20,40 @@ function matchText(text, query) {
 
 function filterUsers(users, q) {
   return users
-    .filter(u =>
-      matchText(u.first, q) || matchText(u.last, q) || matchText(u.city, q) ||
-      matchText(u.domain, q) || matchText(u.does, q) || matchText(u.needs, q)
+    .filter(
+      (u) =>
+        matchText(u.first, q) ||
+        matchText(u.last, q) ||
+        matchText(u.city, q) ||
+        matchText(u.domain, q) ||
+        matchText(u.does, q) ||
+        matchText(u.needs, q),
     )
     .slice(0, MAX_PER_CATEGORY);
 }
 
 function filterEvents(events, q) {
   return events
-    .filter(e =>
-      matchText(e.title, q) || matchText(e.description, q) || matchText(e.location, q)
-    )
+    .filter((e) => matchText(e.title, q) || matchText(e.description, q) || matchText(e.location, q))
     .slice(0, MAX_PER_CATEGORY);
 }
 
 function filterProjects(projects, q) {
   return projects
-    .filter(p =>
-      matchText(p.title, q) || matchText(p.description, q) || matchText(p.categories, q)
+    .filter(
+      (p) => matchText(p.title, q) || matchText(p.description, q) || matchText(p.categories, q),
     )
     .slice(0, MAX_PER_CATEGORY);
 }
 
 function filterResources(resources, q) {
   return resources
-    .filter(r =>
-      matchText(r.title, q) || matchText(r.description, q) ||
-      matchText(r.tags, q) || matchText(r.url, q)
+    .filter(
+      (r) =>
+        matchText(r.title, q) ||
+        matchText(r.description, q) ||
+        matchText(r.tags, q) ||
+        matchText(r.url, q),
     )
     .slice(0, MAX_PER_CATEGORY);
 }
@@ -84,15 +90,19 @@ export default function SearchDropdown({ isMobile }) {
       db.getDocs('events'),
       db.getDocs('projects'),
       db.getDocs('resources'),
-    ]).then(([u, e, p, r]) => {
-      if (cancelled) return;
-      setAllUsers(u.map(d => ({ id: d.id, ...d.data() })));
-      setAllEvents(e.map(d => ({ id: d.id, ...d.data() })));
-      setAllProjects(p.map(d => ({ id: d.id, ...d.data() })));
-      setAllResources(r.map(d => ({ id: d.id, ...d.data() })));
-      setLoaded(true);
-    }).catch(() => {});
-    return () => { cancelled = true; };
+    ])
+      .then(([u, e, p, r]) => {
+        if (cancelled) return;
+        setAllUsers(u.map((d) => ({ id: d.id, ...d.data() })));
+        setAllEvents(e.map((d) => ({ id: d.id, ...d.data() })));
+        setAllProjects(p.map((d) => ({ id: d.id, ...d.data() })));
+        setAllResources(r.map((d) => ({ id: d.id, ...d.data() })));
+        setLoaded(true);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Debounce query
@@ -116,17 +126,21 @@ export default function SearchDropdown({ isMobile }) {
 
   // Build filtered results
   const q = debouncedQuery.trim();
-  const results = q ? {
-    users: filterUsers(allUsers, q),
-    events: filterEvents(allEvents, q),
-    projects: filterProjects(allProjects, q),
-    resources: filterResources(allResources, q),
-  } : null;
+  const results = q
+    ? {
+        users: filterUsers(allUsers, q),
+        events: filterEvents(allEvents, q),
+        projects: filterProjects(allProjects, q),
+        resources: filterResources(allResources, q),
+      }
+    : null;
 
-  const hasResults = results && (
-    results.users.length > 0 || results.events.length > 0 ||
-    results.projects.length > 0 || results.resources.length > 0
-  );
+  const hasResults =
+    results &&
+    (results.users.length > 0 ||
+      results.events.length > 0 ||
+      results.projects.length > 0 ||
+      results.resources.length > 0);
 
   function handleNavigate(path) {
     setQuery('');
@@ -142,8 +156,12 @@ export default function SearchDropdown({ isMobile }) {
         key={u.id}
         onClick={() => handleNavigate('/')}
         style={styles.resultRow}
-        onMouseEnter={e => { e.currentTarget.style.background = BLUE_LT; }}
-        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = BLUE_LT;
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'transparent';
+        }}
       >
         <span style={styles.resultTitle}>{name}</span>
         {u.city && <span style={styles.resultSub}>{u.city}</span>}
@@ -157,8 +175,12 @@ export default function SearchDropdown({ isMobile }) {
         key={ev.id}
         onClick={() => handleNavigate(`/events/${ev.id}`)}
         style={styles.resultRow}
-        onMouseEnter={e => { e.currentTarget.style.background = BLUE_LT; }}
-        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = BLUE_LT;
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'transparent';
+        }}
       >
         <span style={styles.resultTitle}>{ev.title}</span>
         {ev.date && <span style={styles.resultSub}>{formatDate(ev.date)}</span>}
@@ -172,8 +194,12 @@ export default function SearchDropdown({ isMobile }) {
         key={p.id}
         onClick={() => handleNavigate(`/projects/${p.id}`)}
         style={styles.resultRow}
-        onMouseEnter={e => { e.currentTarget.style.background = BLUE_LT; }}
-        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = BLUE_LT;
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'transparent';
+        }}
       >
         <span style={styles.resultTitle}>{p.title}</span>
         {p.status && <span style={styles.resultSub}>{p.status}</span>}
@@ -187,8 +213,12 @@ export default function SearchDropdown({ isMobile }) {
         key={r.id}
         onClick={() => handleNavigate('/resources')}
         style={styles.resultRow}
-        onMouseEnter={e => { e.currentTarget.style.background = BLUE_LT; }}
-        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = BLUE_LT;
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'transparent';
+        }}
       >
         <span style={styles.resultTitle}>{r.title}</span>
         {r.category && <span style={styles.resultSub}>{r.category}</span>}
@@ -196,15 +226,25 @@ export default function SearchDropdown({ isMobile }) {
     );
   }
 
-  const renderers = { users: renderUserRow, events: renderEventRow, projects: renderProjectRow, resources: renderResourceRow };
+  const renderers = {
+    users: renderUserRow,
+    events: renderEventRow,
+    projects: renderProjectRow,
+    resources: renderResourceRow,
+  };
 
   return (
     <div ref={wrapRef} style={{ position: 'relative', width: isMobile ? '100%' : 200 }}>
       <input
         type="text"
         value={query}
-        onChange={e => { setQuery(e.target.value); setShowDropdown(true); }}
-        onFocus={() => { if (query.trim()) setShowDropdown(true); }}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          setShowDropdown(true);
+        }}
+        onFocus={() => {
+          if (query.trim()) setShowDropdown(true);
+        }}
         placeholder="חיפוש בקהילה..."
         style={{
           ...styles.searchInput,
@@ -220,7 +260,7 @@ export default function SearchDropdown({ isMobile }) {
               return (
                 <div key={key}>
                   <div style={styles.groupHeader}>{label}</div>
-                  {items.map(item => renderers[key](item))}
+                  {items.map((item) => renderers[key](item))}
                 </div>
               );
             })

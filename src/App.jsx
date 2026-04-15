@@ -23,10 +23,37 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-          <Route path="/pending" element={<RequireAuth><Pending /></RequireAuth>} />
-          <Route element={<RequireActive><AppLayout /></RequireActive>}>
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <PublicRoute>
+                <Register />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/pending"
+            element={
+              <RequireAuth>
+                <Pending />
+              </RequireAuth>
+            }
+          />
+          <Route
+            element={
+              <RequireActive>
+                <AppLayout />
+              </RequireActive>
+            }
+          >
             <Route index element={<Dashboard />} />
             <Route path="events" element={<Events />} />
             <Route path="events/:id" element={<EventDetail />} />
@@ -35,7 +62,14 @@ export default function App() {
             <Route path="projects/:id" element={<ProjectDetail />} />
             <Route path="resources" element={<Resources />} />
             <Route path="edit-profile" element={<EditProfile />} />
-            <Route path="admin" element={<RequireAdmin><Admin /></RequireAdmin>} />
+            <Route
+              path="admin"
+              element={
+                <RequireAdmin>
+                  <Admin />
+                </RequireAdmin>
+              }
+            />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

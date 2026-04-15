@@ -60,7 +60,7 @@ export default function EventDetail() {
         }
         setUsers(userDocs.map((d) => ({ uid: d.id, ...d.data() })));
       } catch (err) {
-        console.error('Failed to load event:', err);
+        // Failed to load event
       }
       setLoading(false);
     }
@@ -98,7 +98,7 @@ export default function EventDetail() {
         updatedAt: new Date().toISOString(),
       });
     } catch (err) {
-      console.error('RSVP failed:', err);
+      // RSVP failed
       // Revert on error
       const snap = await db.getDoc('events', id);
       if (snap.exists()) {
@@ -125,12 +125,16 @@ export default function EventDetail() {
   if (!event) {
     return (
       <div style={{ ...s.body, maxWidth: 700 }}>
-        <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
-          אירוע לא נמצא
-        </div>
+        <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>אירוע לא נמצא</div>
         <Link
           to="/events"
-          style={{ display: 'block', textAlign: 'center', color: BLUE, textDecoration: 'none', marginTop: 12 }}
+          style={{
+            display: 'block',
+            textAlign: 'center',
+            color: BLUE,
+            textDecoration: 'none',
+            marginTop: 12,
+          }}
         >
           חזרה לאירועים
         </Link>
@@ -143,7 +147,13 @@ export default function EventDetail() {
       {/* Back link */}
       <Link
         to="/events"
-        style={{ color: BLUE, textDecoration: 'none', fontSize: 14, display: 'inline-block', marginBottom: 12 }}
+        style={{
+          color: BLUE,
+          textDecoration: 'none',
+          fontSize: 14,
+          display: 'inline-block',
+          marginBottom: 12,
+        }}
       >
         &larr; חזרה לאירועים
       </Link>
@@ -151,7 +161,14 @@ export default function EventDetail() {
       {/* Event card */}
       <div style={s.card}>
         {/* Title + type badge */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            marginBottom: 12,
+          }}
+        >
           <h1 style={{ fontSize: 22, fontWeight: 600, color: '#222', margin: 0, flex: 1 }}>
             {event.title}
           </h1>
@@ -176,11 +193,7 @@ export default function EventDetail() {
             {formatDateHebrew(event.date)}
             {event.time ? ` | ${event.time}` : ''}
           </div>
-          {event.location && (
-            <div style={{ fontSize: 14, color: '#888' }}>
-              {event.location}
-            </div>
-          )}
+          {event.location && <div style={{ fontSize: 14, color: '#888' }}>{event.location}</div>}
           <div style={{ fontSize: 13, color: '#888' }}>
             מארגן/ת: <span style={{ color: '#555', fontWeight: 500 }}>{event.createdByName}</span>
           </div>

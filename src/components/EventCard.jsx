@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { s, BLUE, BLUE_DK, BLUE_LT } from './shared';
+import { s, BLUE, BLUE_DK } from './shared';
 
 const TYPE_LABELS = {
   meetup: 'מפגש',
@@ -34,10 +34,7 @@ export default function EventCard({ event }) {
   const typeInfo = TYPE_COLORS[event.type] || TYPE_COLORS.meetup;
 
   return (
-    <Link
-      to={'/events/' + event.id}
-      style={{ textDecoration: 'none', color: 'inherit' }}
-    >
+    <Link to={'/events/' + event.id} style={{ textDecoration: 'none', color: 'inherit' }}>
       <div
         style={{
           ...s.card,
@@ -50,10 +47,15 @@ export default function EventCard({ event }) {
         onMouseEnter={(e) => (e.currentTarget.style.borderColor = BLUE)}
         onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#e0e0da')}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-          <div style={{ fontWeight: 500, fontSize: 16, color: '#222', flex: 1 }}>
-            {event.title}
-          </div>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            marginBottom: 8,
+          }}
+        >
+          <div style={{ fontWeight: 500, fontSize: 16, color: '#222', flex: 1 }}>{event.title}</div>
           <span
             style={{
               ...s.tag,
@@ -73,9 +75,7 @@ export default function EventCard({ event }) {
         </div>
 
         {event.location && (
-          <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>
-            {event.location}
-          </div>
+          <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>{event.location}</div>
         )}
 
         <div

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { s, BLUE, BLUE_LT, BLUE_DK } from './shared';
+import { s, BLUE } from './shared';
 
 const STATUS_MAP = {
   looking: { label: 'מחפש שותפים', color: '#EF9F27', bg: '#FFF8EC' },
@@ -12,10 +12,7 @@ export default function ProjectCard({ project }) {
   const status = STATUS_MAP[p.status] || STATUS_MAP.looking;
 
   return (
-    <Link
-      to={'/projects/' + p.id}
-      style={{ textDecoration: 'none', color: 'inherit' }}
-    >
+    <Link to={'/projects/' + p.id} style={{ textDecoration: 'none', color: 'inherit' }}>
       <div
         style={{
           ...s.card,
@@ -30,9 +27,7 @@ export default function ProjectCard({ project }) {
         onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#e0e0da')}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div style={{ fontWeight: 500, fontSize: 16, color: '#222', flex: 1 }}>
-            {p.title}
-          </div>
+          <div style={{ fontWeight: 500, fontSize: 16, color: '#222', flex: 1 }}>{p.title}</div>
           <span
             style={{
               fontSize: 11,
@@ -52,7 +47,9 @@ export default function ProjectCard({ project }) {
         {p.categories?.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
             {p.categories.map((cat) => (
-              <span key={cat} style={s.tag}>{cat}</span>
+              <span key={cat} style={s.tag}>
+                {cat}
+              </span>
             ))}
           </div>
         )}
@@ -81,9 +78,7 @@ export default function ProjectCard({ project }) {
             alignItems: 'center',
           }}
         >
-          <span style={{ fontSize: 12, color: '#888' }}>
-            {p.memberCount || 0} חברי צוות
-          </span>
+          <span style={{ fontSize: 12, color: '#888' }}>{p.memberCount || 0} חברי צוות</span>
           <span style={{ fontSize: 11, color: '#aaa' }}>לחץ לפרטים ›</span>
         </div>
       </div>
