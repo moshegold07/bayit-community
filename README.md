@@ -4,7 +4,7 @@
 
 **פלטפורמה קהילתית שמחברת יזמים, מייסדים ואנשי חדשנות.**
 
-[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen.svg)](https://bayit-community.vercel.app)
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen.svg)](https://www.bayit-community.com)
 [![CI](https://github.com/moshegold07/bayit-community/actions/workflows/ci.yml/badge.svg)](https://github.com/moshegold07/bayit-community/actions/workflows/ci.yml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/moshegold07/bayit-community/pulls)
 
@@ -200,10 +200,11 @@ bayit-community/
 
 ## Deployment
 
-The app auto-deploys to [bayit-community.vercel.app](https://bayit-community.vercel.app) when code is merged to `main`.
+The app auto-deploys to [www.bayit-community.com](https://www.bayit-community.com) when code is merged to `main`.
 
-- **Vercel** builds and hosts the frontend
-- **Firebase** handles auth and database (production keys are set in Vercel env vars)
+- **Domain:** `bayit-community.com` (managed via Cloudflare DNS)
+- **Hosting:** Vercel (auto-deploy from GitHub)
+- **Backend:** Firebase Auth + Firestore (production keys in Vercel env vars)
 - Contributors don't need production keys — local dev uses emulators
 
 ---
