@@ -3,6 +3,8 @@ import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE } from '../components/shared';
 import EventCard from '../components/EventCard';
+import CalendarView from '../components/CalendarView';
+import { logActivity } from '../utils/activityLog';
 
 const TYPE_OPTIONS = [
   { value: 'meetup', label: 'מפגש' },
@@ -30,6 +32,7 @@ export default function Events() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [viewMode, setViewMode] = useState('list');
 
   useEffect(() => {
     async function load() {
@@ -108,6 +111,7 @@ export default function Events() {
         updatedAt: now,
       };
       const id = await db.addDoc('events', newEvent);
+      logActivity({ type: 'event_created', actorName: newEvent.createdByName, title: newEvent.title, link: '/events/' + id });
       setEvents((prev) => {
         const updated = [{ id, ...newEvent }, ...prev];
         updated.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
@@ -285,7 +289,7 @@ export default function Events() {
             key={label}
             style={{
               background: '#fff',
-              border: '0.5px solid #e0e0da',
+              border: '1px solid #E8E5DE',
               borderRadius: 8,
               padding: '10px 16px',
               flex: 1,
@@ -297,9 +301,21 @@ export default function Events() {
         ))}
       </div>
 
-      {/* Event List */}
+      {/* View Toggle */}
+      <div style={{ display: 'flex', gap: 0, borderRadius: 8, overflow: 'hidden', border: '1px solid #ddd', marginBottom: '1rem', width: 'fit-content' }}>
+        <button onClick={() => setViewMode('list')} style={{ padding: '6px 16px', fontSize: 13, border: 'none', cursor: 'pointer', background: viewMode === 'list' ? BLUE : '#fff', color: viewMode === 'list' ? '#fff' : '#666', fontWeight: viewMode === 'list' ? 600 : 400 }}>
+          רשימה
+        </button>
+        <button onClick={() => setViewMode('calendar')} style={{ padding: '6px 16px', fontSize: 13, border: 'none', borderRight: '1px solid #ddd', cursor: 'pointer', background: viewMode === 'calendar' ? BLUE : '#fff', color: viewMode === 'calendar' ? '#fff' : '#666', fontWeight: viewMode === 'calendar' ? 600 : 400 }}>
+          לוח שנה
+        </button>
+      </div>
+
+      {/* Event List / Calendar */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>טוען...</div>
+      ) : viewMode === 'calendar' ? (
+        <CalendarView events={filtered} />
       ) : (
         <div
           style={{

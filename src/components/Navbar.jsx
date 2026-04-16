@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { auth } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { s, CREAM } from './shared';
+import { s, CREAM, DEV_PURPLE } from './shared';
 import HouseRulesModal from './HouseRulesModal';
 import SearchDropdown from './SearchDropdown';
+import { useTabBadges } from '../hooks/useTabBadges';
 
 const NAV_LINKS = [
   { to: '/', label: 'חברים' },
@@ -13,7 +14,20 @@ const NAV_LINKS = [
   { to: '/projects', label: 'פרויקטים' },
   { to: '/resources', label: 'תוכן' },
   { to: '/messages', label: 'הודעות' },
+  { to: '/matching', label: 'שדכ"ן' },
+  { to: '/polls', label: 'סקרים' },
 ];
+
+const badgeDotStyle = {
+  width: 7,
+  height: 7,
+  borderRadius: '50%',
+  background: '#E8A838',
+  display: 'inline-block',
+  marginLeft: 4,
+  verticalAlign: 'top',
+  flexShrink: 0,
+};
 
 export default function Navbar() {
   const { user } = useAuth();
@@ -21,6 +35,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [showRules, setShowRules] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { badges, notificationCount } = useTabBadges(user?.uid);
 
   function isActive(to) {
     if (to === '/') return location.pathname === '/';
@@ -43,11 +58,28 @@ export default function Navbar() {
             ...s.navLink,
             ...(isActive(to) ? s.navLinkActive : {}),
             textDecoration: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 0,
           }}
         >
           {label}
+          {badges[to] && <span style={badgeDotStyle} />}
         </Link>
       ))}
+      <Link
+        to="/dev"
+        onClick={() => setMenuOpen(false)}
+        style={{
+          ...s.navLink,
+          ...(isActive('/dev')
+            ? { color: '#D4B5FF', background: 'rgba(124,92,191,0.25)', fontWeight: 600 }
+            : { color: 'rgba(212,181,255,0.7)' }),
+          textDecoration: 'none',
+        }}
+      >
+        פיתוח
+      </Link>
       {user?.role === 'admin' && (
         <Link
           to="/admin"
@@ -97,20 +129,10 @@ export default function Navbar() {
             <div style={s.logo}>בַּיִת</div>
             <div style={s.sub}>— יזמים עבור יזמים —</div>
           </Link>
-          <nav
-            style={{
-              display: 'flex',
-              gap: 4,
-              alignItems: 'center',
-            }}
-          >
+          <nav style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
             <div
               className="nav-links-desktop"
-              style={{
-                display: 'flex',
-                gap: 4,
-                alignItems: 'center',
-              }}
+              style={{ display: 'flex', gap: 4, alignItems: 'center' }}
             >
               {linkItems}
             </div>
@@ -121,16 +143,62 @@ export default function Navbar() {
           <div className="nav-search-desktop" style={{ display: 'flex', alignItems: 'center' }}>
             <SearchDropdown />
           </div>
+
+          <Link
+            to="/notifications"
+            onClick={() => setMenuOpen(false)}
+            style={{
+              color: CREAM,
+              textDecoration: 'none',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              padding: 4,
+            }}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              width="20"
+              height="20"
+            >
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+            {notificationCount > 0 && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  minWidth: 16,
+                  height: 16,
+                  borderRadius: 8,
+                  background: '#E24B4A',
+                  color: '#fff',
+                  fontSize: 10,
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '0 3px',
+                }}
+              >
+                {notificationCount > 9 ? '9+' : notificationCount}
+              </span>
+            )}
+          </Link>
+
           {user && (
             <span style={{ fontSize: 13, color: 'rgba(245,240,232,0.7)' }}>שלום, {user.first}</span>
           )}
           <div
             className="nav-actions-desktop"
-            style={{
-              display: 'flex',
-              gap: 8,
-              alignItems: 'center',
-            }}
+            style={{ display: 'flex', gap: 8, alignItems: 'center' }}
           >
             {actionItems}
           </div>
@@ -148,7 +216,7 @@ export default function Navbar() {
               lineHeight: 1,
             }}
           >
-            {menuOpen ? '✕' : '☰'}
+            {menuOpen ? '\u2715' : '\u2630'}
           </button>
         </div>
 

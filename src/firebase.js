@@ -83,7 +83,7 @@ export const db = {
     };
   },
 
-  async getDocs(collection, filters = [], orderBy = null) {
+  async getDocs(collection, filters = [], orderBy = null, limitCount = null) {
     // For sub-collection paths like "projects/abc/comments",
     // collectionId is the last segment; runQuery targets the parent doc path
     const segments = collection.split('/');
@@ -115,6 +115,7 @@ export const db = {
               },
             ]
           : undefined,
+        limit: limitCount ? { value: limitCount } : undefined,
       },
     };
     const results = await firestoreRequest(`${parentPath}:runQuery`, {

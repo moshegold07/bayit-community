@@ -16,6 +16,8 @@ import {
   safeHref,
 } from '../components/shared';
 import BadgeDisplay from '../components/BadgeDisplay';
+import ActivityFeed from '../components/ActivityFeed';
+import EndorsementSection from '../components/EndorsementSection';
 
 function visibleField(member, field, isAdmin) {
   if (isAdmin) return true;
@@ -33,7 +35,7 @@ function initials(m) {
   return (m.first?.[0] || '') + (m.last?.[0] || '');
 }
 
-function MemberModal({ m, onClose, isAdmin }) {
+function MemberModal({ m, onClose, isAdmin, currentUser }) {
   return (
     <div
       style={{
@@ -223,6 +225,12 @@ function MemberModal({ m, onClose, isAdmin }) {
         >
           שלח הודעה
         </Link>
+        <EndorsementSection
+          targetUid={m.uid}
+          targetName={(m.first || '') + ' ' + (m.last || '')}
+          currentUserId={currentUser?.uid}
+          currentUserName={(currentUser?.first || '') + ' ' + (currentUser?.last || '')}
+        />
         <button
           onClick={onClose}
           style={{
@@ -285,7 +293,7 @@ export default function Dashboard() {
 
   return (
     <>
-      {selected && <MemberModal m={selected} onClose={() => setSelected(null)} isAdmin={isAdmin} />}
+      {selected && <MemberModal m={selected} onClose={() => setSelected(null)} isAdmin={isAdmin} currentUser={currentUser} />}
 
       <div style={{ ...s.body, maxWidth: 900 }}>
         <div style={{ display: 'flex', gap: 10, marginBottom: '1rem', flexWrap: 'wrap' }}>
@@ -345,6 +353,10 @@ export default function Dashboard() {
               <div style={{ fontSize: 22, fontWeight: 600, color }}>{val}</div>
             </div>
           ))}
+        </div>
+
+        <div style={{ marginBottom: '1rem' }}>
+          <ActivityFeed />
         </div>
 
         {loading ? (

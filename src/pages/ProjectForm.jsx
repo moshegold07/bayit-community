@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE, BLUE_DK } from '../components/shared';
 import { FieldRow } from '../components/shared';
 import CategoryPicker from '../components/CategoryPicker';
+import { logActivity } from '../utils/activityLog';
 
 const STATUS_OPTIONS = [
   { value: 'looking', label: 'מחפש שותפים' },
@@ -69,6 +70,7 @@ export default function ProjectForm() {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
+      logActivity({ type: 'project_posted', actorName: user.first + ' ' + user.last, title: title.trim(), link: '/projects/' + newId });
       navigate('/projects/' + newId);
     } catch (err) {
       console.error('Project create error:', err);

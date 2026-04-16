@@ -22,6 +22,10 @@ import ForumDetail from './pages/ForumDetail';
 import ForumPost from './pages/ForumPost';
 import Messages from './pages/Messages';
 import Chat from './pages/Chat';
+import DevTickets from './pages/DevTickets';
+import Notifications from './pages/Notifications';
+import Matching from './pages/Matching';
+import Polls from './pages/Polls';
 
 export default function App() {
   return (
@@ -71,6 +75,10 @@ export default function App() {
             <Route path="forums/:forumId/posts/:postId" element={<ForumPost />} />
             <Route path="messages" element={<Messages />} />
             <Route path="messages/:conversationId" element={<Chat />} />
+            <Route path="notifications" element={<Notifications />} />
+            <Route path="matching" element={<Matching />} />
+            <Route path="polls" element={<Polls />} />
+            <Route path="dev" element={<DevTickets />} />
             <Route path="edit-profile" element={<EditProfile />} />
             <Route
               path="admin"

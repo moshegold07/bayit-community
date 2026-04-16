@@ -118,8 +118,16 @@ export default function Chat() {
     );
   }
 
-  const otherUid = (conv.participants || []).find((p) => p !== user.uid) || '';
-  const otherName = conv.participantNames?.[otherUid] || 'משתמש';
+  const isGroup = conv && (conv.isGroup === true || (conv.participants || []).length > 2);
+  const otherUid = isGroup ? '' : (conv.participants || []).find((p) => p !== user.uid) || '';
+  const otherName = isGroup ? '' : (conv.participantNames?.[otherUid] || 'משתמש');
+  const headerName = isGroup ? (conv.groupName || 'קבוצה') : otherName;
+  const memberCount = (conv.participants || []).length;
+  const headerInitials = headerName
+    .split(' ')
+    .map((p) => p[0] || '')
+    .join('');
+  const headerAvatarBg = isGroup ? '#8B6AAE' : avColor(otherUid);
 
   return (
     <div
@@ -150,7 +158,7 @@ export default function Chat() {
             width: 36,
             height: 36,
             borderRadius: '50%',
-            background: avColor(otherUid),
+            background: headerAvatarBg,
             color: '#fff',
             display: 'flex',
             alignItems: 'center',
@@ -160,19 +168,21 @@ export default function Chat() {
             flexShrink: 0,
           }}
         >
-          {otherName
-            .split(' ')
-            .map((p) => p[0] || '')
-            .join('')}
+          {headerInitials}
         </div>
-        <div style={{ fontWeight: 500, fontSize: 16, color: '#222' }}>{otherName}</div>
+        <div>
+          <div style={{ fontWeight: 500, fontSize: 16, color: '#222' }}>{headerName}</div>
+          {isGroup && (
+            <div style={{ fontSize: 12, color: '#999' }}>({memberCount} חברים)</div>
+          )}
+        </div>
       </div>
 
       {/* Messages */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
         {messages.length === 0 && (
           <div style={{ textAlign: 'center', color: '#aaa', padding: '2rem 0', fontSize: 14 }}>
-            התחל שיחה עם {otherName}
+            {isGroup ? 'התחילו שיחה בקבוצה' : `התחל שיחה עם ${otherName}`}
           </div>
         )}
         {messages.map((m) => {
@@ -197,6 +207,18 @@ export default function Chat() {
                   lineHeight: 1.6,
                 }}
               >
+                {isGroup && !isMine && m.senderName && (
+                  <div
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: avColor(m.senderId || ''),
+                      marginBottom: 2,
+                    }}
+                  >
+                    {m.senderName}
+                  </div>
+                )}
                 <div dir="auto" style={{ whiteSpace: 'pre-wrap' }}>
                   {m.text}
                 </div>

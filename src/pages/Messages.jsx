@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE } from '../components/shared';
+import GroupCreateModal from '../components/GroupCreateModal';
 
 const AV = ['#1A8A7D', '#2A5A8A', '#8B6AAE', '#C47A3A', '#5A8A6A'];
 function avColor(id) {
@@ -20,6 +21,8 @@ export default function Messages() {
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showGroupModal, setShowGroupModal] = useState(false);
+  const [allMembers, setAllMembers] = useState([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -49,11 +52,21 @@ export default function Messages() {
         }
       }
 
+      // Load active members for group creation
+      try {
+        const userDocs = await db.getDocs('users', [{ field: 'status', op: 'EQUAL', value: 'active' }]);
+        if (!cancelled) setAllMembers(userDocs.map((d) => ({ uid: d.id, ...d.data() })));
+      } catch (err) {
+        console.error('Load members error:', err);
+      }
+
       if (cancelled) return;
 
       // Step 2: Handle ?to= param — open or create conversation (separate try block)
       if (toParam && toParam !== user.uid) {
-        const existing = convs.find((c) => (c.participants || []).includes(toParam));
+        const existing = convs.find(
+          (c) => !c.isGroup && (c.participants || []).length === 2 && (c.participants || []).includes(toParam),
+        );
         if (existing) {
           navigate('/messages/' + existing.id, { replace: true });
           return;
@@ -93,7 +106,23 @@ export default function Messages() {
 
   return (
     <div style={s.body}>
-      <h2 style={{ margin: '0 0 16px', fontSize: 22, color: '#222' }}>הודעות</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <h2 style={{ margin: 0, fontSize: 22, color: '#222' }}>הודעות</h2>
+        <button
+          onClick={() => setShowGroupModal(true)}
+          style={{
+            padding: '6px 16px',
+            background: BLUE,
+            color: '#fff',
+            border: 'none',
+            borderRadius: 8,
+            fontSize: 13,
+            cursor: 'pointer',
+          }}
+        >
+          + קבוצה חדשה
+        </button>
+      </div>
 
       {error && (
         <div
@@ -118,12 +147,15 @@ export default function Messages() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {conversations.map((c) => {
-            const otherUid = (c.participants || []).find((p) => p !== user.uid) || '';
-            const otherName = c.participantNames?.[otherUid] || 'משתמש';
-            const initials = otherName
+            const isGroup = c.isGroup === true;
+            const otherUid = isGroup ? '' : (c.participants || []).find((p) => p !== user.uid) || '';
+            const displayName = isGroup ? (c.groupName || 'קבוצה') : (c.participantNames?.[otherUid] || 'משתמש');
+            const initials = displayName
               .split(' ')
               .map((p) => p[0] || '')
               .join('');
+            const avatarBg = isGroup ? '#8B6AAE' : avColor(otherUid);
+            const memberCount = (c.participants || []).length;
             return (
               <div
                 key={c.id}
@@ -138,7 +170,7 @@ export default function Messages() {
                       width: 40,
                       height: 40,
                       borderRadius: '50%',
-                      background: avColor(otherUid),
+                      background: avatarBg,
                       color: '#fff',
                       display: 'flex',
                       alignItems: 'center',
@@ -159,8 +191,24 @@ export default function Messages() {
                         marginBottom: 2,
                       }}
                     >
-                      <span style={{ fontWeight: 500, fontSize: 15, color: '#222' }}>
-                        {otherName}
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontWeight: 500, fontSize: 15, color: '#222' }}>
+                          {displayName}
+                        </span>
+                        {isGroup && (
+                          <span
+                            style={{
+                              fontSize: 10,
+                              padding: '1px 7px',
+                              borderRadius: 20,
+                              background: '#EDF4FB',
+                              color: '#2A5A8A',
+                              fontWeight: 500,
+                            }}
+                          >
+                            קבוצה
+                          </span>
+                        )}
                       </span>
                       <span style={{ fontSize: 11, color: '#aaa' }}>
                         {c.lastMessageAt
@@ -173,6 +221,11 @@ export default function Messages() {
                           : ''}
                       </span>
                     </div>
+                    {isGroup && (
+                      <div style={{ fontSize: 12, color: '#999', marginBottom: 2 }}>
+                        ({memberCount} חברים)
+                      </div>
+                    )}
                     {c.lastMessage && (
                       <div
                         style={{
@@ -194,6 +247,17 @@ export default function Messages() {
             );
           })}
         </div>
+      )}
+      {showGroupModal && (
+        <GroupCreateModal
+          members={allMembers}
+          currentUser={user}
+          onClose={() => setShowGroupModal(false)}
+          onCreated={(convId) => {
+            setShowGroupModal(false);
+            navigate('/messages/' + convId);
+          }}
+        />
       )}
     </div>
   );

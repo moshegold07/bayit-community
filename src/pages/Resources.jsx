@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase';
 import { s, BLUE } from '../components/shared';
 import ResourceCard from '../components/ResourceCard';
+import { logActivity } from '../utils/activityLog';
 
 const CATEGORIES = {
   article: 'מאמר',
@@ -164,6 +165,7 @@ export default function Resources() {
         createdAt: new Date().toISOString(),
       };
       const id = await db.addDoc('resources', newResource);
+      logActivity({ type: 'resource_shared', actorName: newResource.sharedByName, title: newResource.title, link: '/resources' });
       setResources((prev) => [{ id, ...newResource }, ...prev]);
       setForm(EMPTY_FORM);
       setShowForm(false);
