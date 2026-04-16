@@ -36,8 +36,16 @@ function initials(m) {
 }
 
 const BAR_COLORS = [
-  '#1A8A7D', '#3B7DD8', '#8B6AAE', '#D4A34A', '#C47A3A',
-  '#5A8A6A', '#2A5A8A', '#E8A838', '#7C5CBF', '#2E8B6A',
+  '#1A8A7D',
+  '#3B7DD8',
+  '#8B6AAE',
+  '#D4A34A',
+  '#C47A3A',
+  '#5A8A6A',
+  '#2A5A8A',
+  '#E8A838',
+  '#7C5CBF',
+  '#2E8B6A',
 ];
 
 function DomainDistribution({ members, onSelect, activeDomain }) {
@@ -134,9 +142,7 @@ function DomainDistribution({ members, onSelect, activeDomain }) {
                   style={{
                     height: '100%',
                     width: `${(count / max) * 100}%`,
-                    background: isActive
-                      ? TEAL
-                      : BAR_COLORS[i % BAR_COLORS.length],
+                    background: isActive ? TEAL : BAR_COLORS[i % BAR_COLORS.length],
                     borderRadius: 4,
                     transition: 'width 0.3s ease',
                     opacity: isActive ? 1 : 0.75,
