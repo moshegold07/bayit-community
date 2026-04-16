@@ -35,6 +35,134 @@ function initials(m) {
   return (m.first?.[0] || '') + (m.last?.[0] || '');
 }
 
+const BAR_COLORS = [
+  '#1A8A7D', '#3B7DD8', '#8B6AAE', '#D4A34A', '#C47A3A',
+  '#5A8A6A', '#2A5A8A', '#E8A838', '#7C5CBF', '#2E8B6A',
+];
+
+function DomainDistribution({ members, onSelect, activeDomain }) {
+  const counts = {};
+  members.forEach((m) => {
+    const cats = m.categories?.length ? m.categories : m.domain ? [m.domain] : [];
+    cats.forEach((c) => {
+      counts[c] = (counts[c] || 0) + 1;
+    });
+  });
+
+  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  if (sorted.length === 0) return null;
+  const max = sorted[0][1];
+
+  return (
+    <div
+      style={{
+        background: '#fff',
+        border: '1px solid #E8E5DE',
+        borderRadius: 12,
+        padding: '1rem 1.25rem',
+        marginBottom: '1rem',
+      }}
+    >
+      <div
+        style={{
+          fontSize: 14,
+          fontWeight: 600,
+          color: NAVY,
+          marginBottom: 12,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <span>התפלגות תחומי עניין</span>
+        <span style={{ fontSize: 11, color: '#aaa', fontWeight: 400 }}>
+          {sorted.length} תחומים | {members.length} חברים
+        </span>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        {sorted.map(([domain, count], i) => {
+          const pct = Math.round((count / members.length) * 100);
+          const isActive = activeDomain === domain;
+          return (
+            <div
+              key={domain}
+              onClick={() => onSelect(isActive ? '' : domain)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                cursor: 'pointer',
+                padding: '4px 6px',
+                borderRadius: 6,
+                background: isActive ? '#F0F7F6' : 'transparent',
+                transition: 'background 0.15s',
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) e.currentTarget.style.background = '#FAFAF8';
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) e.currentTarget.style.background = 'transparent';
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 12,
+                  color: isActive ? TEAL : '#555',
+                  fontWeight: isActive ? 600 : 400,
+                  width: 110,
+                  flexShrink: 0,
+                  textAlign: 'right',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+                title={domain}
+              >
+                {domain}
+              </span>
+              <div
+                style={{
+                  flex: 1,
+                  height: 18,
+                  background: '#F2F1ED',
+                  borderRadius: 4,
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}
+              >
+                <div
+                  style={{
+                    height: '100%',
+                    width: `${(count / max) * 100}%`,
+                    background: isActive
+                      ? TEAL
+                      : BAR_COLORS[i % BAR_COLORS.length],
+                    borderRadius: 4,
+                    transition: 'width 0.3s ease',
+                    opacity: isActive ? 1 : 0.75,
+                  }}
+                />
+              </div>
+              <span
+                style={{
+                  fontSize: 12,
+                  color: '#888',
+                  width: 50,
+                  flexShrink: 0,
+                  textAlign: 'left',
+                  fontFamily: 'monospace',
+                }}
+              >
+                {count} ({pct}%)
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function MemberModal({ m, onClose, isAdmin, currentUser }) {
   return (
     <div
@@ -365,6 +493,14 @@ export default function Dashboard() {
         <div style={{ marginBottom: '1rem' }}>
           <ActivityFeed />
         </div>
+
+        {!loading && members.length > 0 && (
+          <DomainDistribution
+            members={members}
+            onSelect={setFilterDomain}
+            activeDomain={filterDomain}
+          />
+        )}
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>טוען...</div>
