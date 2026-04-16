@@ -41,7 +41,13 @@ export function filterHidden(items, isAdmin) {
   return items.filter((item) => !item.hidden);
 }
 
-export default function AdminContentAction({ collection, docId, hidden, onToggleHidden, onDelete }) {
+export default function AdminContentAction({
+  collection,
+  docId,
+  hidden,
+  onToggleHidden,
+  onDelete,
+}) {
   const { user } = useAuth();
   const [busy, setBusy] = useState(false);
 

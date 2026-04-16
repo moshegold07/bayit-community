@@ -171,7 +171,18 @@ export default function EventDetail() {
             marginBottom: 12,
           }}
         >
-          <h1 style={{ fontSize: 22, fontWeight: 600, color: '#222', margin: 0, flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h1
+            style={{
+              fontSize: 22,
+              fontWeight: 600,
+              color: '#222',
+              margin: 0,
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}
+          >
             {event.title}
             {event.hidden && <HiddenBadge />}
           </h1>
@@ -197,7 +208,9 @@ export default function EventDetail() {
             {event.time ? ` | ${event.time}` : ''}
           </div>
           {event.location && <div style={{ fontSize: 14, color: '#888' }}>{event.location}</div>}
-          <div style={{ fontSize: 13, color: '#888', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div
+            style={{ fontSize: 13, color: '#888', display: 'flex', alignItems: 'center', gap: 8 }}
+          >
             מארגן/ת: <span style={{ color: '#555', fontWeight: 500 }}>{event.createdByName}</span>
             <AdminContentAction
               collection="events"

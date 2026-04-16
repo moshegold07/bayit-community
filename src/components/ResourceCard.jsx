@@ -34,7 +34,13 @@ function formatDate(iso) {
   }
 }
 
-export default function ResourceCard({ resource, currentUserId, onUpvote, onToggleHidden, onDelete }) {
+export default function ResourceCard({
+  resource,
+  currentUserId,
+  onUpvote,
+  onToggleHidden,
+  onDelete,
+}) {
   const cat = CATEGORY_COLORS[resource.category] || CATEGORY_COLORS.other;
   const hasUpvoted = (resource.upvotes || []).includes(currentUserId);
 
@@ -52,7 +58,16 @@ export default function ResourceCard({ resource, currentUserId, onUpvote, onTogg
           href={safeHref(resource.url)}
           target="_blank"
           rel="noopener noreferrer"
-          style={{ fontWeight: 500, fontSize: 16, color: BLUE_DK, textDecoration: 'none', flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}
+          style={{
+            fontWeight: 500,
+            fontSize: 16,
+            color: BLUE_DK,
+            textDecoration: 'none',
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
           onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
           onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
         >

@@ -3,7 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE } from '../components/shared';
-import AdminContentAction, { HiddenBadge, hiddenItemStyle, filterHidden } from '../components/AdminContentAction';
+import AdminContentAction, {
+  HiddenBadge,
+  hiddenItemStyle,
+  filterHidden,
+} from '../components/AdminContentAction';
 
 const AV = ['#1A8A7D', '#2A5A8A', '#8B6AAE', '#C47A3A', '#5A8A6A'];
 function avColor(id) {
@@ -182,7 +186,17 @@ export default function ForumPost() {
             onDelete={handleDeletePost}
           />
         </div>
-        <h1 style={{ fontSize: 20, fontWeight: 500, margin: '0 0 10px', color: '#222', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <h1
+          style={{
+            fontSize: 20,
+            fontWeight: 500,
+            margin: '0 0 10px',
+            color: '#222',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
           {post.title}
           {post.hidden && <HiddenBadge />}
         </h1>
@@ -202,7 +216,10 @@ export default function ForumPost() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
           {visibleReplies.map((r) => (
-            <div key={r.id} style={{ ...s.card, padding: '10px 14px', ...hiddenItemStyle(r.hidden) }}>
+            <div
+              key={r.id}
+              style={{ ...s.card, padding: '10px 14px', ...hiddenItemStyle(r.hidden) }}
+            >
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                 <div
                   style={{

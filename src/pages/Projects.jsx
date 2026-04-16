@@ -170,7 +170,9 @@ export default function Projects() {
             <ProjectCard
               key={p.id}
               project={p}
-              onToggleHidden={(h) => setProjects((prev) => prev.map((x) => (x.id === p.id ? { ...x, hidden: h } : x)))}
+              onToggleHidden={(h) =>
+                setProjects((prev) => prev.map((x) => (x.id === p.id ? { ...x, hidden: h } : x)))
+              }
               onDelete={() => setProjects((prev) => prev.filter((x) => x.id !== p.id))}
             />
           ))}

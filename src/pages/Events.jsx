@@ -377,7 +377,9 @@ export default function Events() {
             <EventCard
               key={event.id}
               event={event}
-              onToggleHidden={(h) => setEvents((prev) => prev.map((e) => (e.id === event.id ? { ...e, hidden: h } : e)))}
+              onToggleHidden={(h) =>
+                setEvents((prev) => prev.map((e) => (e.id === event.id ? { ...e, hidden: h } : e)))
+              }
               onDelete={() => setEvents((prev) => prev.filter((e) => e.id !== event.id))}
             />
           ))}

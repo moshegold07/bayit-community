@@ -394,7 +394,9 @@ export default function Resources() {
             resource={r}
             currentUserId={user?.uid}
             onUpvote={handleUpvote}
-            onToggleHidden={(h) => setResources((prev) => prev.map((x) => (x.id === r.id ? { ...x, hidden: h } : x)))}
+            onToggleHidden={(h) =>
+              setResources((prev) => prev.map((x) => (x.id === r.id ? { ...x, hidden: h } : x)))
+            }
             onDelete={() => setResources((prev) => prev.filter((x) => x.id !== r.id))}
           />
         ))

@@ -4,7 +4,11 @@ import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE } from '../components/shared';
 import { logActivity } from '../utils/activityLog';
-import AdminContentAction, { HiddenBadge, hiddenItemStyle, filterHidden } from '../components/AdminContentAction';
+import AdminContentAction, {
+  HiddenBadge,
+  hiddenItemStyle,
+  filterHidden,
+} from '../components/AdminContentAction';
 
 const AV = ['#1A8A7D', '#2A5A8A', '#8B6AAE', '#C47A3A', '#5A8A6A'];
 function avColor(id) {
@@ -165,7 +169,9 @@ export default function Forums() {
         </form>
       )}
 
-      <div style={{ fontSize: 13, color: '#888', marginBottom: 12 }}>{visibleForums.length} נושאים</div>
+      <div style={{ fontSize: 13, color: '#888', marginBottom: 12 }}>
+        {visibleForums.length} נושאים
+      </div>
 
       {visibleForums.length === 0 ? (
         <div style={{ textAlign: 'center', color: '#aaa', padding: '2rem 0', fontSize: 15 }}>
@@ -180,7 +186,12 @@ export default function Forums() {
               style={{ textDecoration: 'none', color: 'inherit' }}
             >
               <div
-                style={{ ...s.card, cursor: 'pointer', transition: 'border-color 0.15s', ...hiddenItemStyle(f.hidden) }}
+                style={{
+                  ...s.card,
+                  cursor: 'pointer',
+                  transition: 'border-color 0.15s',
+                  ...hiddenItemStyle(f.hidden),
+                }}
                 onMouseEnter={(e) => (e.currentTarget.style.borderColor = BLUE)}
                 onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#E2E8F0')}
               >
@@ -206,7 +217,16 @@ export default function Forums() {
                       .join('')}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 500, fontSize: 16, color: '#222', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div
+                      style={{
+                        fontWeight: 500,
+                        fontSize: 16,
+                        color: '#222',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                      }}
+                    >
                       {f.title}
                       {f.hidden && <HiddenBadge />}
                     </div>

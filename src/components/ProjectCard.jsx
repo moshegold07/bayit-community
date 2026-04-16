@@ -29,7 +29,17 @@ export default function ProjectCard({ project, onToggleHidden, onDelete }) {
         onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#E8E5DE')}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div style={{ fontWeight: 500, fontSize: 16, color: '#222', flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div
+            style={{
+              fontWeight: 500,
+              fontSize: 16,
+              color: '#222',
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
             {p.title}
             {p.hidden && <HiddenBadge />}
           </div>

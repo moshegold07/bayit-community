@@ -360,7 +360,9 @@ export default function Polls() {
               poll={poll}
               currentUserId={user?.uid}
               onVote={handleVote}
-              onToggleHidden={(h) => setPolls((prev) => prev.map((p) => (p.id === poll.id ? { ...p, hidden: h } : p)))}
+              onToggleHidden={(h) =>
+                setPolls((prev) => prev.map((p) => (p.id === poll.id ? { ...p, hidden: h } : p)))
+              }
               onDelete={() => setPolls((prev) => prev.filter((p) => p.id !== poll.id))}
             />
           ))}

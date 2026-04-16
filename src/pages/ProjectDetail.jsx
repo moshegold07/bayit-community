@@ -3,7 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE, BLUE_LT, BLUE_DK } from '../components/shared';
-import AdminContentAction, { HiddenBadge, hiddenItemStyle, filterHidden } from '../components/AdminContentAction';
+import AdminContentAction, {
+  HiddenBadge,
+  hiddenItemStyle,
+  filterHidden,
+} from '../components/AdminContentAction';
 
 const STATUS_MAP = {
   looking: { label: 'מחפש שותפים', color: '#EF9F27', bg: '#FFF8EC' },
@@ -181,7 +185,17 @@ export default function ProjectDetail() {
             flexWrap: 'wrap',
           }}
         >
-          <h1 style={{ fontSize: 22, fontWeight: 500, margin: 0, color: '#222', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h1
+            style={{
+              fontSize: 22,
+              fontWeight: 500,
+              margin: 0,
+              color: '#222',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}
+          >
             {project.title}
             {project.hidden && <HiddenBadge />}
           </h1>
@@ -255,7 +269,16 @@ export default function ProjectDetail() {
           </div>
         )}
 
-        <div style={{ fontSize: 13, color: '#888', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div
+          style={{
+            fontSize: 13,
+            color: '#888',
+            marginBottom: 4,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
           נוצר ע&quot;י{' '}
           <span style={{ color: '#444', fontWeight: 500 }}>{project.createdByName}</span>
           {project.createdAt && (
@@ -391,7 +414,11 @@ export default function ProjectDetail() {
                       collection={'projects/' + id + '/comments'}
                       docId={c.id}
                       hidden={c.hidden}
-                      onToggleHidden={(h) => setComments((prev) => prev.map((x) => (x.id === c.id ? { ...x, hidden: h } : x)))}
+                      onToggleHidden={(h) =>
+                        setComments((prev) =>
+                          prev.map((x) => (x.id === c.id ? { ...x, hidden: h } : x)),
+                        )
+                      }
                       onDelete={() => setComments((prev) => prev.filter((x) => x.id !== c.id))}
                     />
                     <span style={{ fontSize: 11, color: '#aaa' }}>

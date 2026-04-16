@@ -57,7 +57,17 @@ export default function EventCard({ event, onToggleHidden, onDelete }) {
             marginBottom: 8,
           }}
         >
-          <div style={{ fontWeight: 500, fontSize: 16, color: '#222', flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div
+            style={{
+              fontWeight: 500,
+              fontSize: 16,
+              color: '#222',
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
             {event.title}
             {event.hidden && <HiddenBadge />}
           </div>

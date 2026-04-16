@@ -88,7 +88,17 @@ export default function PollCard({ poll, currentUserId, onVote, onToggleHidden, 
           gap: 8,
         }}
       >
-        <div style={{ fontWeight: 600, fontSize: 16, color: '#222', flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div
+          style={{
+            fontWeight: 600,
+            fontSize: 16,
+            color: '#222',
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+        >
           {poll.question}
           {poll.hidden && <HiddenBadge />}
         </div>
