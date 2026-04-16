@@ -5,6 +5,7 @@ import { s, BLUE } from '../components/shared';
 import EventCard from '../components/EventCard';
 import CalendarView from '../components/CalendarView';
 import { logActivity } from '../utils/activityLog';
+import { filterHidden } from '../components/AdminContentAction';
 
 const TYPE_OPTIONS = [
   { value: 'meetup', label: 'מפגש' },
@@ -49,10 +50,13 @@ export default function Events() {
     load();
   }, []);
 
-  const today = new Date().toISOString().slice(0, 10);
-  const upcomingCount = events.filter((e) => (e.date || '') >= today).length;
+  const isAdmin = user?.role === 'admin';
+  const visibleEvents = filterHidden(events, isAdmin);
 
-  const filtered = events.filter((e) => {
+  const today = new Date().toISOString().slice(0, 10);
+  const upcomingCount = visibleEvents.filter((e) => (e.date || '') >= today).length;
+
+  const filtered = visibleEvents.filter((e) => {
     const txt = [e.title, e.description, e.location, e.createdByName].join(' ').toLowerCase();
     const matchSearch = !search || txt.includes(search.toLowerCase());
     const matchType = !filterType || e.type === filterType;
@@ -370,7 +374,12 @@ export default function Events() {
             </div>
           )}
           {filtered.map((event) => (
-            <EventCard key={event.id} event={event} />
+            <EventCard
+              key={event.id}
+              event={event}
+              onToggleHidden={(h) => setEvents((prev) => prev.map((e) => (e.id === event.id ? { ...e, hidden: h } : e)))}
+              onDelete={() => setEvents((prev) => prev.filter((e) => e.id !== event.id))}
+            />
           ))}
         </div>
       )}

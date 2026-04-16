@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE } from '../components/shared';
+import AdminContentAction, { HiddenBadge, hiddenItemStyle, filterHidden } from '../components/AdminContentAction';
 
 const AV = ['#1A8A7D', '#2A5A8A', '#8B6AAE', '#C47A3A', '#5A8A6A'];
 function avColor(id) {
@@ -93,6 +94,17 @@ export default function ForumDetail() {
       setError('שגיאה ביצירת הפוסט: ' + (err.message || 'נסה שוב'));
     }
     setSubmitting(false);
+  }
+
+  const isAdmin = user?.role === 'admin';
+  const visiblePosts = filterHidden(posts, isAdmin);
+
+  function handleTogglePostHidden(postId, newHidden) {
+    setPosts((prev) => prev.map((p) => (p.id === postId ? { ...p, hidden: newHidden } : p)));
+  }
+
+  function handleDeletePost(postId) {
+    setPosts((prev) => prev.filter((p) => p.id !== postId));
   }
 
   if (loading) {
@@ -208,20 +220,20 @@ export default function ForumDetail() {
         </form>
       )}
 
-      {posts.length === 0 ? (
+      {visiblePosts.length === 0 ? (
         <div style={{ textAlign: 'center', color: '#aaa', padding: '2rem 0', fontSize: 15 }}>
           אין פוסטים עדיין. היה הראשון לפרסם!
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {posts.map((p) => (
+          {visiblePosts.map((p) => (
             <Link
               key={p.id}
               to={`/forums/${id}/posts/${p.id}`}
               style={{ textDecoration: 'none', color: 'inherit' }}
             >
               <div
-                style={{ ...s.card, cursor: 'pointer', transition: 'border-color 0.15s' }}
+                style={{ ...s.card, cursor: 'pointer', transition: 'border-color 0.15s', ...hiddenItemStyle(p.hidden) }}
                 onMouseEnter={(e) => (e.currentTarget.style.borderColor = BLUE)}
                 onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#E2E8F0')}
               >
@@ -248,18 +260,26 @@ export default function ForumDetail() {
                       .join('')}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 500, fontSize: 15, color: '#222', marginBottom: 2 }}>
+                    <div style={{ fontWeight: 500, fontSize: 15, color: '#222', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 6 }}>
                       {p.title}
+                      {p.hidden && <HiddenBadge />}
                     </div>
                     <div style={{ fontSize: 13, color: '#666', marginBottom: 6 }}>
                       {p.body?.length > 100 ? p.body.slice(0, 100) + '...' : p.body}
                     </div>
-                    <div style={{ display: 'flex', gap: 12, fontSize: 12, color: '#aaa' }}>
+                    <div style={{ display: 'flex', gap: 12, fontSize: 12, color: '#aaa', alignItems: 'center' }}>
                       <span>{p.authorName}</span>
                       <span>
                         {p.createdAt ? new Date(p.createdAt).toLocaleDateString('he-IL') : ''}
                       </span>
                       <span>{p.replyCount || 0} תגובות</span>
+                      <AdminContentAction
+                        collection={'forums/' + id + '/posts'}
+                        docId={p.id}
+                        hidden={p.hidden}
+                        onToggleHidden={(h) => handleTogglePostHidden(p.id, h)}
+                        onDelete={() => handleDeletePost(p.id)}
+                      />
                     </div>
                   </div>
                 </div>

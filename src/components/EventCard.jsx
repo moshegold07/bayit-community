@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { s, BLUE, BLUE_DK, TEAL } from './shared';
+import AdminContentAction, { HiddenBadge, hiddenItemStyle } from './AdminContentAction';
 
 const TYPE_LABELS = {
   meetup: 'מפגש',
@@ -30,7 +31,7 @@ function formatDateHebrew(dateStr) {
   }
 }
 
-export default function EventCard({ event }) {
+export default function EventCard({ event, onToggleHidden, onDelete }) {
   const typeInfo = TYPE_COLORS[event.type] || TYPE_COLORS.meetup;
 
   return (
@@ -43,6 +44,7 @@ export default function EventCard({ event }) {
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
+          ...hiddenItemStyle(event.hidden),
         }}
         onMouseEnter={(e) => (e.currentTarget.style.borderColor = TEAL)}
         onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#E8E5DE')}
@@ -55,7 +57,10 @@ export default function EventCard({ event }) {
             marginBottom: 8,
           }}
         >
-          <div style={{ fontWeight: 500, fontSize: 16, color: '#222', flex: 1 }}>{event.title}</div>
+          <div style={{ fontWeight: 500, fontSize: 16, color: '#222', flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+            {event.title}
+            {event.hidden && <HiddenBadge />}
+          </div>
           <span
             style={{
               ...s.tag,
@@ -91,7 +96,16 @@ export default function EventCard({ event }) {
           <span style={{ fontSize: 12, color: BLUE_DK, fontWeight: 500 }}>
             {event.rsvpCount || 0} משתתפים
           </span>
-          <span style={{ fontSize: 11, color: '#aaa' }}>לחץ לפרטים</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <AdminContentAction
+              collection="events"
+              docId={event.id}
+              hidden={event.hidden}
+              onToggleHidden={onToggleHidden}
+              onDelete={onDelete}
+            />
+            <span style={{ fontSize: 11, color: '#aaa' }}>לחץ לפרטים</span>
+          </div>
         </div>
       </div>
     </Link>

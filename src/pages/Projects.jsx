@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
+import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE } from '../components/shared';
 import ProjectCard from '../components/ProjectCard';
+import { filterHidden } from '../components/AdminContentAction';
 
 const STATUS_OPTIONS = [
   { value: '', label: 'כל הסטטוסים' },
@@ -18,6 +20,7 @@ const SORT_OPTIONS = [
 
 export default function Projects() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -37,7 +40,10 @@ export default function Projects() {
     load();
   }, []);
 
-  const filtered = projects
+  const isAdmin = user?.role === 'admin';
+  const visibleProjects = filterHidden(projects, isAdmin);
+
+  const filtered = visibleProjects
     .filter((p) => {
       const txt = [
         p.title,
@@ -58,7 +64,7 @@ export default function Projects() {
       return (b.createdAt || '').localeCompare(a.createdAt || '');
     });
 
-  const activeCount = projects.filter(
+  const activeCount = visibleProjects.filter(
     (p) => p.status === 'active' || p.status === 'looking',
   ).length;
 
@@ -161,7 +167,12 @@ export default function Projects() {
           }}
         >
           {filtered.map((p) => (
-            <ProjectCard key={p.id} project={p} />
+            <ProjectCard
+              key={p.id}
+              project={p}
+              onToggleHidden={(h) => setProjects((prev) => prev.map((x) => (x.id === p.id ? { ...x, hidden: h } : x)))}
+              onDelete={() => setProjects((prev) => prev.filter((x) => x.id !== p.id))}
+            />
           ))}
         </div>
       )}

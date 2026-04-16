@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE } from '../components/shared';
+import AdminContentAction, { HiddenBadge, hiddenItemStyle, filterHidden } from '../components/AdminContentAction';
 
 const AV = ['#1A8A7D', '#2A5A8A', '#8B6AAE', '#C47A3A', '#5A8A6A'];
 function avColor(id) {
@@ -82,6 +83,25 @@ export default function ForumPost() {
     setSubmitting(false);
   }
 
+  const isAdmin = user?.role === 'admin';
+  const visibleReplies = filterHidden(replies, isAdmin);
+
+  function handleToggleReplyHidden(replyId, newHidden) {
+    setReplies((prev) => prev.map((r) => (r.id === replyId ? { ...r, hidden: newHidden } : r)));
+  }
+
+  function handleDeleteReply(replyId) {
+    setReplies((prev) => prev.filter((r) => r.id !== replyId));
+  }
+
+  function handleDeletePost() {
+    navigate('/forums/' + forumId);
+  }
+
+  function handleTogglePostHidden(newHidden) {
+    setPost((prev) => (prev ? { ...prev, hidden: newHidden } : prev));
+  }
+
   if (loading) {
     return (
       <div style={{ ...s.body, textAlign: 'center', padding: '3rem', color: '#888' }}>טוען...</div>
@@ -119,7 +139,7 @@ export default function ForumPost() {
         &rarr; חזרה לנושא
       </button>
 
-      <div style={s.card}>
+      <div style={{ ...s.card, ...hiddenItemStyle(post.hidden) }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
           <div
             style={{
@@ -141,7 +161,7 @@ export default function ForumPost() {
               .map((x) => x[0] || '')
               .join('')}
           </div>
-          <div>
+          <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 500, fontSize: 14, color: '#333' }}>{post.authorName}</div>
             <div style={{ fontSize: 12, color: '#aaa' }}>
               {post.createdAt
@@ -154,9 +174,17 @@ export default function ForumPost() {
                 : ''}
             </div>
           </div>
+          <AdminContentAction
+            collection={postPath}
+            docId={postId}
+            hidden={post.hidden}
+            onToggleHidden={handleTogglePostHidden}
+            onDelete={handleDeletePost}
+          />
         </div>
-        <h1 style={{ fontSize: 20, fontWeight: 500, margin: '0 0 10px', color: '#222' }}>
+        <h1 style={{ fontSize: 20, fontWeight: 500, margin: '0 0 10px', color: '#222', display: 'flex', alignItems: 'center', gap: 8 }}>
           {post.title}
+          {post.hidden && <HiddenBadge />}
         </h1>
         <div style={{ fontSize: 14, color: '#333', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
           {post.body}
@@ -164,17 +192,17 @@ export default function ForumPost() {
       </div>
 
       <div style={{ fontSize: 15, fontWeight: 500, color: '#222', margin: '16px 0 10px' }}>
-        תגובות ({replies.length})
+        תגובות ({visibleReplies.length})
       </div>
 
-      {replies.length === 0 ? (
+      {visibleReplies.length === 0 ? (
         <div style={{ fontSize: 13, color: '#888', marginBottom: 12 }}>
           אין תגובות עדיין. היה הראשון להגיב!
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
-          {replies.map((r) => (
-            <div key={r.id} style={{ ...s.card, padding: '10px 14px' }}>
+          {visibleReplies.map((r) => (
+            <div key={r.id} style={{ ...s.card, padding: '10px 14px', ...hiddenItemStyle(r.hidden) }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                 <div
                   style={{
@@ -207,6 +235,15 @@ export default function ForumPost() {
                       })
                     : ''}
                 </span>
+                {r.hidden && <HiddenBadge />}
+                <span style={{ marginRight: 'auto' }} />
+                <AdminContentAction
+                  collection={replyPath}
+                  docId={r.id}
+                  hidden={r.hidden}
+                  onToggleHidden={(h) => handleToggleReplyHidden(r.id, h)}
+                  onDelete={() => handleDeleteReply(r.id)}
+                />
               </div>
               <div style={{ fontSize: 14, color: '#444', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
                 {r.body}

@@ -16,6 +16,11 @@ service cloud.firestore {
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == 'active';
     }
 
+    function touchesHiddenFields() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasAny(['hidden', 'hiddenAt', 'hiddenBy']);
+    }
+
     match /users/{userId} {
       allow create: if isSignedIn() && request.auth.uid == userId &&
         request.resource.data.role == 'member' &&
@@ -44,7 +49,8 @@ service cloud.firestore {
       allow read: if isActiveUser();
       allow create: if isActiveUser() &&
         request.resource.data.createdBy == request.auth.uid;
-      allow update: if isActiveUser();
+      allow update: if isActiveUser() &&
+        (!touchesHiddenFields() || isAdmin());
       allow delete: if isAdmin() ||
         (isActiveUser() && resource.data.createdBy == request.auth.uid);
     }
@@ -53,13 +59,15 @@ service cloud.firestore {
       allow read: if isActiveUser();
       allow create: if isActiveUser() &&
         request.resource.data.createdBy == request.auth.uid;
-      allow update: if isActiveUser();
+      allow update: if isActiveUser() &&
+        (!touchesHiddenFields() || isAdmin());
       allow delete: if isAdmin() ||
         (isActiveUser() && resource.data.createdBy == request.auth.uid);
       match /comments/{commentId} {
         allow read: if isActiveUser();
         allow create: if isActiveUser() &&
           request.resource.data.authorId == request.auth.uid;
+        allow update: if isAdmin() && touchesHiddenFields();
         allow delete: if isAdmin() ||
           (isActiveUser() && resource.data.authorId == request.auth.uid);
       }
@@ -69,7 +77,8 @@ service cloud.firestore {
       allow read: if isActiveUser();
       allow create: if isActiveUser() &&
         request.resource.data.sharedBy == request.auth.uid;
-      allow update: if isActiveUser();
+      allow update: if isActiveUser() &&
+        (!touchesHiddenFields() || isAdmin());
       allow delete: if isAdmin() ||
         (isActiveUser() && resource.data.sharedBy == request.auth.uid);
     }
@@ -83,20 +92,23 @@ service cloud.firestore {
       allow read: if isActiveUser();
       allow create: if isActiveUser() &&
         request.resource.data.createdBy == request.auth.uid;
-      allow update: if isActiveUser();
+      allow update: if isActiveUser() &&
+        (!touchesHiddenFields() || isAdmin());
       allow delete: if isAdmin() ||
         (isActiveUser() && resource.data.createdBy == request.auth.uid);
       match /posts/{postId} {
         allow read: if isActiveUser();
         allow create: if isActiveUser() &&
           request.resource.data.authorId == request.auth.uid;
-        allow update: if isActiveUser();
+        allow update: if isActiveUser() &&
+          (!touchesHiddenFields() || isAdmin());
         allow delete: if isAdmin() ||
           (isActiveUser() && resource.data.authorId == request.auth.uid);
         match /replies/{replyId} {
           allow read: if isActiveUser();
           allow create: if isActiveUser() &&
             request.resource.data.authorId == request.auth.uid;
+          allow update: if isAdmin() && touchesHiddenFields();
           allow delete: if isAdmin() ||
             (isActiveUser() && resource.data.authorId == request.auth.uid);
         }
@@ -122,8 +134,10 @@ service cloud.firestore {
       allow read: if isActiveUser();
       allow create: if isActiveUser() &&
         request.resource.data.createdBy == request.auth.uid;
-      allow update: if isActiveUser() &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['votes']);
+      allow update: if isActiveUser() && (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['votes']) ||
+        (isAdmin() && touchesHiddenFields())
+      );
       allow delete: if isAdmin() ||
         (isActiveUser() && resource.data.createdBy == request.auth.uid);
     }

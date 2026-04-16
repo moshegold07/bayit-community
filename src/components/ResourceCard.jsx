@@ -1,4 +1,5 @@
 import { s, BLUE, BLUE_DK, BLUE_LT, safeHref } from './shared';
+import AdminContentAction, { HiddenBadge, hiddenItemStyle } from './AdminContentAction';
 
 const CATEGORY_LABELS = {
   article: 'מאמר',
@@ -33,12 +34,12 @@ function formatDate(iso) {
   }
 }
 
-export default function ResourceCard({ resource, currentUserId, onUpvote }) {
+export default function ResourceCard({ resource, currentUserId, onUpvote, onToggleHidden, onDelete }) {
   const cat = CATEGORY_COLORS[resource.category] || CATEGORY_COLORS.other;
   const hasUpvoted = (resource.upvotes || []).includes(currentUserId);
 
   return (
-    <div style={{ ...s.card, marginBottom: 12 }}>
+    <div style={{ ...s.card, marginBottom: 12, ...hiddenItemStyle(resource.hidden) }}>
       <div
         style={{
           display: 'flex',
@@ -51,11 +52,12 @@ export default function ResourceCard({ resource, currentUserId, onUpvote }) {
           href={safeHref(resource.url)}
           target="_blank"
           rel="noopener noreferrer"
-          style={{ fontWeight: 500, fontSize: 16, color: BLUE_DK, textDecoration: 'none', flex: 1 }}
+          style={{ fontWeight: 500, fontSize: 16, color: BLUE_DK, textDecoration: 'none', flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}
           onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
           onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
         >
           {resource.title}
+          {resource.hidden && <HiddenBadge />}
         </a>
         <span style={{ ...s.tag, background: cat.bg, color: cat.color, flexShrink: 0 }}>
           {CATEGORY_LABELS[resource.category] || resource.category}
@@ -111,6 +113,13 @@ export default function ResourceCard({ resource, currentUserId, onUpvote }) {
           {resource.upvoteCount || 0}
         </button>
         <div style={{ fontSize: 11, color: '#aaa', display: 'flex', gap: 8, alignItems: 'center' }}>
+          <AdminContentAction
+            collection="resources"
+            docId={resource.id}
+            hidden={resource.hidden}
+            onToggleHidden={onToggleHidden}
+            onDelete={onDelete}
+          />
           <span>
             {'\u05E9\u05D5\u05EA\u05E3 \u05E2"\u05D9'} {resource.sharedByName || '---'}
           </span>

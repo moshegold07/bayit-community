@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { s, TEAL } from './shared';
+import AdminContentAction, { HiddenBadge, hiddenItemStyle } from './AdminContentAction';
 
 const STATUS_MAP = {
   looking: { label: 'מחפש שותפים', color: '#D4922E', bg: '#FFF8EB' },
@@ -7,7 +8,7 @@ const STATUS_MAP = {
   completed: { label: 'הושלם', color: '#888', bg: '#f0f0f0' },
 };
 
-export default function ProjectCard({ project }) {
+export default function ProjectCard({ project, onToggleHidden, onDelete }) {
   const p = project;
   const status = STATUS_MAP[p.status] || STATUS_MAP.looking;
 
@@ -22,12 +23,16 @@ export default function ProjectCard({ project }) {
           flexDirection: 'column',
           gap: 8,
           height: '100%',
+          ...hiddenItemStyle(p.hidden),
         }}
         onMouseEnter={(e) => (e.currentTarget.style.borderColor = TEAL)}
         onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#E8E5DE')}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div style={{ fontWeight: 500, fontSize: 16, color: '#222', flex: 1 }}>{p.title}</div>
+          <div style={{ fontWeight: 500, fontSize: 16, color: '#222', flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+            {p.title}
+            {p.hidden && <HiddenBadge />}
+          </div>
           <span
             style={{
               fontSize: 11,
@@ -79,7 +84,16 @@ export default function ProjectCard({ project }) {
           }}
         >
           <span style={{ fontSize: 12, color: '#888' }}>{p.memberCount || 0} חברי צוות</span>
-          <span style={{ fontSize: 11, color: '#aaa' }}>לחץ לפרטים ›</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <AdminContentAction
+              collection="projects"
+              docId={p.id}
+              hidden={p.hidden}
+              onToggleHidden={onToggleHidden}
+              onDelete={onDelete}
+            />
+            <span style={{ fontSize: 11, color: '#aaa' }}>לחץ לפרטים ›</span>
+          </div>
         </div>
       </div>
     </Link>

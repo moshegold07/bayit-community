@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE, BLUE_DK, BLUE_LT } from '../components/shared';
+import AdminContentAction, { HiddenBadge, hiddenItemStyle } from '../components/AdminContentAction';
 
 const TYPE_LABELS = {
   meetup: 'מפגש',
@@ -42,6 +43,7 @@ function formatDateHebrew(dateStr) {
 
 export default function EventDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [event, setEvent] = useState(null);
   const [users, setUsers] = useState([]);
@@ -159,7 +161,7 @@ export default function EventDetail() {
       </Link>
 
       {/* Event card */}
-      <div style={s.card}>
+      <div style={{ ...s.card, ...hiddenItemStyle(event.hidden) }}>
         {/* Title + type badge */}
         <div
           style={{
@@ -169,8 +171,9 @@ export default function EventDetail() {
             marginBottom: 12,
           }}
         >
-          <h1 style={{ fontSize: 22, fontWeight: 600, color: '#222', margin: 0, flex: 1 }}>
+          <h1 style={{ fontSize: 22, fontWeight: 600, color: '#222', margin: 0, flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
             {event.title}
+            {event.hidden && <HiddenBadge />}
           </h1>
           <span
             style={{
@@ -194,8 +197,15 @@ export default function EventDetail() {
             {event.time ? ` | ${event.time}` : ''}
           </div>
           {event.location && <div style={{ fontSize: 14, color: '#888' }}>{event.location}</div>}
-          <div style={{ fontSize: 13, color: '#888' }}>
+          <div style={{ fontSize: 13, color: '#888', display: 'flex', alignItems: 'center', gap: 8 }}>
             מארגן/ת: <span style={{ color: '#555', fontWeight: 500 }}>{event.createdByName}</span>
+            <AdminContentAction
+              collection="events"
+              docId={id}
+              hidden={event.hidden}
+              onToggleHidden={(h) => setEvent((prev) => (prev ? { ...prev, hidden: h } : prev))}
+              onDelete={() => navigate('/events')}
+            />
           </div>
         </div>
 

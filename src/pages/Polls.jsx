@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE } from '../components/shared';
 import { logActivity } from '../utils/activityLog';
 import PollCard from '../components/PollCard';
+import { filterHidden } from '../components/AdminContentAction';
 
 const EMPTY_FORM = {
   question: '',
@@ -41,7 +42,10 @@ export default function Polls() {
     };
   }, []);
 
-  const filtered = polls.filter((p) => {
+  const isAdmin = user?.role === 'admin';
+  const visiblePolls = filterHidden(polls, isAdmin);
+
+  const filtered = visiblePolls.filter((p) => {
     if (!search) return true;
     return (p.question || '').toLowerCase().includes(search.toLowerCase());
   });
@@ -337,7 +341,7 @@ export default function Polls() {
           }}
         >
           <div style={{ fontSize: 11, color: '#888', marginBottom: 2 }}>סה&quot;כ סקרים</div>
-          <div style={{ fontSize: 22, fontWeight: 500, color: BLUE }}>{polls.length}</div>
+          <div style={{ fontSize: 22, fontWeight: 500, color: BLUE }}>{visiblePolls.length}</div>
         </div>
       </div>
 
@@ -351,7 +355,14 @@ export default function Polls() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {filtered.map((poll) => (
-            <PollCard key={poll.id} poll={poll} currentUserId={user?.uid} onVote={handleVote} />
+            <PollCard
+              key={poll.id}
+              poll={poll}
+              currentUserId={user?.uid}
+              onVote={handleVote}
+              onToggleHidden={(h) => setPolls((prev) => prev.map((p) => (p.id === poll.id ? { ...p, hidden: h } : p)))}
+              onDelete={() => setPolls((prev) => prev.filter((p) => p.id !== poll.id))}
+            />
           ))}
         </div>
       )}

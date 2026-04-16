@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE, BLUE_LT, BLUE_DK } from '../components/shared';
+import AdminContentAction, { HiddenBadge, hiddenItemStyle, filterHidden } from '../components/AdminContentAction';
 
 const STATUS_MAP = {
   looking: { label: 'מחפש שותפים', color: '#EF9F27', bg: '#FFF8EC' },
@@ -50,7 +51,9 @@ export default function ProjectDetail() {
 
   const isMember = project?.members?.includes(user?.uid);
   const isCreator = project?.createdBy === user?.uid;
+  const isAdmin = user?.role === 'admin';
   const status = STATUS_MAP[project?.status] || STATUS_MAP.looking;
+  const visibleComments = filterHidden(comments, isAdmin);
 
   async function handleJoin() {
     if (!project || joining) return;
@@ -167,7 +170,7 @@ export default function ProjectDetail() {
         → חזרה לפרויקטים
       </button>
 
-      <div style={s.card}>
+      <div style={{ ...s.card, ...hiddenItemStyle(project.hidden) }}>
         <div
           style={{
             display: 'flex',
@@ -178,8 +181,9 @@ export default function ProjectDetail() {
             flexWrap: 'wrap',
           }}
         >
-          <h1 style={{ fontSize: 22, fontWeight: 500, margin: 0, color: '#222' }}>
+          <h1 style={{ fontSize: 22, fontWeight: 500, margin: 0, color: '#222', display: 'flex', alignItems: 'center', gap: 8 }}>
             {project.title}
+            {project.hidden && <HiddenBadge />}
           </h1>
           <span
             style={{
@@ -251,12 +255,19 @@ export default function ProjectDetail() {
           </div>
         )}
 
-        <div style={{ fontSize: 13, color: '#888', marginBottom: 4 }}>
+        <div style={{ fontSize: 13, color: '#888', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
           נוצר ע&quot;י{' '}
           <span style={{ color: '#444', fontWeight: 500 }}>{project.createdByName}</span>
           {project.createdAt && (
             <span> · {new Date(project.createdAt).toLocaleDateString('he-IL')}</span>
           )}
+          <AdminContentAction
+            collection="projects"
+            docId={id}
+            hidden={project.hidden}
+            onToggleHidden={(h) => setProject((prev) => (prev ? { ...prev, hidden: h } : prev))}
+            onDelete={() => navigate('/projects')}
+          />
         </div>
       </div>
 
@@ -342,44 +353,58 @@ export default function ProjectDetail() {
       {/* Comments section */}
       <div style={{ ...s.card, marginTop: 12 }}>
         <div style={{ fontSize: 15, fontWeight: 500, color: '#222', marginBottom: 12 }}>
-          תגובות ({comments.length})
+          תגובות ({visibleComments.length})
         </div>
 
-        {comments.length === 0 ? (
+        {visibleComments.length === 0 ? (
           <div style={{ fontSize: 13, color: '#888', marginBottom: 12 }}>
             אין תגובות עדיין. היה הראשון להגיב!
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
-            {comments.map((c) => (
+            {visibleComments.map((c) => (
               <div
                 key={c.id}
                 style={{
                   padding: '10px 12px',
                   background: '#f9f9f7',
                   borderRadius: 8,
+                  ...hiddenItemStyle(c.hidden),
                 }}
               >
                 <div
                   style={{
                     display: 'flex',
                     justifyContent: 'space-between',
+                    alignItems: 'center',
                     marginBottom: 4,
                   }}
                 >
-                  <span style={{ fontSize: 13, fontWeight: 500, color: '#333' }}>
-                    {c.authorName}
-                  </span>
-                  <span style={{ fontSize: 11, color: '#aaa' }}>
-                    {c.createdAt
-                      ? new Date(c.createdAt).toLocaleDateString('he-IL', {
-                          day: 'numeric',
-                          month: 'short',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })
-                      : ''}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 13, fontWeight: 500, color: '#333' }}>
+                      {c.authorName}
+                    </span>
+                    {c.hidden && <HiddenBadge />}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <AdminContentAction
+                      collection={'projects/' + id + '/comments'}
+                      docId={c.id}
+                      hidden={c.hidden}
+                      onToggleHidden={(h) => setComments((prev) => prev.map((x) => (x.id === c.id ? { ...x, hidden: h } : x)))}
+                      onDelete={() => setComments((prev) => prev.filter((x) => x.id !== c.id))}
+                    />
+                    <span style={{ fontSize: 11, color: '#aaa' }}>
+                      {c.createdAt
+                        ? new Date(c.createdAt).toLocaleDateString('he-IL', {
+                            day: 'numeric',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })
+                        : ''}
+                    </span>
+                  </div>
                 </div>
                 <div
                   style={{ fontSize: 14, color: '#444', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}

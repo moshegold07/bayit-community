@@ -4,6 +4,7 @@ import { db } from '../firebase';
 import { s, BLUE } from '../components/shared';
 import ResourceCard from '../components/ResourceCard';
 import { logActivity } from '../utils/activityLog';
+import { filterHidden } from '../components/AdminContentAction';
 
 const CATEGORIES = {
   article: 'מאמר',
@@ -54,8 +55,10 @@ export default function Resources() {
     };
   }, []);
 
+  const isAdmin = user?.role === 'admin';
+
   const filtered = useMemo(() => {
-    let list = [...resources];
+    let list = filterHidden([...resources], isAdmin);
 
     if (catFilter) {
       list = list.filter((r) => r.category === catFilter);
@@ -77,7 +80,7 @@ export default function Resources() {
     }
 
     return list;
-  }, [resources, catFilter, search, sortBy]);
+  }, [resources, catFilter, search, sortBy, isAdmin]);
 
   const handleUpvote = useCallback(
     async (resourceId) => {
@@ -386,7 +389,14 @@ export default function Resources() {
         </div>
       ) : (
         filtered.map((r) => (
-          <ResourceCard key={r.id} resource={r} currentUserId={user?.uid} onUpvote={handleUpvote} />
+          <ResourceCard
+            key={r.id}
+            resource={r}
+            currentUserId={user?.uid}
+            onUpvote={handleUpvote}
+            onToggleHidden={(h) => setResources((prev) => prev.map((x) => (x.id === r.id ? { ...x, hidden: h } : x)))}
+            onDelete={() => setResources((prev) => prev.filter((x) => x.id !== r.id))}
+          />
         ))
       )}
     </div>

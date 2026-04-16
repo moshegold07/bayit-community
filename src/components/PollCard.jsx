@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { s, BLUE } from './shared';
+import AdminContentAction, { HiddenBadge, hiddenItemStyle } from './AdminContentAction';
 
 function formatDateHebrew(dateStr) {
   if (!dateStr) return '';
@@ -42,7 +43,7 @@ function getUserVotedIndices(poll, userId) {
   return indices;
 }
 
-export default function PollCard({ poll, currentUserId, onVote }) {
+export default function PollCard({ poll, currentUserId, onVote, onToggleHidden, onDelete }) {
   const [selectedMulti, setSelectedMulti] = useState([]);
   const [submittingMulti, setSubmittingMulti] = useState(false);
 
@@ -76,7 +77,7 @@ export default function PollCard({ poll, currentUserId, onVote }) {
   const showResults = hasVoted || isExpired;
 
   return (
-    <div style={{ ...s.card, direction: 'rtl' }}>
+    <div style={{ ...s.card, direction: 'rtl', ...hiddenItemStyle(poll.hidden) }}>
       {/* Header row */}
       <div
         style={{
@@ -87,7 +88,10 @@ export default function PollCard({ poll, currentUserId, onVote }) {
           gap: 8,
         }}
       >
-        <div style={{ fontWeight: 600, fontSize: 16, color: '#222', flex: 1 }}>{poll.question}</div>
+        <div style={{ fontWeight: 600, fontSize: 16, color: '#222', flex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+          {poll.question}
+          {poll.hidden && <HiddenBadge />}
+        </div>
         {isExpired && (
           <span
             style={{
@@ -261,7 +265,16 @@ export default function PollCard({ poll, currentUserId, onVote }) {
         }}
       >
         <span>{voterCount} מצביעים</span>
-        <span>{total} הצבעות</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <AdminContentAction
+            collection="polls"
+            docId={poll.id}
+            hidden={poll.hidden}
+            onToggleHidden={onToggleHidden}
+            onDelete={onDelete}
+          />
+          <span>{total} הצבעות</span>
+        </div>
       </div>
     </div>
   );

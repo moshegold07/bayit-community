@@ -4,6 +4,7 @@ import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE } from '../components/shared';
 import { logActivity } from '../utils/activityLog';
+import AdminContentAction, { HiddenBadge, hiddenItemStyle, filterHidden } from '../components/AdminContentAction';
 
 const AV = ['#1A8A7D', '#2A5A8A', '#8B6AAE', '#C47A3A', '#5A8A6A'];
 function avColor(id) {
@@ -83,6 +84,17 @@ export default function Forums() {
     setSubmitting(false);
   }
 
+  const isAdmin = user?.role === 'admin';
+  const visibleForums = filterHidden(forums, isAdmin);
+
+  function handleToggleHidden(forumId, newHidden) {
+    setForums((prev) => prev.map((f) => (f.id === forumId ? { ...f, hidden: newHidden } : f)));
+  }
+
+  function handleDeleteForum(forumId) {
+    setForums((prev) => prev.filter((f) => f.id !== forumId));
+  }
+
   if (loading) {
     return (
       <div style={{ ...s.body, textAlign: 'center', padding: '3rem', color: '#888' }}>טוען...</div>
@@ -153,22 +165,22 @@ export default function Forums() {
         </form>
       )}
 
-      <div style={{ fontSize: 13, color: '#888', marginBottom: 12 }}>{forums.length} נושאים</div>
+      <div style={{ fontSize: 13, color: '#888', marginBottom: 12 }}>{visibleForums.length} נושאים</div>
 
-      {forums.length === 0 ? (
+      {visibleForums.length === 0 ? (
         <div style={{ textAlign: 'center', color: '#aaa', padding: '2rem 0', fontSize: 15 }}>
           אין נושאים בפורום עדיין
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {forums.map((f) => (
+          {visibleForums.map((f) => (
             <Link
               key={f.id}
               to={`/forums/${f.id}`}
               style={{ textDecoration: 'none', color: 'inherit' }}
             >
               <div
-                style={{ ...s.card, cursor: 'pointer', transition: 'border-color 0.15s' }}
+                style={{ ...s.card, cursor: 'pointer', transition: 'border-color 0.15s', ...hiddenItemStyle(f.hidden) }}
                 onMouseEnter={(e) => (e.currentTarget.style.borderColor = BLUE)}
                 onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#E2E8F0')}
               >
@@ -194,7 +206,10 @@ export default function Forums() {
                       .join('')}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 500, fontSize: 16, color: '#222' }}>{f.title}</div>
+                    <div style={{ fontWeight: 500, fontSize: 16, color: '#222', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      {f.title}
+                      {f.hidden && <HiddenBadge />}
+                    </div>
                     {f.description && (
                       <div style={{ fontSize: 13, color: '#666', marginTop: 2 }}>
                         {f.description.length > 100
@@ -214,14 +229,24 @@ export default function Forums() {
                   style={{
                     display: 'flex',
                     justifyContent: 'space-between',
+                    alignItems: 'center',
                     fontSize: 12,
                     color: '#aaa',
                   }}
                 >
                   <span>נוצר ע&quot;י {f.createdByName}</span>
-                  <span>
-                    {f.lastPostAt ? new Date(f.lastPostAt).toLocaleDateString('he-IL') : ''}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <AdminContentAction
+                      collection="forums"
+                      docId={f.id}
+                      hidden={f.hidden}
+                      onToggleHidden={(h) => handleToggleHidden(f.id, h)}
+                      onDelete={() => handleDeleteForum(f.id)}
+                    />
+                    <span>
+                      {f.lastPostAt ? new Date(f.lastPostAt).toLocaleDateString('he-IL') : ''}
+                    </span>
+                  </div>
                 </div>
               </div>
             </Link>
