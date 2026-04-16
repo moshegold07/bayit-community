@@ -316,9 +316,7 @@ function MemberModal({ m, onClose, isAdmin, currentUser, isPending }) {
               borderRadius: 8,
             }}
           >
-            <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>
-              במה אני יכול לעזור
-            </div>
+            <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>במה אני יכול לעזור</div>
             <div style={{ fontSize: 14, color: '#222', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
               {m.canHelpWith}
             </div>
@@ -452,7 +450,9 @@ export default function Dashboard() {
 
   const domains = [
     ...new Set(
-      allForStats.flatMap((m) => (m.categories?.length ? m.categories : m.domain ? [m.domain] : [])),
+      allForStats.flatMap((m) =>
+        m.categories?.length ? m.categories : m.domain ? [m.domain] : [],
+      ),
     ),
   ].sort();
   const cities = [...new Set(allForStats.map((m) => m.city).filter(Boolean))].sort();
@@ -678,118 +678,125 @@ export default function Dashboard() {
           </div>
         )}
 
-        {!loading && formRegs.length > 0 && (() => {
-          const filtered = formRegs.filter((r) => {
-            const txt = [r.fullName, r.location, r.mainField, r.subField, r.whatTheyDo]
-              .join(' ')
-              .toLowerCase();
-            return !search || txt.includes(search.toLowerCase());
-          });
-          if (filtered.length === 0) return null;
-          return (
-            <div style={{ marginTop: '1.5rem' }}>
-              <div
-                style={{
-                  fontSize: 15,
-                  fontWeight: 600,
-                  color: NAVY,
-                  marginBottom: 10,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                }}
-              >
-                <span>נרשמו בטופס — ממתינים להפעלה</span>
-                <span
+        {!loading &&
+          formRegs.length > 0 &&
+          (() => {
+            const filtered = formRegs.filter((r) => {
+              const txt = [r.fullName, r.location, r.mainField, r.subField, r.whatTheyDo]
+                .join(' ')
+                .toLowerCase();
+              return !search || txt.includes(search.toLowerCase());
+            });
+            if (filtered.length === 0) return null;
+            return (
+              <div style={{ marginTop: '1.5rem' }}>
+                <div
                   style={{
-                    fontSize: 11,
-                    background: AMBER_LT,
-                    color: '#8B6700',
-                    borderRadius: 10,
-                    padding: '2px 8px',
-                    fontWeight: 500,
+                    fontSize: 15,
+                    fontWeight: 600,
+                    color: NAVY,
+                    marginBottom: 10,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
                   }}
                 >
-                  {filtered.length}
-                </span>
-              </div>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))',
-                  gap: 12,
-                }}
-              >
-                {filtered.map((r) => {
-                  const nameParts = (r.fullName || '').split(/\s+/);
-                  const fi = nameParts[0]?.[0] || '';
-                  const li = nameParts[1]?.[0] || '';
-                  return (
-                    <div
-                      key={r.id}
-                      style={{
-                        background: '#fff',
-                        border: '1px dashed #D5D0C8',
-                        borderRadius: 12,
-                        padding: '1rem',
-                        opacity: 0.85,
-                      }}
-                    >
+                  <span>נרשמו בטופס — ממתינים להפעלה</span>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      background: AMBER_LT,
+                      color: '#8B6700',
+                      borderRadius: 10,
+                      padding: '2px 8px',
+                      fontWeight: 500,
+                    }}
+                  >
+                    {filtered.length}
+                  </span>
+                </div>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))',
+                    gap: 12,
+                  }}
+                >
+                  {filtered.map((r) => {
+                    const nameParts = (r.fullName || '').split(/\s+/);
+                    const fi = nameParts[0]?.[0] || '';
+                    const li = nameParts[1]?.[0] || '';
+                    return (
                       <div
-                        style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}
+                        key={r.id}
+                        style={{
+                          background: '#fff',
+                          border: '1px dashed #D5D0C8',
+                          borderRadius: 12,
+                          padding: '1rem',
+                          opacity: 0.85,
+                        }}
                       >
                         <div
                           style={{
-                            width: 38,
-                            height: 38,
-                            borderRadius: '50%',
-                            background: '#ccc',
-                            color: '#fff',
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'center',
-                            fontWeight: 500,
-                            fontSize: 13,
-                            flexShrink: 0,
+                            gap: 10,
+                            marginBottom: 8,
                           }}
                         >
-                          {fi}
-                          {li}
+                          <div
+                            style={{
+                              width: 38,
+                              height: 38,
+                              borderRadius: '50%',
+                              background: '#ccc',
+                              color: '#fff',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontWeight: 500,
+                              fontSize: 13,
+                              flexShrink: 0,
+                            }}
+                          >
+                            {fi}
+                            {li}
+                          </div>
+                          <div>
+                            <div style={{ fontWeight: 500, fontSize: 15 }}>{r.fullName}</div>
+                            {r.location && (
+                              <div style={{ fontSize: 12, color: '#888' }}>{r.location}</div>
+                            )}
+                          </div>
                         </div>
-                        <div>
-                          <div style={{ fontWeight: 500, fontSize: 15 }}>{r.fullName}</div>
-                          {r.location && (
-                            <div style={{ fontSize: 12, color: '#888' }}>{r.location}</div>
-                          )}
-                        </div>
+                        {r.subField && r.subField !== 'אחר' && (
+                          <span
+                            style={{
+                              fontSize: 11,
+                              padding: '2px 9px',
+                              borderRadius: 20,
+                              background: '#F5F0E8',
+                              color: '#8B6700',
+                              fontWeight: 500,
+                            }}
+                          >
+                            {r.subField}
+                          </span>
+                        )}
+                        {r.whatTheyDo && (
+                          <div style={{ fontSize: 13, color: '#666', marginTop: 8 }}>
+                            {r.whatTheyDo.slice(0, 80)}
+                            {r.whatTheyDo.length > 80 ? '...' : ''}
+                          </div>
+                        )}
                       </div>
-                      {r.subField && r.subField !== 'אחר' && (
-                        <span
-                          style={{
-                            fontSize: 11,
-                            padding: '2px 9px',
-                            borderRadius: 20,
-                            background: '#F5F0E8',
-                            color: '#8B6700',
-                            fontWeight: 500,
-                          }}
-                        >
-                          {r.subField}
-                        </span>
-                      )}
-                      {r.whatTheyDo && (
-                        <div style={{ fontSize: 13, color: '#666', marginTop: 8 }}>
-                          {r.whatTheyDo.slice(0, 80)}
-                          {r.whatTheyDo.length > 80 ? '...' : ''}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          );
-        })()}
+            );
+          })()}
       </div>
     </>
   );

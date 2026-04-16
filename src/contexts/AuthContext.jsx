@@ -54,7 +54,9 @@ export function AuthProvider({ children }) {
   const isActive = user?.status === 'active';
 
   return (
-    <AuthContext.Provider value={{ user, loading, refreshUser, isPending, isActive, authError }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, loading, refreshUser, isPending, isActive, authError }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 

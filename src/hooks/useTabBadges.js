@@ -78,7 +78,7 @@ export function useTabBadges(userId) {
               { field: timeField, direction: 'DESCENDING' },
               1,
             );
-            const maxTime = docs.length > 0 ? (docs[0].data()[timeField] || '') : '';
+            const maxTime = docs.length > 0 ? docs[0].data()[timeField] || '' : '';
             result[path] = maxTime > (seen[path] || '');
           } catch {
             result[path] = false;

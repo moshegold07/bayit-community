@@ -86,7 +86,7 @@ export default function ForumDetail() {
       const newId = await db.addDoc('forums/' + id + '/posts', data);
       // Fetch fresh forum data to avoid stale postCount
       const freshForum = await db.getDoc('forums', id);
-      const currentCount = freshForum.exists() ? (freshForum.data().postCount || 0) : 0;
+      const currentCount = freshForum.exists() ? freshForum.data().postCount || 0 : 0;
       await db.updateDoc('forums', id, {
         postCount: currentCount + 1,
         lastPostAt: now,

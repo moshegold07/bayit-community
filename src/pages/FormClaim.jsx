@@ -56,11 +56,11 @@ function mapCategories(mainField, subField) {
     'בנייה / הנדסה': 'בנייה והנדסה',
     'עיצוב / יצירה': 'עיצוב ו-UX',
     'טכנולוגיה ו AI': 'AI / ML',
-    'טכנולוגיה': 'SaaS / תוכנה',
+    טכנולוגיה: 'SaaS / תוכנה',
     'שיווק ומדיה': 'שיווק דיגיטלי',
     'מסעדנות ואופליין': 'יזמות כללית',
     'יזמות כללית': 'יזמות כללית',
-    'משפטים': 'ייעוץ עסקי',
+    משפטים: 'ייעוץ עסקי',
   };
 
   const cats = [];
@@ -68,8 +68,7 @@ function mapCategories(mainField, subField) {
   if (mainMapped) cats.push(mainMapped);
   const subMapped = map[subField];
   if (subMapped && !cats.includes(subMapped)) cats.push(subMapped);
-  if (subField && !subMapped && subField !== 'אחר' && !cats.includes(subField))
-    cats.push(subField);
+  if (subField && !subMapped && subField !== 'אחר' && !cats.includes(subField)) cats.push(subField);
   return cats.slice(0, 4);
 }
 
@@ -101,14 +100,14 @@ export default function FormClaim() {
       }
       if (!cancelled) setLoading(false);
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const results =
     search.trim().length >= 2
-      ? registrants.filter((r) =>
-          (r.fullName || '').toLowerCase().includes(search.toLowerCase()),
-        )
+      ? registrants.filter((r) => (r.fullName || '').toLowerCase().includes(search.toLowerCase()))
       : [];
 
   async function claim() {

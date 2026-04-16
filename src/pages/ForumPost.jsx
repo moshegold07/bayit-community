@@ -272,7 +272,9 @@ export default function ForumPost() {
 
       {!isPending && (
         <>
-          {replyError && <div style={{ ...s.err, marginBottom: 8, fontSize: 13 }}>{replyError}</div>}
+          {replyError && (
+            <div style={{ ...s.err, marginBottom: 8, fontSize: 13 }}>{replyError}</div>
+          )}
           <form
             onSubmit={handleReply}
             style={{ ...s.card, display: 'flex', gap: 8, alignItems: 'flex-start' }}

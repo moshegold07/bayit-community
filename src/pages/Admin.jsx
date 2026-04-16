@@ -560,9 +560,7 @@ export default function Admin() {
                               fontWeight: 500,
                             }}
                           >
-                            {r.subField && r.subField !== 'אחר'
-                              ? r.subField
-                              : r.mainField}
+                            {r.subField && r.subField !== 'אחר' ? r.subField : r.mainField}
                           </span>
                         ) : (
                           '—'
@@ -603,99 +601,101 @@ export default function Admin() {
           </div>
         )}
 
-        {tab !== 'formRegs' && <div style={{ ...s.card, overflowX: 'auto' }}>
-          {loading ? (
-            <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>טוען...</div>
-          ) : list.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>אין רשומות</div>
-          ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr>
-                  <th style={thStyle}>שם</th>
-                  <th style={thStyle}>טלפון</th>
-                  <th style={thStyle}>עיר</th>
-                  <th style={thStyle}>תחום</th>
-                  <th style={thStyle}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {list.map((u) => (
-                  <tr key={u.uid} style={{ cursor: 'pointer' }} onClick={() => setSelected(u)}>
-                    <td style={{ ...tdStyle, fontWeight: 500 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div
-                          style={{
-                            width: 30,
-                            height: 30,
-                            borderRadius: '50%',
-                            background: avColor(u.phone || u.uid),
-                            color: '#fff',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: 11,
-                            fontWeight: 500,
-                            flexShrink: 0,
-                          }}
-                        >
-                          {initials(u)}
-                        </div>
-                        <span>
-                          {u.first} {u.last}
-                        </span>
-                        <BadgeDisplay badges={u.badges} />
-                        {u.deleteRequest && (
-                          <span
+        {tab !== 'formRegs' && (
+          <div style={{ ...s.card, overflowX: 'auto' }}>
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>טוען...</div>
+            ) : list.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>אין רשומות</div>
+            ) : (
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr>
+                    <th style={thStyle}>שם</th>
+                    <th style={thStyle}>טלפון</th>
+                    <th style={thStyle}>עיר</th>
+                    <th style={thStyle}>תחום</th>
+                    <th style={thStyle}></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {list.map((u) => (
+                    <tr key={u.uid} style={{ cursor: 'pointer' }} onClick={() => setSelected(u)}>
+                      <td style={{ ...tdStyle, fontWeight: 500 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <div
                             style={{
-                              fontSize: 10,
-                              background: '#FCEBEB',
-                              color: '#A32D2D',
-                              borderRadius: 10,
-                              padding: '1px 6px',
+                              width: 30,
+                              height: 30,
+                              borderRadius: '50%',
+                              background: avColor(u.phone || u.uid),
+                              color: '#fff',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: 11,
+                              fontWeight: 500,
+                              flexShrink: 0,
                             }}
                           >
-                            מחיקה
+                            {initials(u)}
+                          </div>
+                          <span>
+                            {u.first} {u.last}
                           </span>
+                          <BadgeDisplay badges={u.badges} />
+                          {u.deleteRequest && (
+                            <span
+                              style={{
+                                fontSize: 10,
+                                background: '#FCEBEB',
+                                color: '#A32D2D',
+                                borderRadius: 10,
+                                padding: '1px 6px',
+                              }}
+                            >
+                              מחיקה
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td
+                        style={{
+                          ...tdStyle,
+                          fontFamily: 'monospace',
+                          fontSize: 12,
+                          direction: 'ltr',
+                        }}
+                      >
+                        {u.phone}
+                      </td>
+                      <td style={tdStyle}>{u.city || '—'}</td>
+                      <td style={tdStyle}>
+                        {u.domain ? (
+                          <span
+                            style={{
+                              background: '#E6F1FB',
+                              color: '#0C447C',
+                              borderRadius: 20,
+                              padding: '2px 9px',
+                              fontSize: 11,
+                              fontWeight: 500,
+                            }}
+                          >
+                            {u.domain}
+                          </span>
+                        ) : (
+                          '—'
                         )}
-                      </div>
-                    </td>
-                    <td
-                      style={{
-                        ...tdStyle,
-                        fontFamily: 'monospace',
-                        fontSize: 12,
-                        direction: 'ltr',
-                      }}
-                    >
-                      {u.phone}
-                    </td>
-                    <td style={tdStyle}>{u.city || '—'}</td>
-                    <td style={tdStyle}>
-                      {u.domain ? (
-                        <span
-                          style={{
-                            background: '#E6F1FB',
-                            color: '#0C447C',
-                            borderRadius: 20,
-                            padding: '2px 9px',
-                            fontSize: 11,
-                            fontWeight: 500,
-                          }}
-                        >
-                          {u.domain}
-                        </span>
-                      ) : (
-                        '—'
-                      )}
-                    </td>
-                    <td style={{ ...tdStyle, color: '#aaa', fontSize: 18 }}>›</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>}
+                      </td>
+                      <td style={{ ...tdStyle, color: '#aaa', fontSize: 18 }}>›</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
       </div>
     </>
   );

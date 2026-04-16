@@ -138,7 +138,11 @@ export default function Register() {
       setSubmitted(true);
     } catch (e) {
       if (createdUser) {
-        try { await createdUser.delete(); } catch (_) { /* cleanup best-effort */ }
+        try {
+          await createdUser.delete();
+        } catch (_) {
+          /* cleanup best-effort */
+        }
       }
       if (e.message === 'PHONE_TAKEN') {
         setErrors({ phone: 'מספר זה כבר רשום' });

@@ -139,9 +139,7 @@ export default function Login() {
               textAlign: 'center',
             }}
           >
-            <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>
-              נרשמת דרך טופס גוגל?
-            </div>
+            <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>נרשמת דרך טופס גוגל?</div>
             <Link
               to="/form-claim"
               style={{
