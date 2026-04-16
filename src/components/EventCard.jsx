@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { s, BLUE, BLUE_DK } from './shared';
+import { s, BLUE, BLUE_DK, TEAL } from './shared';
 
 const TYPE_LABELS = {
   meetup: 'מפגש',
@@ -44,8 +44,8 @@ export default function EventCard({ event }) {
           display: 'flex',
           flexDirection: 'column',
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.borderColor = BLUE)}
-        onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#e0e0da')}
+        onMouseEnter={(e) => (e.currentTarget.style.borderColor = TEAL)}
+        onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#E8E5DE')}
       >
         <div
           style={{

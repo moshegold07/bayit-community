@@ -293,7 +293,7 @@ const styles = {
     left: 0,
     marginTop: 6,
     background: '#fff',
-    border: '1px solid #e0e0da',
+    border: '1px solid #E8E5DE',
     borderRadius: 10,
     boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
     maxHeight: 400,

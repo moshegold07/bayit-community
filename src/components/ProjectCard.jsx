@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
-import { s, BLUE } from './shared';
+import { s, TEAL } from './shared';
 
 const STATUS_MAP = {
-  looking: { label: 'מחפש שותפים', color: '#EF9F27', bg: '#FFF8EC' },
-  active: { label: 'פעיל', color: '#1A8080', bg: '#E8F6F6' },
+  looking: { label: 'מחפש שותפים', color: '#D4922E', bg: '#FFF8EB' },
+  active: { label: 'פעיל', color: '#1A8A7D', bg: '#E8F6F3' },
   completed: { label: 'הושלם', color: '#888', bg: '#f0f0f0' },
 };
 
@@ -23,8 +23,8 @@ export default function ProjectCard({ project }) {
           gap: 8,
           height: '100%',
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.borderColor = BLUE)}
-        onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#e0e0da')}
+        onMouseEnter={(e) => (e.currentTarget.style.borderColor = TEAL)}
+        onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#E8E5DE')}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div style={{ fontWeight: 500, fontSize: 16, color: '#222', flex: 1 }}>{p.title}</div>

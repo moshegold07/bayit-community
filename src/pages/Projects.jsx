@@ -134,7 +134,7 @@ export default function Projects() {
             key={label}
             style={{
               background: '#fff',
-              border: '0.5px solid #e0e0da',
+              border: '1px solid #E8E5DE',
               borderRadius: 8,
               padding: '10px 16px',
               flex: 1,

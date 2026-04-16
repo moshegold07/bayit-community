@@ -8,6 +8,7 @@ export const GREEN = '#2E8B6A';
 export const TEAL = '#1A8A7D';
 export const NAVY = '#1C2638';
 export const GOLD = '#D4A34A';
+export const DEV_PURPLE = '#7C5CBF';
 
 export const s = {
   wrap: { fontFamily: 'sans-serif', minHeight: '100vh', background: '#F7F6F2', direction: 'rtl' },

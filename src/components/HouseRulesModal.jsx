@@ -32,7 +32,7 @@ export default function HouseRulesModal({ onClose }) {
         style={{
           background: '#fff',
           borderRadius: 12,
-          border: '0.5px solid #e0e0da',
+          border: '1px solid #E8E5DE',
           padding: '1.5rem',
           width: '100%',
           maxWidth: 520,
