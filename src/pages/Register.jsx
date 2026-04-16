@@ -5,12 +5,51 @@ import { auth, db } from '../firebase';
 import { s, Header, FieldRow, StrengthBar, BLUE } from '../components/shared';
 import CategoryPicker from '../components/CategoryPicker';
 
+const COUNTRY_CODES = [
+  { code: '+972', flag: '🇮🇱', name: 'ישראל' },
+  { code: '+1', flag: '🇺🇸', name: 'ארה״ב / קנדה' },
+  { code: '+44', flag: '🇬🇧', name: 'בריטניה' },
+  { code: '+49', flag: '🇩🇪', name: 'גרמניה' },
+  { code: '+33', flag: '🇫🇷', name: 'צרפת' },
+  { code: '+39', flag: '🇮🇹', name: 'איטליה' },
+  { code: '+34', flag: '🇪🇸', name: 'ספרד' },
+  { code: '+351', flag: '🇵🇹', name: 'פורטוגל' },
+  { code: '+31', flag: '🇳🇱', name: 'הולנד' },
+  { code: '+41', flag: '🇨🇭', name: 'שווייץ' },
+  { code: '+43', flag: '🇦🇹', name: 'אוסטריה' },
+  { code: '+32', flag: '🇧🇪', name: 'בלגיה' },
+  { code: '+46', flag: '🇸🇪', name: 'שוודיה' },
+  { code: '+47', flag: '🇳🇴', name: 'נורווגיה' },
+  { code: '+45', flag: '🇩🇰', name: 'דנמרק' },
+  { code: '+48', flag: '🇵🇱', name: 'פולין' },
+  { code: '+380', flag: '🇺🇦', name: 'אוקראינה' },
+  { code: '+7', flag: '🇷🇺', name: 'רוסיה' },
+  { code: '+61', flag: '🇦🇺', name: 'אוסטרליה' },
+  { code: '+55', flag: '🇧🇷', name: 'ברזיל' },
+  { code: '+52', flag: '🇲🇽', name: 'מקסיקו' },
+  { code: '+54', flag: '🇦🇷', name: 'ארגנטינה' },
+  { code: '+27', flag: '🇿🇦', name: 'דרום אפריקה' },
+  { code: '+91', flag: '🇮🇳', name: 'הודו' },
+  { code: '+90', flag: '🇹🇷', name: 'טורקיה' },
+  { code: '+971', flag: '🇦🇪', name: 'איחוד האמירויות' },
+  { code: '+966', flag: '🇸🇦', name: 'סעודיה' },
+  { code: '+20', flag: '🇪🇬', name: 'מצרים' },
+  { code: '+212', flag: '🇲🇦', name: 'מרוקו' },
+  { code: '+216', flag: '🇹🇳', name: 'תוניסיה' },
+  { code: '+81', flag: '🇯🇵', name: 'יפן' },
+  { code: '+82', flag: '🇰🇷', name: 'דרום קוריאה' },
+  { code: '+86', flag: '🇨🇳', name: 'סין' },
+  { code: '+65', flag: '🇸🇬', name: 'סינגפור' },
+  { code: '+852', flag: '🇭🇰', name: 'הונג קונג' },
+];
+
 export default function Register() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     first: '',
     last: '',
-    phone: '',
+    countryCode: '+972',
+    phoneNum: '',
     email: '',
     city: '',
     categories: [],
@@ -27,6 +66,7 @@ export default function Register() {
   const [rulesText, setRulesText] = useState('');
   const [rulesAccepted, setRulesAccepted] = useState(false);
   const [showRules, setShowRules] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     async function loadRules() {
@@ -42,7 +82,8 @@ export default function Register() {
     const errs = {};
     if (!form.first.trim()) errs.first = 'שדה חובה';
     if (!form.last.trim()) errs.last = 'שדה חובה';
-    if (!/^\+\d{7,15}$/.test(form.phone.trim())) errs.phone = 'פורמט: +972501234567';
+    if (!/^\d{5,15}$/.test(form.phoneNum.trim()))
+      errs.phone = 'יש להזין מספר טלפון תקין (ספרות בלבד)';
     if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) errs.email = 'אימייל לא תקין';
     if (form.pass.length < 8) errs.pass = 'לפחות 8 תווים';
     if (form.pass !== form.pass2) errs.pass2 = 'הסיסמאות אינן תואמות';
@@ -53,16 +94,21 @@ export default function Register() {
     setLoading(true);
     setGlobalErr('');
     try {
-      const phoneId = form.phone.trim();
+      const phoneId = form.countryCode + form.phoneNum.trim();
+
+      // Create auth user FIRST so we have a token for Firestore calls
+      const cred = await createUserWithEmailAndPassword(auth, form.email.trim(), form.pass);
+      const uid = cred.user.uid;
+
+      // Now check phone uniqueness (authenticated)
       const phoneSnap = await db.getDoc('phoneIndex', phoneId);
       if (phoneSnap.exists()) {
+        // Phone taken — delete the auth user we just created
+        await cred.user.delete();
         setErrors({ phone: 'מספר זה כבר רשום' });
         setLoading(false);
         return;
       }
-
-      const cred = await createUserWithEmailAndPassword(auth, form.email.trim(), form.pass);
-      const uid = cred.user.uid;
       let website = form.website.trim();
       if (website && !website.startsWith('http')) website = 'https://' + website;
 
@@ -89,9 +135,7 @@ export default function Register() {
 
       await db.setDoc('users', uid, userData);
       await db.setDoc('phoneIndex', phoneId, { uid });
-      // Auth state change will pick up the new user via AuthContext
-      // navigate to login so the user can log in fresh, or if admin auto-redirects
-      navigate('/login');
+      setSubmitted(true);
     } catch (e) {
       if (e.code === 'auth/email-already-in-use') setGlobalErr('אימייל זה כבר רשום במערכת');
       else setGlobalErr('שגיאה: ' + e.message);
@@ -101,7 +145,37 @@ export default function Register() {
 
   return (
     <div style={s.wrap}>
-      {showRules && (
+      {submitted && (
+        <div>
+          <Header />
+          <div style={s.body}>
+            <div style={{ ...s.card, textAlign: 'center', padding: '2.5rem 1.5rem' }}>
+              <div style={{ fontSize: 48, marginBottom: 16 }}>&#x2705;</div>
+              <div style={{ fontSize: 20, fontWeight: 600, color: '#1C2638', marginBottom: 12 }}>
+                בקשת ההצטרפות התקבלה!
+              </div>
+              <div style={{ fontSize: 15, color: '#555', lineHeight: 1.8, marginBottom: 24 }}>
+                הבקשה הועברה למנהלי הקהילה ותאושר בקרוב.
+                <br />
+                נא להמתין בסבלנות — תקבל/י הודעה כשהחשבון יאושר.
+              </div>
+              <Link
+                to="/login"
+                style={{
+                  ...s.btnPrimary,
+                  textDecoration: 'none',
+                  display: 'inline-block',
+                  padding: '10px 32px',
+                  width: 'auto',
+                }}
+              >
+                למסך ההתחברות
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+      {!submitted && showRules && (
         <div
           style={{
             position: 'fixed',
@@ -159,197 +233,220 @@ export default function Register() {
         </div>
       )}
 
-      <Header>
-        <span style={{ fontSize: 13, color: 'rgba(245,240,232,0.7)' }}>כבר רשום?</span>
-        <Link
-          to="/login"
-          style={{ ...s.btnSolid, textDecoration: 'none', display: 'inline-block' }}
-        >
-          התחברות
-        </Link>
-      </Header>
-      <div style={s.body}>
-        <div style={s.card}>
-          {globalErr && (
-            <div
-              style={{
-                background: '#FCEBEB',
-                color: '#791F1F',
-                borderRadius: 8,
-                padding: '10px 14px',
-                marginBottom: 14,
-                fontSize: 13,
-              }}
-            >
-              {globalErr}
-            </div>
-          )}
-
-          <div style={s.sectionTitle}>פרטים אישיים</div>
-          <div style={s.twoCol}>
-            <FieldRow label="שם פרטי *">
-              <input
-                style={s.input}
-                dir="auto"
-                value={form.first}
-                onChange={(e) => set('first', e.target.value)}
-              />
-              {errors.first && <div style={s.err}>{errors.first}</div>}
-            </FieldRow>
-            <FieldRow label="שם משפחה *">
-              <input
-                style={s.input}
-                dir="auto"
-                value={form.last}
-                onChange={(e) => set('last', e.target.value)}
-              />
-              {errors.last && <div style={s.err}>{errors.last}</div>}
-            </FieldRow>
-          </div>
-          <FieldRow label="טלפון + קידומת מדינה * (מזהה ייחודי)">
-            <input
-              style={s.input}
-              placeholder="+972501234567"
-              dir="ltr"
-              value={form.phone}
-              onChange={(e) => set('phone', e.target.value)}
-            />
-            {errors.phone && <div style={s.err}>{errors.phone}</div>}
-          </FieldRow>
-          <FieldRow label="עיר מגורים">
-            <input
-              style={s.input}
-              dir="auto"
-              value={form.city}
-              onChange={(e) => set('city', e.target.value)}
-            />
-          </FieldRow>
-          <FieldRow label="לינקדין">
-            <input
-              style={s.input}
-              placeholder="https://linkedin.com/in/..."
-              dir="ltr"
-              value={form.li}
-              onChange={(e) => set('li', e.target.value)}
-            />
-          </FieldRow>
-          <FieldRow label="אתר אינטרנט">
-            <input
-              style={s.input}
-              placeholder="https://yourwebsite.com"
-              dir="ltr"
-              value={form.website}
-              onChange={(e) => set('website', e.target.value)}
-            />
-          </FieldRow>
-
-          <div style={s.sectionTitle}>תחומי עיסוק (עד 4)</div>
-          <CategoryPicker value={form.categories} onChange={(v) => set('categories', v)} />
-
-          <div style={s.sectionTitle}>פרופיל מקצועי</div>
-          <FieldRow label="מה אני עושה">
-            <textarea
-              style={s.textarea}
-              dir="auto"
-              value={form.does}
-              onChange={(e) => set('does', e.target.value)}
-              placeholder="תאר/י את הפרויקט שלך..."
-            />
-          </FieldRow>
-          <FieldRow label="מה אני מחפש / צריך">
-            <textarea
-              style={s.textarea}
-              dir="auto"
-              value={form.needs}
-              onChange={(e) => set('needs', e.target.value)}
-              placeholder="שותף, משקיע, לקוחות..."
-            />
-          </FieldRow>
-
-          <div style={s.sectionTitle}>פרטי כניסה</div>
-          <FieldRow label="אימייל *">
-            <input
-              style={s.input}
-              type="email"
-              dir="ltr"
-              value={form.email}
-              onChange={(e) => set('email', e.target.value)}
-            />
-            {errors.email && <div style={s.err}>{errors.email}</div>}
-          </FieldRow>
-          <FieldRow label="סיסמא * (לפחות 8 תווים)">
-            <input
-              style={s.input}
-              type="password"
-              value={form.pass}
-              onChange={(e) => set('pass', e.target.value)}
-            />
-            <StrengthBar password={form.pass} />
-            {errors.pass && <div style={s.err}>{errors.pass}</div>}
-          </FieldRow>
-          <FieldRow label="אימות סיסמא *">
-            <input
-              style={s.input}
-              type="password"
-              value={form.pass2}
-              onChange={(e) => set('pass2', e.target.value)}
-            />
-            {errors.pass2 && <div style={s.err}>{errors.pass2}</div>}
-          </FieldRow>
-
-          {rulesText && (
-            <div
-              style={{
-                marginTop: 16,
-                padding: '12px 14px',
-                background: '#f9f9f7',
-                borderRadius: 8,
-                border: '1px solid #E8E5DE',
-              }}
-            >
-              <label
-                style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}
-              >
-                <input
-                  type="checkbox"
-                  checked={rulesAccepted}
-                  onChange={(e) => setRulesAccepted(e.target.checked)}
-                  style={{ marginTop: 3, flexShrink: 0 }}
-                />
-                <span style={{ fontSize: 13, color: '#444', lineHeight: 1.5 }}>
-                  קראתי ואני מסכים/ה ל
-                  <button
-                    onClick={() => setShowRules(true)}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: BLUE,
-                      fontSize: 13,
-                      cursor: 'pointer',
-                      padding: '0 2px',
-                      textDecoration: 'underline',
-                    }}
-                  >
-                    חוקי הבית
-                  </button>
-                </span>
-              </label>
-              {errors.rules && <div style={{ ...s.err, marginTop: 6 }}>{errors.rules}</div>}
-            </div>
-          )}
-
-          <button
-            style={{ ...s.btnPrimary, opacity: loading ? 0.7 : 1 }}
-            onClick={submit}
-            disabled={loading}
+      {!submitted && (
+        <Header>
+          <span style={{ fontSize: 13, color: 'rgba(245,240,232,0.7)' }}>כבר רשום?</span>
+          <Link
+            to="/login"
+            style={{ ...s.btnSolid, textDecoration: 'none', display: 'inline-block' }}
           >
-            {loading ? 'שולח...' : 'הגש בקשת הצטרפות'}
-          </button>
-          <p style={{ fontSize: 12, color: '#888', textAlign: 'center', marginTop: 10 }}>
-            לאחר ההגשה, הפרופיל ממתין לאישור מנהל
-          </p>
+            התחברות
+          </Link>
+        </Header>
+      )}
+      {!submitted && (
+        <div style={s.body}>
+          <div style={s.card}>
+            {globalErr && (
+              <div
+                style={{
+                  background: '#FCEBEB',
+                  color: '#791F1F',
+                  borderRadius: 8,
+                  padding: '10px 14px',
+                  marginBottom: 14,
+                  fontSize: 13,
+                }}
+              >
+                {globalErr}
+              </div>
+            )}
+
+            <div style={s.sectionTitle}>פרטים אישיים</div>
+            <div style={s.twoCol}>
+              <FieldRow label="שם פרטי *">
+                <input
+                  style={s.input}
+                  dir="auto"
+                  value={form.first}
+                  onChange={(e) => set('first', e.target.value)}
+                />
+                {errors.first && <div style={s.err}>{errors.first}</div>}
+              </FieldRow>
+              <FieldRow label="שם משפחה *">
+                <input
+                  style={s.input}
+                  dir="auto"
+                  value={form.last}
+                  onChange={(e) => set('last', e.target.value)}
+                />
+                {errors.last && <div style={s.err}>{errors.last}</div>}
+              </FieldRow>
+            </div>
+            <FieldRow label="טלפון * (מזהה ייחודי)">
+              <div style={{ display: 'flex', gap: 8, direction: 'ltr' }}>
+                <select
+                  value={form.countryCode}
+                  onChange={(e) => set('countryCode', e.target.value)}
+                  style={{
+                    ...s.input,
+                    width: 150,
+                    flexShrink: 0,
+                    cursor: 'pointer',
+                    appearance: 'auto',
+                  }}
+                >
+                  {COUNTRY_CODES.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.flag} {c.code} {c.name}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  style={s.input}
+                  placeholder="501234567"
+                  dir="ltr"
+                  value={form.phoneNum}
+                  onChange={(e) => set('phoneNum', e.target.value.replace(/\D/g, ''))}
+                />
+              </div>
+              {errors.phone && <div style={s.err}>{errors.phone}</div>}
+            </FieldRow>
+            <FieldRow label="עיר מגורים">
+              <input
+                style={s.input}
+                dir="auto"
+                value={form.city}
+                onChange={(e) => set('city', e.target.value)}
+              />
+            </FieldRow>
+            <FieldRow label="לינקדין">
+              <input
+                style={s.input}
+                placeholder="https://linkedin.com/in/..."
+                dir="ltr"
+                value={form.li}
+                onChange={(e) => set('li', e.target.value)}
+              />
+            </FieldRow>
+            <FieldRow label="אתר אינטרנט">
+              <input
+                style={s.input}
+                placeholder="https://yourwebsite.com"
+                dir="ltr"
+                value={form.website}
+                onChange={(e) => set('website', e.target.value)}
+              />
+            </FieldRow>
+
+            <div style={s.sectionTitle}>תחומי עיסוק (עד 4)</div>
+            <CategoryPicker value={form.categories} onChange={(v) => set('categories', v)} />
+
+            <div style={s.sectionTitle}>פרופיל מקצועי</div>
+            <FieldRow label="מה אני עושה">
+              <textarea
+                style={s.textarea}
+                dir="auto"
+                value={form.does}
+                onChange={(e) => set('does', e.target.value)}
+                placeholder="תאר/י את הפרויקט שלך..."
+              />
+            </FieldRow>
+            <FieldRow label="מה אני מחפש / צריך">
+              <textarea
+                style={s.textarea}
+                dir="auto"
+                value={form.needs}
+                onChange={(e) => set('needs', e.target.value)}
+                placeholder="שותף, משקיע, לקוחות..."
+              />
+            </FieldRow>
+
+            <div style={s.sectionTitle}>פרטי כניסה</div>
+            <FieldRow label="אימייל *">
+              <input
+                style={s.input}
+                type="email"
+                dir="ltr"
+                value={form.email}
+                onChange={(e) => set('email', e.target.value)}
+              />
+              {errors.email && <div style={s.err}>{errors.email}</div>}
+            </FieldRow>
+            <FieldRow label="סיסמא * (לפחות 8 תווים)">
+              <input
+                style={s.input}
+                type="password"
+                value={form.pass}
+                onChange={(e) => set('pass', e.target.value)}
+              />
+              <StrengthBar password={form.pass} />
+              {errors.pass && <div style={s.err}>{errors.pass}</div>}
+            </FieldRow>
+            <FieldRow label="אימות סיסמא *">
+              <input
+                style={s.input}
+                type="password"
+                value={form.pass2}
+                onChange={(e) => set('pass2', e.target.value)}
+              />
+              {errors.pass2 && <div style={s.err}>{errors.pass2}</div>}
+            </FieldRow>
+
+            {rulesText && (
+              <div
+                style={{
+                  marginTop: 16,
+                  padding: '12px 14px',
+                  background: '#f9f9f7',
+                  borderRadius: 8,
+                  border: '1px solid #E8E5DE',
+                }}
+              >
+                <label
+                  style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={rulesAccepted}
+                    onChange={(e) => setRulesAccepted(e.target.checked)}
+                    style={{ marginTop: 3, flexShrink: 0 }}
+                  />
+                  <span style={{ fontSize: 13, color: '#444', lineHeight: 1.5 }}>
+                    קראתי ואני מסכים/ה ל
+                    <button
+                      onClick={() => setShowRules(true)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: BLUE,
+                        fontSize: 13,
+                        cursor: 'pointer',
+                        padding: '0 2px',
+                        textDecoration: 'underline',
+                      }}
+                    >
+                      חוקי הבית
+                    </button>
+                  </span>
+                </label>
+                {errors.rules && <div style={{ ...s.err, marginTop: 6 }}>{errors.rules}</div>}
+              </div>
+            )}
+
+            <button
+              style={{ ...s.btnPrimary, opacity: loading ? 0.7 : 1 }}
+              onClick={submit}
+              disabled={loading}
+            >
+              {loading ? 'שולח...' : 'הגש בקשת הצטרפות'}
+            </button>
+            <p style={{ fontSize: 12, color: '#888', textAlign: 'center', marginTop: 10 }}>
+              לאחר ההגשה, הפרופיל ממתין לאישור מנהל
+            </p>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

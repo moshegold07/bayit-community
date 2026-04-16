@@ -61,7 +61,7 @@ export default function PollCard({ poll, currentUserId, onVote }) {
 
   function toggleMultiOption(index) {
     setSelectedMulti((prev) =>
-      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index],
     );
   }
 
@@ -87,9 +87,7 @@ export default function PollCard({ poll, currentUserId, onVote }) {
           gap: 8,
         }}
       >
-        <div style={{ fontWeight: 600, fontSize: 16, color: '#222', flex: 1 }}>
-          {poll.question}
-        </div>
+        <div style={{ fontWeight: 600, fontSize: 16, color: '#222', flex: 1 }}>{poll.question}</div>
         {isExpired && (
           <span
             style={{
@@ -105,9 +103,7 @@ export default function PollCard({ poll, currentUserId, onVote }) {
             הסתיים
           </span>
         )}
-        {poll.multiSelect && (
-          <span style={{ ...s.tag, flexShrink: 0 }}>בחירה מרובה</span>
-        )}
+        {poll.multiSelect && <span style={{ ...s.tag, flexShrink: 0 }}>בחירה מרובה</span>}
       </div>
 
       {/* Meta */}

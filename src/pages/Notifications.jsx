@@ -62,31 +62,34 @@ export default function Notifications() {
       }
       if (!cancelled) setLoading(false);
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [user.uid]);
 
-  const handleClick = useCallback(async (notif) => {
-    if (!notif.read) {
-      try {
-        await db.updateDoc('notifications', notif.id, { read: true });
-        setNotifications((prev) =>
-          prev.map((n) => (n.id === notif.id ? { ...n, read: true } : n)),
-        );
-      } catch (err) {
-        console.error('Mark read error:', err);
+  const handleClick = useCallback(
+    async (notif) => {
+      if (!notif.read) {
+        try {
+          await db.updateDoc('notifications', notif.id, { read: true });
+          setNotifications((prev) =>
+            prev.map((n) => (n.id === notif.id ? { ...n, read: true } : n)),
+          );
+        } catch (err) {
+          console.error('Mark read error:', err);
+        }
       }
-    }
-    if (notif.link) navigate(notif.link);
-  }, [navigate]);
+      if (notif.link) navigate(notif.link);
+    },
+    [navigate],
+  );
 
   const handleMarkAllRead = useCallback(async () => {
     const unread = notifications.filter((n) => !n.read);
     if (unread.length === 0) return;
     setMarkingAll(true);
     try {
-      await Promise.all(
-        unread.map((n) => db.updateDoc('notifications', n.id, { read: true })),
-      );
+      await Promise.all(unread.map((n) => db.updateDoc('notifications', n.id, { read: true })));
       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     } catch (err) {
       console.error('Mark all read error:', err);
@@ -104,7 +107,14 @@ export default function Notifications() {
 
   return (
     <div style={s.body}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 16,
+        }}
+      >
         <h2 style={{ margin: 0, fontSize: 22, color: '#222' }}>התראות</h2>
         {unreadCount > 0 && (
           <button

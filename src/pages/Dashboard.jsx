@@ -293,7 +293,14 @@ export default function Dashboard() {
 
   return (
     <>
-      {selected && <MemberModal m={selected} onClose={() => setSelected(null)} isAdmin={isAdmin} currentUser={currentUser} />}
+      {selected && (
+        <MemberModal
+          m={selected}
+          onClose={() => setSelected(null)}
+          isAdmin={isAdmin}
+          currentUser={currentUser}
+        />
+      )}
 
       <div style={{ ...s.body, maxWidth: 900 }}>
         <div style={{ display: 'flex', gap: 10, marginBottom: '1rem', flexWrap: 'wrap' }}>

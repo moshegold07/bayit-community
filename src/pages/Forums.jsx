@@ -66,7 +66,12 @@ export default function Forums() {
         postCount: 0,
       };
       const id = await db.addDoc('forums', data);
-      logActivity({ type: 'forum_topic', actorName: data.createdByName, title: data.title, link: '/forums/' + id });
+      logActivity({
+        type: 'forum_topic',
+        actorName: data.createdByName,
+        title: data.title,
+        link: '/forums/' + id,
+      });
       setForums((prev) => [{ id, ...data }, ...prev]);
       setTitle('');
       setDesc('');

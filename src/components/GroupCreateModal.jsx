@@ -23,9 +23,7 @@ export default function GroupCreateModal({ members, currentUser, onClose, onCrea
   );
 
   function toggle(uid) {
-    setSelected((prev) =>
-      prev.includes(uid) ? prev.filter((id) => id !== uid) : [...prev, uid],
-    );
+    setSelected((prev) => (prev.includes(uid) ? prev.filter((id) => id !== uid) : [...prev, uid]));
   }
 
   async function handleSubmit() {

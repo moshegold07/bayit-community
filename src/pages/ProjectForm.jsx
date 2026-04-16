@@ -70,7 +70,12 @@ export default function ProjectForm() {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
-      logActivity({ type: 'project_posted', actorName: user.first + ' ' + user.last, title: title.trim(), link: '/projects/' + newId });
+      logActivity({
+        type: 'project_posted',
+        actorName: user.first + ' ' + user.last,
+        title: title.trim(),
+        link: '/projects/' + newId,
+      });
       navigate('/projects/' + newId);
     } catch (err) {
       console.error('Project create error:', err);

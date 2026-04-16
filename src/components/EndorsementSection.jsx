@@ -2,7 +2,12 @@ import { useEffect, useState } from 'react';
 import { db } from '../firebase';
 import { TEAL, AMBER } from './shared';
 
-export default function EndorsementSection({ targetUid, targetName, currentUserId, currentUserName }) {
+export default function EndorsementSection({
+  targetUid,
+  targetName,
+  currentUserId,
+  currentUserName,
+}) {
   const [endorsements, setEndorsements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);

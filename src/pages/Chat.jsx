@@ -120,8 +120,8 @@ export default function Chat() {
 
   const isGroup = conv && (conv.isGroup === true || (conv.participants || []).length > 2);
   const otherUid = isGroup ? '' : (conv.participants || []).find((p) => p !== user.uid) || '';
-  const otherName = isGroup ? '' : (conv.participantNames?.[otherUid] || 'משתמש');
-  const headerName = isGroup ? (conv.groupName || 'קבוצה') : otherName;
+  const otherName = isGroup ? '' : conv.participantNames?.[otherUid] || 'משתמש';
+  const headerName = isGroup ? conv.groupName || 'קבוצה' : otherName;
   const memberCount = (conv.participants || []).length;
   const headerInitials = headerName
     .split(' ')
@@ -172,9 +172,7 @@ export default function Chat() {
         </div>
         <div>
           <div style={{ fontWeight: 500, fontSize: 16, color: '#222' }}>{headerName}</div>
-          {isGroup && (
-            <div style={{ fontSize: 12, color: '#999' }}>({memberCount} חברים)</div>
-          )}
+          {isGroup && <div style={{ fontSize: 12, color: '#999' }}>({memberCount} חברים)</div>}
         </div>
       </div>
 

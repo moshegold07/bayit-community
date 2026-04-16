@@ -165,7 +165,12 @@ export default function Resources() {
         createdAt: new Date().toISOString(),
       };
       const id = await db.addDoc('resources', newResource);
-      logActivity({ type: 'resource_shared', actorName: newResource.sharedByName, title: newResource.title, link: '/resources' });
+      logActivity({
+        type: 'resource_shared',
+        actorName: newResource.sharedByName,
+        title: newResource.title,
+        link: '/resources',
+      });
       setResources((prev) => [{ id, ...newResource }, ...prev]);
       setForm(EMPTY_FORM);
       setShowForm(false);

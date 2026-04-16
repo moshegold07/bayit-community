@@ -70,9 +70,7 @@ export function useTabBadges(userId) {
           try {
             let filters = [];
             if (path === '/messages') {
-              filters = [
-                { field: 'participants', op: 'ARRAY_CONTAINS', value: userId },
-              ];
+              filters = [{ field: 'participants', op: 'ARRAY_CONTAINS', value: userId }];
             }
             const docs = await db.getDocs(collection, filters);
             let maxTime = '';

@@ -47,7 +47,11 @@ function calcMatch(me, other) {
   const theyCanHelp = myNeeds.filter((kw) => theirDoesText.includes(kw));
   if (theyCanHelp.length > 0) {
     score += theyCanHelp.length * 2;
-    reasons.push({ type: 'theyHelp', label: 'יכול/ה לעזור לך ב', items: [...new Set(theyCanHelp)] });
+    reasons.push({
+      type: 'theyHelp',
+      label: 'יכול/ה לעזור לך ב',
+      items: [...new Set(theyCanHelp)],
+    });
   }
 
   // 3. I do -> they need
@@ -81,9 +85,7 @@ export default function Matching() {
     let cancelled = false;
     (async () => {
       try {
-        const docs = await db.getDocs('users', [
-          { field: 'status', op: 'EQUAL', value: 'active' },
-        ]);
+        const docs = await db.getDocs('users', [{ field: 'status', op: 'EQUAL', value: 'active' }]);
         const list = docs
           .map((d) => ({ uid: d.id, ...d.data() }))
           .filter((m) => m.uid !== user.uid);

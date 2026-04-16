@@ -157,9 +157,7 @@ export default function Polls() {
 
     try {
       await db.updateDoc('polls', pollId, { votes });
-      setPolls((prev) =>
-        prev.map((p) => (p.id === pollId ? { ...p, votes } : p)),
-      );
+      setPolls((prev) => prev.map((p) => (p.id === pollId ? { ...p, votes } : p)));
     } catch (err) {
       console.error('Vote error:', err);
     }
@@ -353,12 +351,7 @@ export default function Polls() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {filtered.map((poll) => (
-            <PollCard
-              key={poll.id}
-              poll={poll}
-              currentUserId={user?.uid}
-              onVote={handleVote}
-            />
+            <PollCard key={poll.id} poll={poll} currentUserId={user?.uid} onVote={handleVote} />
           ))}
         </div>
       )}

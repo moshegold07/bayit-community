@@ -54,7 +54,9 @@ export default function Messages() {
 
       // Load active members for group creation
       try {
-        const userDocs = await db.getDocs('users', [{ field: 'status', op: 'EQUAL', value: 'active' }]);
+        const userDocs = await db.getDocs('users', [
+          { field: 'status', op: 'EQUAL', value: 'active' },
+        ]);
         if (!cancelled) setAllMembers(userDocs.map((d) => ({ uid: d.id, ...d.data() })));
       } catch (err) {
         console.error('Load members error:', err);
@@ -65,7 +67,10 @@ export default function Messages() {
       // Step 2: Handle ?to= param — open or create conversation (separate try block)
       if (toParam && toParam !== user.uid) {
         const existing = convs.find(
-          (c) => !c.isGroup && (c.participants || []).length === 2 && (c.participants || []).includes(toParam),
+          (c) =>
+            !c.isGroup &&
+            (c.participants || []).length === 2 &&
+            (c.participants || []).includes(toParam),
         );
         if (existing) {
           navigate('/messages/' + existing.id, { replace: true });
@@ -106,7 +111,14 @@ export default function Messages() {
 
   return (
     <div style={s.body}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 16,
+        }}
+      >
         <h2 style={{ margin: 0, fontSize: 22, color: '#222' }}>הודעות</h2>
         <button
           onClick={() => setShowGroupModal(true)}
@@ -148,8 +160,12 @@ export default function Messages() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {conversations.map((c) => {
             const isGroup = c.isGroup === true;
-            const otherUid = isGroup ? '' : (c.participants || []).find((p) => p !== user.uid) || '';
-            const displayName = isGroup ? (c.groupName || 'קבוצה') : (c.participantNames?.[otherUid] || 'משתמש');
+            const otherUid = isGroup
+              ? ''
+              : (c.participants || []).find((p) => p !== user.uid) || '';
+            const displayName = isGroup
+              ? c.groupName || 'קבוצה'
+              : c.participantNames?.[otherUid] || 'משתמש';
             const initials = displayName
               .split(' ')
               .map((p) => p[0] || '')

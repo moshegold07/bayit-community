@@ -2,8 +2,18 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const HEBREW_MONTHS = [
-  'ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני',
-  'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר',
+  'ינואר',
+  'פברואר',
+  'מרץ',
+  'אפריל',
+  'מאי',
+  'יוני',
+  'יולי',
+  'אוגוסט',
+  'ספטמבר',
+  'אוקטובר',
+  'נובמבר',
+  'דצמבר',
 ];
 
 const DAY_HEADERS = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'];
@@ -152,18 +162,24 @@ export default function CalendarView({ events = [] }) {
     <div style={{ direction: 'rtl' }}>
       {/* Navigation */}
       <div style={navStyle}>
-        <button onClick={goToNext} style={navBtnStyle} aria-label="חודש הבא">&#8594;</button>
+        <button onClick={goToNext} style={navBtnStyle} aria-label="חודש הבא">
+          &#8594;
+        </button>
         <div style={{ fontSize: 16, fontWeight: 600, color: '#222' }}>
           {HEBREW_MONTHS[currentMonth]} {currentYear}
         </div>
-        <button onClick={goToPrev} style={navBtnStyle} aria-label="חודש קודם">&#8592;</button>
+        <button onClick={goToPrev} style={navBtnStyle} aria-label="חודש קודם">
+          &#8592;
+        </button>
       </div>
 
       {/* Calendar Grid */}
       <div style={gridStyle}>
         {/* Day headers */}
         {DAY_HEADERS.map((d) => (
-          <div key={d} style={headerCellStyle}>{d}</div>
+          <div key={d} style={headerCellStyle}>
+            {d}
+          </div>
         ))}
 
         {/* Day cells */}
@@ -199,11 +215,27 @@ export default function CalendarView({ events = [] }) {
               </div>
 
               {/* Event indicators */}
-              <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: 1 }}>
+              <div
+                style={{
+                  flex: 1,
+                  overflow: 'hidden',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 1,
+                }}
+              >
                 {isSmall ? (
                   /* Small screen: colored dots only */
                   dayEvents.length > 0 && (
-                    <div style={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap', marginTop: 2 }}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        gap: 2,
+                        justifyContent: 'center',
+                        flexWrap: 'wrap',
+                        marginTop: 2,
+                      }}
+                    >
                       {dayEvents.slice(0, 3).map((ev, i) => (
                         <Link
                           key={ev.id || i}
