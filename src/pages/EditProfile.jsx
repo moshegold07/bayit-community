@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
@@ -62,11 +62,31 @@ export default function EditProfile() {
     website: user?.website || '',
     does: user?.does || '',
     needs: user?.needs || '',
+    strength: user?.strength || '',
+    canHelpWith: user?.canHelpWith || '',
   });
   const [visibility, setVisibility] = useState({ ...defaultVisibility, ...user?.visibility });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [err, setErr] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      setForm({
+        first: user.first || '',
+        last: user.last || '',
+        city: user.city || '',
+        categories: user.categories || [],
+        li: user.li || '',
+        website: user.website || '',
+        does: user.does || '',
+        needs: user.needs || '',
+        strength: user.strength || '',
+        canHelpWith: user.canHelpWith || '',
+      });
+      setVisibility({ ...defaultVisibility, ...user.visibility });
+    }
+  }, [user]);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -94,6 +114,8 @@ export default function EditProfile() {
         website,
         does: form.does.trim(),
         needs: form.needs.trim(),
+        strength: form.strength.trim(),
+        canHelpWith: form.canHelpWith.trim(),
         visibility,
       });
       setSuccess(true);
@@ -213,6 +235,24 @@ export default function EditProfile() {
             dir="auto"
             value={form.needs}
             onChange={(e) => set('needs', e.target.value)}
+          />
+        </FieldRow>
+        <FieldRow label="החוזקות שלי">
+          <textarea
+            style={s.textarea}
+            dir="auto"
+            value={form.strength}
+            onChange={(e) => set('strength', e.target.value)}
+            placeholder="מה הכוח שלך? ניסיון, ידע, יכולות מיוחדות..."
+          />
+        </FieldRow>
+        <FieldRow label="במה אני יכול לעזור לאחרים">
+          <textarea
+            style={s.textarea}
+            dir="auto"
+            value={form.canHelpWith}
+            onChange={(e) => set('canHelpWith', e.target.value)}
+            placeholder="ייעוץ, קשרים, ידע מקצועי..."
           />
         </FieldRow>
 

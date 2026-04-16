@@ -29,7 +29,7 @@ function statusInfo(val) {
 }
 
 export default function DevTickets() {
-  const { user } = useAuth();
+  const { user, isPending } = useAuth();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -124,21 +124,23 @@ export default function DevTickets() {
               דיווח באגים ובקשות פיצ&apos;רים
             </div>
           </div>
-          <button
-            onClick={() => setShowForm(!showForm)}
-            style={{
-              padding: '8px 20px',
-              background: '#fff',
-              color: DEV_PURPLE,
-              border: 'none',
-              borderRadius: 8,
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
-          >
-            {showForm ? 'ביטול' : '+ טיקט חדש'}
-          </button>
+          {!isPending && (
+            <button
+              onClick={() => setShowForm(!showForm)}
+              style={{
+                padding: '8px 20px',
+                background: '#fff',
+                color: DEV_PURPLE,
+                border: 'none',
+                borderRadius: 8,
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              {showForm ? 'ביטול' : '+ טיקט חדש'}
+            </button>
+          )}
         </div>
 
         {showForm && (

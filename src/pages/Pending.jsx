@@ -31,9 +31,24 @@ export default function Pending() {
           <div style={{ fontSize: 18, fontWeight: 500, color: '#633806', marginBottom: 8 }}>
             הבקשה שלך התקבלה!
           </div>
-          <div style={{ fontSize: 14, color: '#854F0B' }}>
-            הפרופיל שלך ממתין לאישור מנהל. תוכל להתחבר לאחר האישור.
+          <div style={{ fontSize: 14, color: '#854F0B', marginBottom: 12 }}>
+            הפרופיל שלך ממתין לאישור מנהל. בינתיים ניתן לצפות בתכני הקהילה.
           </div>
+          <a
+            href="/"
+            style={{
+              display: 'inline-block',
+              padding: '8px 20px',
+              background: '#EF9F27',
+              color: '#fff',
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 500,
+              textDecoration: 'none',
+            }}
+          >
+            צפייה בקהילה
+          </a>
         </div>
       </div>
     </div>

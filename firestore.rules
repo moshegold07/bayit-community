@@ -21,13 +21,20 @@ service cloud.firestore {
         .hasAny(['hidden', 'hiddenAt', 'hiddenBy']);
     }
 
+    match /formRegistrants/{regId} {
+      allow read: if isSignedIn();
+      allow create: if isAdmin();
+      allow update: if isAdmin() || (isActiveUser() &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['claimed', 'claimedBy', 'claimedAt']));
+      allow delete: if isAdmin();
+    }
+
     match /users/{userId} {
       allow create: if isSignedIn() && request.auth.uid == userId &&
         request.resource.data.role == 'member' &&
         request.resource.data.status == 'pending';
-      allow read: if isSignedIn() && (
-        request.auth.uid == userId || isActiveUser() || isAdmin()
-      );
+      allow read: if isSignedIn();
       allow update: if isAdmin() ||
         (isSignedIn() && request.auth.uid == userId &&
           !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'role']));
@@ -35,7 +42,7 @@ service cloud.firestore {
     }
 
     match /phoneIndex/{phoneId} {
-      allow read: if isSignedIn();
+      allow read: if isActiveUser();
       allow create: if isSignedIn();
       allow delete: if isAdmin();
     }
@@ -46,25 +53,35 @@ service cloud.firestore {
     }
 
     match /events/{eventId} {
-      allow read: if isActiveUser();
+      allow read: if isSignedIn();
       allow create: if isActiveUser() &&
-        request.resource.data.createdBy == request.auth.uid;
+        request.resource.data.createdBy == request.auth.uid &&
+        request.resource.data.title.size() <= 200 &&
+        (!('description' in request.resource.data) || request.resource.data.description.size() <= 5000);
       allow update: if isActiveUser() &&
-        (!touchesHiddenFields() || isAdmin());
+        (resource.data.createdBy == request.auth.uid || isAdmin()) &&
+        (!touchesHiddenFields() || isAdmin()) &&
+        request.resource.data.title.size() <= 200 &&
+        (!('description' in request.resource.data) || request.resource.data.description.size() <= 5000);
       allow delete: if isAdmin() ||
         (isActiveUser() && resource.data.createdBy == request.auth.uid);
     }
 
     match /projects/{projectId} {
-      allow read: if isActiveUser();
+      allow read: if isSignedIn();
       allow create: if isActiveUser() &&
-        request.resource.data.createdBy == request.auth.uid;
+        request.resource.data.createdBy == request.auth.uid &&
+        request.resource.data.title.size() <= 200 &&
+        (!('description' in request.resource.data) || request.resource.data.description.size() <= 5000);
       allow update: if isActiveUser() &&
-        (!touchesHiddenFields() || isAdmin());
+        (resource.data.createdBy == request.auth.uid || isAdmin()) &&
+        (!touchesHiddenFields() || isAdmin()) &&
+        request.resource.data.title.size() <= 200 &&
+        (!('description' in request.resource.data) || request.resource.data.description.size() <= 5000);
       allow delete: if isAdmin() ||
         (isActiveUser() && resource.data.createdBy == request.auth.uid);
       match /comments/{commentId} {
-        allow read: if isActiveUser();
+        allow read: if isSignedIn();
         allow create: if isActiveUser() &&
           request.resource.data.authorId == request.auth.uid;
         allow update: if isAdmin() && touchesHiddenFields();
@@ -74,11 +91,16 @@ service cloud.firestore {
     }
 
     match /resources/{resourceId} {
-      allow read: if isActiveUser();
+      allow read: if isSignedIn();
       allow create: if isActiveUser() &&
-        request.resource.data.sharedBy == request.auth.uid;
+        request.resource.data.sharedBy == request.auth.uid &&
+        request.resource.data.title.size() <= 200 &&
+        (!('content' in request.resource.data) || request.resource.data.content.size() <= 5000);
       allow update: if isActiveUser() &&
-        (!touchesHiddenFields() || isAdmin());
+        (resource.data.sharedBy == request.auth.uid || isAdmin()) &&
+        (!touchesHiddenFields() || isAdmin()) &&
+        request.resource.data.title.size() <= 200 &&
+        (!('content' in request.resource.data) || request.resource.data.content.size() <= 5000);
       allow delete: if isAdmin() ||
         (isActiveUser() && resource.data.sharedBy == request.auth.uid);
     }
@@ -89,15 +111,20 @@ service cloud.firestore {
     }
 
     match /forums/{forumId} {
-      allow read: if isActiveUser();
+      allow read: if isSignedIn();
       allow create: if isActiveUser() &&
-        request.resource.data.createdBy == request.auth.uid;
+        request.resource.data.createdBy == request.auth.uid &&
+        request.resource.data.title.size() <= 200 &&
+        (!('description' in request.resource.data) || request.resource.data.description.size() <= 5000);
       allow update: if isActiveUser() &&
-        (!touchesHiddenFields() || isAdmin());
+        (resource.data.createdBy == request.auth.uid || isAdmin()) &&
+        (!touchesHiddenFields() || isAdmin()) &&
+        request.resource.data.title.size() <= 200 &&
+        (!('description' in request.resource.data) || request.resource.data.description.size() <= 5000);
       allow delete: if isAdmin() ||
         (isActiveUser() && resource.data.createdBy == request.auth.uid);
       match /posts/{postId} {
-        allow read: if isActiveUser();
+        allow read: if isSignedIn();
         allow create: if isActiveUser() &&
           request.resource.data.authorId == request.auth.uid;
         allow update: if isActiveUser() &&
@@ -105,7 +132,7 @@ service cloud.firestore {
         allow delete: if isAdmin() ||
           (isActiveUser() && resource.data.authorId == request.auth.uid);
         match /replies/{replyId} {
-          allow read: if isActiveUser();
+          allow read: if isSignedIn();
           allow create: if isActiveUser() &&
             request.resource.data.authorId == request.auth.uid;
           allow update: if isAdmin() && touchesHiddenFields();
@@ -127,11 +154,12 @@ service cloud.firestore {
           request.auth.uid in get(/databases/$(database)/documents/conversations/$(convId)).data.participants;
         allow create: if isActiveUser() &&
           request.auth.uid in get(/databases/$(database)/documents/conversations/$(convId)).data.participants;
+        allow delete: if isAdmin();
       }
     }
 
     match /polls/{pollId} {
-      allow read: if isActiveUser();
+      allow read: if isSignedIn();
       allow create: if isActiveUser() &&
         request.resource.data.createdBy == request.auth.uid;
       allow update: if isActiveUser() && (
@@ -145,8 +173,9 @@ service cloud.firestore {
     match /notifications/{notifId} {
       allow read: if isSignedIn() &&
         resource.data.userId == request.auth.uid;
-      allow create: if isSignedIn() &&
-        request.resource.data.userId != request.auth.uid;
+      allow create: if isActiveUser() &&
+        request.resource.data.userId != request.auth.uid &&
+        request.resource.data.keys().hasOnly(['userId', 'type', 'title', 'body', 'link', 'read', 'createdAt']);
       allow update: if isSignedIn() &&
         resource.data.userId == request.auth.uid;
       allow delete: if isSignedIn() &&
@@ -154,7 +183,7 @@ service cloud.firestore {
     }
 
     match /endorsements/{endorseId} {
-      allow read: if isActiveUser();
+      allow read: if isSignedIn();
       allow create: if isActiveUser() &&
         request.resource.data.fromUid == request.auth.uid;
       allow delete: if isAdmin() ||
@@ -162,13 +191,13 @@ service cloud.firestore {
     }
 
     match /activityFeed/{activityId} {
-      allow read: if isActiveUser();
+      allow read: if isSignedIn();
       allow create: if isActiveUser() &&
         request.resource.data.keys().hasOnly(['type', 'actorName', 'title', 'link', 'createdAt']);
     }
 
     match /tickets/{ticketId} {
-      allow read: if isActiveUser();
+      allow read: if isSignedIn();
       allow create: if isActiveUser() &&
         request.resource.data.createdBy == request.auth.uid;
       allow update: if isAdmin();

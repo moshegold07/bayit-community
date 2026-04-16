@@ -150,6 +150,18 @@ export function maskPhone(phone) {
   return phone.slice(0, 4) + '****' + phone.slice(-2);
 }
 
+const AV_COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7'];
+
+export function avColor(id) {
+  let h = 0;
+  for (let c of id || '') h = (h * 31 + c.charCodeAt(0)) & 0xffff;
+  return AV_COLORS[h % AV_COLORS.length];
+}
+
+export function initials(first, last) {
+  return ((first?.[0] || '') + (last?.[0] || '')).toUpperCase() || '?';
+}
+
 export function safeHref(url) {
   if (!url) return '#';
   const t = url.trim().toLowerCase();

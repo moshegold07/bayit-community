@@ -11,6 +11,7 @@ const AuthContext = createContext({
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState(null);
 
   const fetchUserDoc = useCallback(async (uid) => {
     const snap = await db.getDoc('users', uid);
@@ -38,16 +39,22 @@ export function AuthProvider({ children }) {
       try {
         const userData = await fetchUserDoc(firebaseUser.uid);
         setUser(userData);
-      } catch (_e) {
-        setUser(null);
+        setAuthError(null);
+      } catch (e) {
+        console.error('Failed to fetch user doc:', e);
+        setAuthError(e.message);
+        // Don't set user to null on transient errors — keep previous state
       }
       setLoading(false);
     });
     return unsub;
   }, [fetchUserDoc]);
 
+  const isPending = user?.status === 'pending';
+  const isActive = user?.status === 'active';
+
   return (
-    <AuthContext.Provider value={{ user, loading, refreshUser }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, loading, refreshUser, isPending, isActive, authError }}>{children}</AuthContext.Provider>
   );
 }
 

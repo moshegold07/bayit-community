@@ -30,7 +30,7 @@ const badgeDotStyle = {
 };
 
 export default function Navbar() {
-  const { user } = useAuth();
+  const { user, isPending } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [showRules, setShowRules] = useState(false);
@@ -49,7 +49,7 @@ export default function Navbar() {
 
   const linkItems = (
     <>
-      {NAV_LINKS.map(({ to, label }) => (
+      {NAV_LINKS.filter(({ to }) => !isPending || to !== '/messages').map(({ to, label }) => (
         <Link
           key={to}
           to={to}

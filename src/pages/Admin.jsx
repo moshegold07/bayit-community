@@ -170,6 +170,26 @@ function UserModal({ user: u, onClose, onApprove, onDelete, onBadgeToggle }) {
             </div>
           </div>
         )}
+        {u.strength && (
+          <div
+            style={{ marginTop: 8, padding: '10px 12px', background: '#f9f9f7', borderRadius: 8 }}
+          >
+            <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>החוזקות שלי</div>
+            <div style={{ fontSize: 13, color: '#333', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+              {u.strength}
+            </div>
+          </div>
+        )}
+        {u.canHelpWith && (
+          <div
+            style={{ marginTop: 8, padding: '10px 12px', background: '#f9f9f7', borderRadius: 8 }}
+          >
+            <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>במה אני יכול לעזור</div>
+            <div style={{ fontSize: 13, color: '#333', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+              {u.canHelpWith}
+            </div>
+          </div>
+        )}
 
         <div
           style={{ marginTop: 16, padding: '12px 14px', background: '#f9f9f7', borderRadius: 8 }}
@@ -259,13 +279,67 @@ export default function Admin() {
   const [rulesSaved, setRulesSaved] = useState(false);
   const [rulesLoading, setRulesLoading] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [formRegs, setFormRegs] = useState([]);
+  const [importJson, setImportJson] = useState('');
+  const [importStatus, setImportStatus] = useState('');
+  const [importing, setImporting] = useState(false);
 
   async function load() {
-    const docs = await db.getDocs('users');
-    setUsers(docs.map((d) => ({ uid: d.id, ...d.data() })));
-    const rulesSnap = await db.getDoc('settings', 'houseRules');
-    if (rulesSnap.exists()) setRulesText(rulesSnap.data().text || '');
+    try {
+      const docs = await db.getDocs('users');
+      setUsers(docs.map((d) => ({ uid: d.id, ...d.data() })));
+      const rulesSnap = await db.getDoc('settings', 'houseRules');
+      if (rulesSnap.exists()) setRulesText(rulesSnap.data().text || '');
+      try {
+        const fDocs = await db.getDocs('formRegistrants');
+        setFormRegs(fDocs.map((d) => ({ id: d.id, ...d.data() })));
+      } catch (_e) {
+        /* empty */
+      }
+    } catch (e) {
+      console.error('Failed to load admin data:', e);
+    }
     setLoading(false);
+  }
+
+  async function importFormData() {
+    setImporting(true);
+    setImportStatus('');
+    try {
+      let data = JSON.parse(importJson);
+      // Support full export with { registry: [...] } or raw array
+      if (data.registry && Array.isArray(data.registry)) data = data.registry;
+      if (!Array.isArray(data)) throw new Error('JSON must be an array or { registry: [...] }');
+
+      let count = 0;
+      for (const entry of data) {
+        const docId = 'form-' + (entry.id || count + 1);
+        await db.setDoc('formRegistrants', docId, {
+          fullName: entry.fullName || '',
+          location: entry.location || '',
+          mainField: entry.mainField || '',
+          subField: entry.subField || '',
+          whatTheyDo: entry.whatTheyDo || '',
+          strength: entry.strength || '',
+          canHelpWith: entry.canHelpWith || '',
+          seeking: entry.seeking || '',
+          specificNeed: entry.specificNeed || '',
+          contact: entry.contact || '',
+          contactType: entry.contactType || '',
+          claimed: false,
+          importedAt: new Date().toISOString(),
+        });
+        count++;
+      }
+      setImportStatus(`יובאו ${count} רשומות בהצלחה`);
+      setImportJson('');
+      // Reload
+      const fDocs = await db.getDocs('formRegistrants');
+      setFormRegs(fDocs.map((d) => ({ id: d.id, ...d.data() })));
+    } catch (e) {
+      setImportStatus('שגיאה: ' + e.message);
+    }
+    setImporting(false);
   }
 
   useEffect(() => {
@@ -279,9 +353,12 @@ export default function Admin() {
   }
 
   async function remove(uid, phone) {
-    if (!window.confirm('Delete this user permanently?')) return;
+    if (!window.confirm('למחוק משתמש זה לצמיתות?')) return;
     await db.deleteDoc('users', uid);
     if (phone) await db.deleteDoc('phoneIndex', phone).catch(() => {});
+    // Note: Firebase Auth account must be deleted via Admin SDK/Cloud Function
+    // Mark for cleanup
+    await db.addDoc('deletedUsers', { uid, deletedAt: new Date().toISOString() }).catch(() => {});
     setUsers((u) => u.filter((x) => x.uid !== uid));
     setSelected(null);
   }
@@ -312,6 +389,9 @@ export default function Admin() {
   const pending = users.filter((u) => u.status === 'pending');
   const deleteRequests = users.filter((u) => u.deleteRequest === true);
   const active = users.filter((u) => u.status === 'active' && u.role !== 'admin');
+
+  const formUnclaimed = formRegs.filter((r) => !r.claimed);
+  const formClaimed = formRegs.filter((r) => r.claimed);
 
   let list = tab === 'pending' ? pending : tab === 'delete' ? deleteRequests : active;
 
@@ -399,9 +479,131 @@ export default function Admin() {
           <button style={tabStyle('active')} onClick={() => setTab('active')}>
             חברים פעילים {active.length > 0 ? `(${active.length})` : ''}
           </button>
+          <button style={tabStyle('formRegs')} onClick={() => setTab('formRegs')}>
+            נרשמי טופס {formRegs.length > 0 ? `(${formUnclaimed.length}/${formRegs.length})` : ''}
+          </button>
         </div>
 
-        <div style={{ ...s.card, overflowX: 'auto' }}>
+        {tab === 'formRegs' && (
+          <div style={{ ...s.card, marginBottom: 16 }}>
+            <div style={{ fontWeight: 500, fontSize: 15, marginBottom: 10 }}>ייבוא נרשמי טופס</div>
+            <textarea
+              style={{ ...s.textarea, minHeight: 80, fontSize: 12, fontFamily: 'monospace' }}
+              dir="ltr"
+              placeholder='הדבק JSON כאן — מערך של רשומות או { "registry": [...] }'
+              value={importJson}
+              onChange={(e) => setImportJson(e.target.value)}
+            />
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 8 }}>
+              <button
+                onClick={importFormData}
+                disabled={importing || !importJson.trim()}
+                style={{
+                  padding: '7px 20px',
+                  background: BLUE,
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 8,
+                  fontSize: 13,
+                  cursor: 'pointer',
+                  opacity: importing || !importJson.trim() ? 0.6 : 1,
+                }}
+              >
+                {importing ? 'מייבא...' : 'ייבא'}
+              </button>
+              {importStatus && (
+                <span
+                  style={{
+                    fontSize: 13,
+                    color: importStatus.startsWith('שגיאה') ? '#A32D2D' : '#27500A',
+                  }}
+                >
+                  {importStatus}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {tab === 'formRegs' && (
+          <div style={{ ...s.card, overflowX: 'auto' }}>
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>טוען...</div>
+            ) : formRegs.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
+                אין נרשמי טופס. השתמש בייבוא למעלה.
+              </div>
+            ) : (
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr>
+                    <th style={thStyle}>שם</th>
+                    <th style={thStyle}>מיקום</th>
+                    <th style={thStyle}>תחום</th>
+                    <th style={thStyle}>סטטוס</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {formRegs.map((r) => (
+                    <tr key={r.id}>
+                      <td style={{ ...tdStyle, fontWeight: 500 }}>{r.fullName}</td>
+                      <td style={tdStyle}>{r.location || '—'}</td>
+                      <td style={tdStyle}>
+                        {r.mainField ? (
+                          <span
+                            style={{
+                              background: '#E6F1FB',
+                              color: '#0C447C',
+                              borderRadius: 20,
+                              padding: '2px 9px',
+                              fontSize: 11,
+                              fontWeight: 500,
+                            }}
+                          >
+                            {r.subField && r.subField !== 'אחר'
+                              ? r.subField
+                              : r.mainField}
+                          </span>
+                        ) : (
+                          '—'
+                        )}
+                      </td>
+                      <td style={tdStyle}>
+                        {r.claimed ? (
+                          <span
+                            style={{
+                              fontSize: 11,
+                              background: '#EAF3DE',
+                              color: '#27500A',
+                              borderRadius: 10,
+                              padding: '2px 8px',
+                            }}
+                          >
+                            הפעיל חשבון
+                          </span>
+                        ) : (
+                          <span
+                            style={{
+                              fontSize: 11,
+                              background: '#FFF8EB',
+                              color: '#8B6700',
+                              borderRadius: 10,
+                              padding: '2px 8px',
+                            }}
+                          >
+                            ממתין
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )}
+
+        {tab !== 'formRegs' && <div style={{ ...s.card, overflowX: 'auto' }}>
           {loading ? (
             <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>טוען...</div>
           ) : list.length === 0 ? (
@@ -493,7 +695,7 @@ export default function Admin() {
               </tbody>
             </table>
           )}
-        </div>
+        </div>}
       </div>
     </>
   );

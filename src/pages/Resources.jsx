@@ -25,7 +25,7 @@ const EMPTY_FORM = {
 };
 
 export default function Resources() {
-  const { user } = useAuth();
+  const { user, isPending } = useAuth();
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -84,7 +84,7 @@ export default function Resources() {
 
   const handleUpvote = useCallback(
     async (resourceId) => {
-      if (!user) return;
+      if (!user || isPending) return;
       const idx = resources.findIndex((r) => r.id === resourceId);
       if (idx === -1) return;
 
@@ -119,7 +119,7 @@ export default function Resources() {
         // Upvote failed
       }
     },
-    [user, resources],
+    [user, resources, isPending],
   );
 
   const handleSubmit = async (e) => {
@@ -146,6 +146,10 @@ export default function Resources() {
     }
     if (!url) {
       setError('יש להזין קישור');
+      return;
+    }
+    if (!/^https?:\/\/.+/.test(url)) {
+      setError('נא להזין כתובת URL תקינה (מתחילה ב-http:// או https://)');
       return;
     }
     if (description.length > 500) {
@@ -205,18 +209,20 @@ export default function Resources() {
         }}
       >
         <h2 style={{ margin: 0, fontSize: 22, color: '#222' }}>תוכן</h2>
-        <button
-          onClick={() => setShowForm((v) => !v)}
-          style={{
-            ...s.btnPrimary,
-            width: 'auto',
-            padding: '8px 18px',
-            marginTop: 0,
-            fontSize: 14,
-          }}
-        >
-          {showForm ? 'ביטול' : 'שיתוף תוכן חדש'}
-        </button>
+        {!isPending && (
+          <button
+            onClick={() => setShowForm((v) => !v)}
+            style={{
+              ...s.btnPrimary,
+              width: 'auto',
+              padding: '8px 18px',
+              marginTop: 0,
+              fontSize: 14,
+            }}
+          >
+            {showForm ? 'ביטול' : 'שיתוף תוכן חדש'}
+          </button>
+        )}
       </div>
 
       {/* Share form */}

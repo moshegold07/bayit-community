@@ -81,29 +81,28 @@ export default function SearchDropdown({ isMobile }) {
   const [allProjects, setAllProjects] = useState([]);
   const [allResources, setAllResources] = useState([]);
   const [loaded, setLoaded] = useState(false);
+  const loadedRef = useRef(false);
 
-  // Load all collections once on mount
-  useEffect(() => {
-    let cancelled = false;
-    Promise.all([
-      db.getDocs('users', [{ field: 'status', op: 'EQUAL', value: 'active' }]),
-      db.getDocs('events'),
-      db.getDocs('projects'),
-      db.getDocs('resources'),
-    ])
-      .then(([u, e, p, r]) => {
-        if (cancelled) return;
-        setAllUsers(u.map((d) => ({ id: d.id, ...d.data() })));
-        setAllEvents(e.map((d) => ({ id: d.id, ...d.data() })));
-        setAllProjects(p.map((d) => ({ id: d.id, ...d.data() })));
-        setAllResources(r.map((d) => ({ id: d.id, ...d.data() })));
-        setLoaded(true);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  // Lazy-load all collections on first focus
+  async function loadData() {
+    if (loadedRef.current) return;
+    loadedRef.current = true;
+    try {
+      const [u, e, p, r] = await Promise.all([
+        db.getDocs('users', [{ field: 'status', op: 'EQUAL', value: 'active' }]),
+        db.getDocs('events'),
+        db.getDocs('projects'),
+        db.getDocs('resources'),
+      ]);
+      setAllUsers(u.map((d) => ({ id: d.id, ...d.data() })));
+      setAllEvents(e.map((d) => ({ id: d.id, ...d.data() })));
+      setAllProjects(p.map((d) => ({ id: d.id, ...d.data() })));
+      setAllResources(r.map((d) => ({ id: d.id, ...d.data() })));
+      setLoaded(true);
+    } catch {
+      loadedRef.current = false; // Allow retry on failure
+    }
+  }
 
   // Debounce query
   useEffect(() => {
@@ -243,6 +242,7 @@ export default function SearchDropdown({ isMobile }) {
           setShowDropdown(true);
         }}
         onFocus={() => {
+          loadData();
           if (query.trim()) setShowDropdown(true);
         }}
         placeholder="חיפוש בקהילה..."

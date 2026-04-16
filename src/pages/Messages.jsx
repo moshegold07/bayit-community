@@ -92,7 +92,10 @@ export default function Messages() {
           return;
         } catch (err) {
           console.error('Create conversation error:', err);
-          if (!cancelled) setError('שגיאה ביצירת השיחה: ' + (err.message || 'נסה שוב'));
+          if (!cancelled) {
+            setError('שגיאה ביצירת השיחה: ' + (err.message || 'נסה שוב'));
+            setLoading(false);
+          }
         }
       }
 

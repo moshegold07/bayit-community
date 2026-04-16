@@ -24,7 +24,7 @@ const EMPTY_FORM = {
 };
 
 export default function Events() {
-  const { user } = useAuth();
+  const { user, isPending } = useAuth();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -97,6 +97,12 @@ export default function Events() {
       return;
     }
 
+    const today = new Date().toISOString().slice(0, 10);
+    if (form.date < today) {
+      setError('לא ניתן ליצור אירוע בתאריך שעבר');
+      return;
+    }
+
     setSaving(true);
     try {
       const now = new Date().toISOString();
@@ -149,21 +155,23 @@ export default function Events() {
         }}
       >
         <h1 style={{ fontSize: 22, fontWeight: 600, color: '#222', margin: 0 }}>אירועים</h1>
-        <button
-          onClick={() => setShowForm((v) => !v)}
-          style={{
-            padding: '8px 18px',
-            background: BLUE,
-            color: '#fff',
-            border: 'none',
-            borderRadius: 8,
-            fontSize: 14,
-            fontWeight: 500,
-            cursor: 'pointer',
-          }}
-        >
-          {showForm ? 'ביטול' : 'יצירת אירוע חדש'}
-        </button>
+        {!isPending && (
+          <button
+            onClick={() => setShowForm((v) => !v)}
+            style={{
+              padding: '8px 18px',
+              background: BLUE,
+              color: '#fff',
+              border: 'none',
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 500,
+              cursor: 'pointer',
+            }}
+          >
+            {showForm ? 'ביטול' : 'יצירת אירוע חדש'}
+          </button>
+        )}
       </div>
 
       {/* Create Form */}

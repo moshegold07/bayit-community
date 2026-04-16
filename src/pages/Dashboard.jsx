@@ -8,12 +8,15 @@ import {
   BLUE_LT,
   BLUE_DK,
   AMBER,
+  AMBER_LT,
   CREAM,
   TEAL,
   GOLD,
   NAVY,
   maskPhone,
   safeHref,
+  avColor,
+  initials,
 } from '../components/shared';
 import BadgeDisplay from '../components/BadgeDisplay';
 import ActivityFeed from '../components/ActivityFeed';
@@ -23,16 +26,6 @@ function visibleField(member, field, isAdmin) {
   if (isAdmin) return true;
   if (!member.visibility) return true; // backward compat — no setting = all visible
   return member.visibility[field] !== false;
-}
-
-const AV_COLORS = ['#1A8A7D', '#2A5A8A', '#8B6AAE', '#C47A3A', '#5A8A6A'];
-function avColor(id) {
-  let h = 0;
-  for (let c of id) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
-  return AV_COLORS[h % 5];
-}
-function initials(m) {
-  return (m.first?.[0] || '') + (m.last?.[0] || '');
 }
 
 const BAR_COLORS = [
@@ -169,7 +162,7 @@ function DomainDistribution({ members, onSelect, activeDomain }) {
   );
 }
 
-function MemberModal({ m, onClose, isAdmin, currentUser }) {
+function MemberModal({ m, onClose, isAdmin, currentUser, isPending }) {
   return (
     <div
       style={{
@@ -221,7 +214,7 @@ function MemberModal({ m, onClose, isAdmin, currentUser }) {
               flexShrink: 0,
             }}
           >
-            {initials(m)}
+            {initials(m.first, m.last)}
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 500, fontSize: 18 }}>
@@ -299,6 +292,38 @@ function MemberModal({ m, onClose, isAdmin, currentUser }) {
             </div>
           </div>
         )}
+        {m.strength && (
+          <div
+            style={{
+              marginBottom: 12,
+              padding: '10px 12px',
+              background: '#f9f9f7',
+              borderRadius: 8,
+            }}
+          >
+            <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>החוזקות שלי</div>
+            <div style={{ fontSize: 14, color: '#222', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
+              {m.strength}
+            </div>
+          </div>
+        )}
+        {m.canHelpWith && (
+          <div
+            style={{
+              marginBottom: 12,
+              padding: '10px 12px',
+              background: '#f9f9f7',
+              borderRadius: 8,
+            }}
+          >
+            <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>
+              במה אני יכול לעזור
+            </div>
+            <div style={{ fontSize: 14, color: '#222', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
+              {m.canHelpWith}
+            </div>
+          </div>
+        )}
 
         <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
           {visibleField(m, 'phone', isAdmin) && (
@@ -337,34 +362,38 @@ function MemberModal({ m, onClose, isAdmin, currentUser }) {
           )}
         </div>
 
-        <Link
-          to={`/messages?to=${m.uid}&name=${encodeURIComponent((m.first || '') + ' ' + (m.last || ''))}`}
-          onClick={onClose}
-          style={{
-            display: 'block',
-            width: '100%',
-            padding: 10,
-            background: `linear-gradient(135deg, ${AMBER} 0%, #D4922E 100%)`,
-            color: '#fff',
-            border: 'none',
-            borderRadius: 8,
-            fontSize: 14,
-            fontWeight: 500,
-            cursor: 'pointer',
-            textAlign: 'center',
-            textDecoration: 'none',
-            marginTop: '1.25rem',
-            boxSizing: 'border-box',
-          }}
-        >
-          שלח הודעה
-        </Link>
-        <EndorsementSection
-          targetUid={m.uid}
-          targetName={(m.first || '') + ' ' + (m.last || '')}
-          currentUserId={currentUser?.uid}
-          currentUserName={(currentUser?.first || '') + ' ' + (currentUser?.last || '')}
-        />
+        {!isPending && (
+          <Link
+            to={`/messages?to=${m.uid}&name=${encodeURIComponent((m.first || '') + ' ' + (m.last || ''))}`}
+            onClick={onClose}
+            style={{
+              display: 'block',
+              width: '100%',
+              padding: 10,
+              background: `linear-gradient(135deg, ${AMBER} 0%, #D4922E 100%)`,
+              color: '#fff',
+              border: 'none',
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 500,
+              cursor: 'pointer',
+              textAlign: 'center',
+              textDecoration: 'none',
+              marginTop: '1.25rem',
+              boxSizing: 'border-box',
+            }}
+          >
+            שלח הודעה
+          </Link>
+        )}
+        {!isPending && (
+          <EndorsementSection
+            targetUid={m.uid}
+            targetName={(m.first || '') + ' ' + (m.last || '')}
+            currentUserId={currentUser?.uid}
+            currentUserName={(currentUser?.first || '') + ' ' + (currentUser?.last || '')}
+          />
+        )}
         <button
           onClick={onClose}
           style={{
@@ -387,9 +416,10 @@ function MemberModal({ m, onClose, isAdmin, currentUser }) {
 }
 
 export default function Dashboard() {
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, isPending } = useAuth();
   const isAdmin = currentUser?.role === 'admin';
   const [members, setMembers] = useState([]);
+  const [formRegs, setFormRegs] = useState([]);
   const [search, setSearch] = useState('');
   const [filterDomain, setFilterDomain] = useState('');
   const [filterCity, setFilterCity] = useState('');
@@ -400,20 +430,37 @@ export default function Dashboard() {
     async function load() {
       const docs = await db.getDocs('users', [{ field: 'status', op: 'EQUAL', value: 'active' }]);
       setMembers(docs.map((d) => ({ uid: d.id, ...d.data() })));
+      try {
+        const fDocs = await db.getDocs('formRegistrants', [
+          { field: 'claimed', op: 'EQUAL', value: false },
+        ]);
+        setFormRegs(fDocs.map((d) => ({ id: d.id, ...d.data() })));
+      } catch (_e) {
+        /* empty */
+      }
       setLoading(false);
     }
     load();
   }, []);
 
+  // Map formRegs to member-like objects for counting & distribution
+  const formRegsAsDomain = formRegs.map((r) => {
+    const cats = [r.subField, r.mainField].filter((f) => f && f !== 'אחר');
+    return { categories: cats, domain: cats.join(', '), city: r.location };
+  });
+  const allForStats = [...members, ...formRegsAsDomain];
+
   const domains = [
     ...new Set(
-      members.flatMap((m) => (m.categories?.length ? m.categories : m.domain ? [m.domain] : [])),
+      allForStats.flatMap((m) => (m.categories?.length ? m.categories : m.domain ? [m.domain] : [])),
     ),
   ].sort();
-  const cities = [...new Set(members.map((m) => m.city).filter(Boolean))].sort();
+  const cities = [...new Set(allForStats.map((m) => m.city).filter(Boolean))].sort();
 
   const list = members.filter((m) => {
-    const txt = [m.first, m.last, m.city, m.domain, m.does, m.needs].join(' ').toLowerCase();
+    const txt = [m.first, m.last, m.city, m.domain, m.does, m.needs, m.strength, m.canHelpWith]
+      .join(' ')
+      .toLowerCase();
     return (
       (!search || txt.includes(search.toLowerCase())) &&
       (!filterDomain ||
@@ -433,6 +480,7 @@ export default function Dashboard() {
           onClose={() => setSelected(null)}
           isAdmin={isAdmin}
           currentUser={currentUser}
+          isPending={isPending}
         />
       )}
 
@@ -475,7 +523,7 @@ export default function Dashboard() {
 
         <div style={{ display: 'flex', gap: 10, marginBottom: '1rem' }}>
           {[
-            ['חברים', members.length, TEAL],
+            ['חברים', members.length + formRegs.length, TEAL],
             ['ערים', cities.length, GOLD],
             ['תחומים', domains.length, '#8B6AAE'],
           ].map(([label, val, color]) => (
@@ -500,9 +548,9 @@ export default function Dashboard() {
           <ActivityFeed />
         </div>
 
-        {!loading && members.length > 0 && (
+        {!loading && allForStats.length > 0 && (
           <DomainDistribution
-            members={members}
+            members={allForStats}
             onSelect={setFilterDomain}
             activeDomain={filterDomain}
           />
@@ -556,7 +604,7 @@ export default function Dashboard() {
                       flexShrink: 0,
                     }}
                   >
-                    {initials(m)}
+                    {initials(m.first, m.last)}
                   </div>
                   <div>
                     <div style={{ fontWeight: 500, fontSize: 15 }}>
@@ -629,6 +677,119 @@ export default function Dashboard() {
             ))}
           </div>
         )}
+
+        {!loading && formRegs.length > 0 && (() => {
+          const filtered = formRegs.filter((r) => {
+            const txt = [r.fullName, r.location, r.mainField, r.subField, r.whatTheyDo]
+              .join(' ')
+              .toLowerCase();
+            return !search || txt.includes(search.toLowerCase());
+          });
+          if (filtered.length === 0) return null;
+          return (
+            <div style={{ marginTop: '1.5rem' }}>
+              <div
+                style={{
+                  fontSize: 15,
+                  fontWeight: 600,
+                  color: NAVY,
+                  marginBottom: 10,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                }}
+              >
+                <span>נרשמו בטופס — ממתינים להפעלה</span>
+                <span
+                  style={{
+                    fontSize: 11,
+                    background: AMBER_LT,
+                    color: '#8B6700',
+                    borderRadius: 10,
+                    padding: '2px 8px',
+                    fontWeight: 500,
+                  }}
+                >
+                  {filtered.length}
+                </span>
+              </div>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))',
+                  gap: 12,
+                }}
+              >
+                {filtered.map((r) => {
+                  const nameParts = (r.fullName || '').split(/\s+/);
+                  const fi = nameParts[0]?.[0] || '';
+                  const li = nameParts[1]?.[0] || '';
+                  return (
+                    <div
+                      key={r.id}
+                      style={{
+                        background: '#fff',
+                        border: '1px dashed #D5D0C8',
+                        borderRadius: 12,
+                        padding: '1rem',
+                        opacity: 0.85,
+                      }}
+                    >
+                      <div
+                        style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}
+                      >
+                        <div
+                          style={{
+                            width: 38,
+                            height: 38,
+                            borderRadius: '50%',
+                            background: '#ccc',
+                            color: '#fff',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 500,
+                            fontSize: 13,
+                            flexShrink: 0,
+                          }}
+                        >
+                          {fi}
+                          {li}
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 500, fontSize: 15 }}>{r.fullName}</div>
+                          {r.location && (
+                            <div style={{ fontSize: 12, color: '#888' }}>{r.location}</div>
+                          )}
+                        </div>
+                      </div>
+                      {r.subField && r.subField !== 'אחר' && (
+                        <span
+                          style={{
+                            fontSize: 11,
+                            padding: '2px 9px',
+                            borderRadius: 20,
+                            background: '#F5F0E8',
+                            color: '#8B6700',
+                            fontWeight: 500,
+                          }}
+                        >
+                          {r.subField}
+                        </span>
+                      )}
+                      {r.whatTheyDo && (
+                        <div style={{ fontSize: 13, color: '#666', marginTop: 8 }}>
+                          {r.whatTheyDo.slice(0, 80)}
+                          {r.whatTheyDo.length > 80 ? '...' : ''}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </>
   );

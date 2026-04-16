@@ -45,6 +45,7 @@ export default function Login() {
       )
         setErr('אימייל או סיסמא שגויים');
       else setErr('שגיאה: ' + e.message);
+    } finally {
       setLoading(false);
     }
   }
@@ -130,6 +131,34 @@ export default function Login() {
               שכחתי סיסמה
             </button>
           )}
+          <div
+            style={{
+              marginTop: 20,
+              paddingTop: 16,
+              borderTop: '1px solid #E8E5DE',
+              textAlign: 'center',
+            }}
+          >
+            <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>
+              נרשמת דרך טופס גוגל?
+            </div>
+            <Link
+              to="/form-claim"
+              style={{
+                display: 'inline-block',
+                padding: '8px 20px',
+                background: '#F0F7F6',
+                color: '#1A8A7D',
+                border: '1px solid #1A8A7D',
+                borderRadius: 8,
+                fontSize: 14,
+                fontWeight: 500,
+                textDecoration: 'none',
+              }}
+            >
+              נרשמת בטופס? הפעל חשבון
+            </Link>
+          </div>
         </div>
       </div>
     </div>

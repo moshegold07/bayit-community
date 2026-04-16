@@ -18,7 +18,7 @@ function avColor(id) {
 }
 
 export default function Forums() {
-  const { user } = useAuth();
+  const { user, isPending } = useAuth();
   const [forums, setForums] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -116,18 +116,20 @@ export default function Forums() {
         }}
       >
         <h2 style={{ margin: 0, fontSize: 22, color: '#222' }}>פורומים</h2>
-        <button
-          onClick={() => setShowForm((v) => !v)}
-          style={{
-            ...s.btnPrimary,
-            width: 'auto',
-            padding: '8px 18px',
-            marginTop: 0,
-            fontSize: 14,
-          }}
-        >
-          {showForm ? 'ביטול' : '+ נושא חדש'}
-        </button>
+        {!isPending && (
+          <button
+            onClick={() => setShowForm((v) => !v)}
+            style={{
+              ...s.btnPrimary,
+              width: 'auto',
+              padding: '8px 18px',
+              marginTop: 0,
+              fontSize: 14,
+            }}
+          >
+            {showForm ? 'ביטול' : '+ נושא חדש'}
+          </button>
+        )}
       </div>
 
       {showForm && (

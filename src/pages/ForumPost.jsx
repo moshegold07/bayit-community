@@ -19,7 +19,7 @@ function avColor(id) {
 export default function ForumPost() {
   const { forumId, postId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isPending } = useAuth();
   const [post, setPost] = useState(null);
   const [replies, setReplies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -270,38 +270,42 @@ export default function ForumPost() {
         </div>
       )}
 
-      {replyError && <div style={{ ...s.err, marginBottom: 8, fontSize: 13 }}>{replyError}</div>}
-      <form
-        onSubmit={handleReply}
-        style={{ ...s.card, display: 'flex', gap: 8, alignItems: 'flex-start' }}
-      >
-        <textarea
-          style={{ ...s.textarea, flex: 1, minHeight: 44 }}
-          dir="rtl"
-          placeholder="כתוב תגובה..."
-          maxLength={2000}
-          value={replyText}
-          onChange={(e) => setReplyText(e.target.value)}
-        />
-        <button
-          type="submit"
-          disabled={!replyText.trim() || submitting}
-          style={{
-            padding: '10px 16px',
-            background: BLUE,
-            color: '#fff',
-            border: 'none',
-            borderRadius: 8,
-            fontSize: 13,
-            fontWeight: 500,
-            cursor: 'pointer',
-            opacity: !replyText.trim() || submitting ? 0.5 : 1,
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {submitting ? '...' : 'הגב'}
-        </button>
-      </form>
+      {!isPending && (
+        <>
+          {replyError && <div style={{ ...s.err, marginBottom: 8, fontSize: 13 }}>{replyError}</div>}
+          <form
+            onSubmit={handleReply}
+            style={{ ...s.card, display: 'flex', gap: 8, alignItems: 'flex-start' }}
+          >
+            <textarea
+              style={{ ...s.textarea, flex: 1, minHeight: 44 }}
+              dir="rtl"
+              placeholder="כתוב תגובה..."
+              maxLength={2000}
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+            />
+            <button
+              type="submit"
+              disabled={!replyText.trim() || submitting}
+              style={{
+                padding: '10px 16px',
+                background: BLUE,
+                color: '#fff',
+                border: 'none',
+                borderRadius: 8,
+                fontSize: 13,
+                fontWeight: 500,
+                cursor: 'pointer',
+                opacity: !replyText.trim() || submitting ? 0.5 : 1,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {submitting ? '...' : 'הגב'}
+            </button>
+          </form>
+        </>
+      )}
     </div>
   );
 }

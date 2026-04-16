@@ -41,9 +41,9 @@ function calcMatch(me, other) {
     reasons.push({ type: 'categories', label: 'תחומים משותפים', items: origShared });
   }
 
-  // 2. I need -> they do
+  // 2. I need -> they do / they can help with
   const myNeeds = extractKeywords(me.needs);
-  const theirDoesText = (other.does || '').toLowerCase();
+  const theirDoesText = [other.does, other.canHelpWith].filter(Boolean).join(' ').toLowerCase();
   const theyCanHelp = myNeeds.filter((kw) => theirDoesText.includes(kw));
   if (theyCanHelp.length > 0) {
     score += theyCanHelp.length * 2;
@@ -76,7 +76,7 @@ function calcMatch(me, other) {
 }
 
 export default function Matching() {
-  const { user } = useAuth();
+  const { user, isPending } = useAuth();
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -175,14 +175,14 @@ export default function Matching() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         {matches.map((m) => (
-          <MatchCard key={m.uid} match={m} />
+          <MatchCard key={m.uid} match={m} isPending={isPending} />
         ))}
       </div>
     </div>
   );
 }
 
-function MatchCard({ match }) {
+function MatchCard({ match, isPending }) {
   const m = match;
   const name = `${m.first || ''} ${m.last || ''}`.trim();
   const encodedName = encodeURIComponent(name);
@@ -265,23 +265,25 @@ function MatchCard({ match }) {
       )}
 
       {/* Action button */}
-      <Link
-        to={`/messages?to=${m.uid}&name=${encodedName}`}
-        style={{
-          display: 'block',
-          textAlign: 'center',
-          padding: '8px 0',
-          background: BLUE,
-          color: '#fff',
-          borderRadius: 8,
-          fontSize: 14,
-          fontWeight: 500,
-          textDecoration: 'none',
-          marginTop: 2,
-        }}
-      >
-        שלח הודעה
-      </Link>
+      {!isPending && (
+        <Link
+          to={`/messages?to=${m.uid}&name=${encodedName}`}
+          style={{
+            display: 'block',
+            textAlign: 'center',
+            padding: '8px 0',
+            background: BLUE,
+            color: '#fff',
+            borderRadius: 8,
+            fontSize: 14,
+            fontWeight: 500,
+            textDecoration: 'none',
+            marginTop: 2,
+          }}
+        >
+          שלח הודעה
+        </Link>
+      )}
     </div>
   );
 }

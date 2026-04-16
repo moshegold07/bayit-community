@@ -72,12 +72,13 @@ export function useTabBadges(userId) {
             if (path === '/messages') {
               filters = [{ field: 'participants', op: 'ARRAY_CONTAINS', value: userId }];
             }
-            const docs = await db.getDocs(collection, filters);
-            let maxTime = '';
-            docs.forEach((d) => {
-              const t = d.data()[timeField] || '';
-              if (t > maxTime) maxTime = t;
-            });
+            const docs = await db.getDocs(
+              collection,
+              filters,
+              { field: timeField, direction: 'DESCENDING' },
+              1,
+            );
+            const maxTime = docs.length > 0 ? (docs[0].data()[timeField] || '') : '';
             result[path] = maxTime > (seen[path] || '');
           } catch {
             result[path] = false;

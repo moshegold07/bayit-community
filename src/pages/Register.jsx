@@ -93,22 +93,21 @@ export default function Register() {
 
     setLoading(true);
     setGlobalErr('');
+    let createdUser = null;
     try {
       const phoneId = form.countryCode + form.phoneNum.trim();
 
       // Create auth user FIRST so we have a token for Firestore calls
       const cred = await createUserWithEmailAndPassword(auth, form.email.trim(), form.pass);
+      createdUser = cred.user;
       const uid = cred.user.uid;
 
       // Now check phone uniqueness (authenticated)
       const phoneSnap = await db.getDoc('phoneIndex', phoneId);
       if (phoneSnap.exists()) {
-        // Phone taken — delete the auth user we just created
-        await cred.user.delete();
-        setErrors({ phone: 'מספר זה כבר רשום' });
-        setLoading(false);
-        return;
+        throw new Error('PHONE_TAKEN');
       }
+
       let website = form.website.trim();
       if (website && !website.startsWith('http')) website = 'https://' + website;
 
@@ -135,10 +134,20 @@ export default function Register() {
 
       await db.setDoc('users', uid, userData);
       await db.setDoc('phoneIndex', phoneId, { uid });
+      createdUser = null; // success — don't cleanup
       setSubmitted(true);
     } catch (e) {
-      if (e.code === 'auth/email-already-in-use') setGlobalErr('אימייל זה כבר רשום במערכת');
-      else setGlobalErr('שגיאה: ' + e.message);
+      if (createdUser) {
+        try { await createdUser.delete(); } catch (_) { /* cleanup best-effort */ }
+      }
+      if (e.message === 'PHONE_TAKEN') {
+        setErrors({ phone: 'מספר זה כבר רשום' });
+      } else if (e.code === 'auth/email-already-in-use') {
+        setGlobalErr('אימייל זה כבר רשום במערכת');
+      } else {
+        setGlobalErr('שגיאה: ' + e.message);
+      }
+    } finally {
       setLoading(false);
     }
   }

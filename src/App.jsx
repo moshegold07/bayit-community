@@ -7,6 +7,7 @@ import RequireAdmin from './components/guards/RequireAdmin';
 import AppLayout from './components/AppLayout';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import FormClaim from './pages/FormClaim';
 import Pending from './pages/Pending';
 import Dashboard from './pages/Dashboard';
 import Events from './pages/Events';
@@ -49,6 +50,14 @@ export default function App() {
             }
           />
           <Route
+            path="/form-claim"
+            element={
+              <PublicRoute>
+                <FormClaim />
+              </PublicRoute>
+            }
+          />
+          <Route
             path="/pending"
             element={
               <RequireAuth>
@@ -58,9 +67,11 @@ export default function App() {
           />
           <Route
             element={
-              <RequireActive>
-                <AppLayout />
-              </RequireActive>
+              <RequireAuth>
+                <RequireActive>
+                  <AppLayout />
+                </RequireActive>
+              </RequireAuth>
             }
           >
             <Route index element={<Dashboard />} />

@@ -31,8 +31,9 @@ export default function Chat() {
         direction: 'ASCENDING',
       });
       setMessages(docs.map((d) => ({ id: d.id, ...d.data() })));
-    } catch {
-      // Failed to load messages
+    } catch (e) {
+      console.error('Failed to load messages:', e);
+      // Don't clear existing messages on poll failure
     }
   }, [msgPath]);
 
@@ -46,7 +47,14 @@ export default function Chat() {
           return;
         }
         if (!cancelled) {
-          setConv({ id: snap.id, ...snap.data() });
+          const convData = { id: snap.id, ...snap.data() };
+          // Authorization check — current user must be a participant
+          if (!convData.participants?.includes(user.uid)) {
+            setConv(null);
+            setLoading(false);
+            return;
+          }
+          setConv(convData);
           await loadMessages();
         }
       } catch {
@@ -62,7 +70,7 @@ export default function Chat() {
   // Auto-refresh messages every 10 seconds
   useEffect(() => {
     if (!conv) return;
-    const interval = setInterval(loadMessages, 10000);
+    const interval = setInterval(loadMessages, 15000);
     return () => clearInterval(interval);
   }, [conv, loadMessages]);
 

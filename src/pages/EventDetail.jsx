@@ -44,7 +44,7 @@ function formatDateHebrew(dateStr) {
 export default function EventDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isPending } = useAuth();
   const [event, setEvent] = useState(null);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -75,33 +75,41 @@ export default function EventDetail() {
     if (!event || !user || rsvpLoading) return;
     setRsvpLoading(true);
     try {
-      const currentRsvps = event.rsvps || [];
+      // Fetch fresh event data to avoid race condition
+      const freshSnap = await db.getDoc('events', id);
+      if (!freshSnap.exists()) return setRsvpLoading(false);
+      const freshData = freshSnap.data();
+      const currentRsvps = freshData.rsvps || [];
+      const isCurrentlyRsvpd = currentRsvps.includes(user.uid);
+
       let newRsvps;
       let newCount;
-      if (isRsvpd) {
+      if (isCurrentlyRsvpd) {
         newRsvps = currentRsvps.filter((uid) => uid !== user.uid);
-        newCount = Math.max(0, (event.rsvpCount || 1) - 1);
+        newCount = Math.max(0, (freshData.rsvpCount || 1) - 1);
       } else {
+        if (freshData.maxAttendees && currentRsvps.length >= freshData.maxAttendees) {
+          setRsvpLoading(false);
+          return;
+        }
         newRsvps = [...currentRsvps, user.uid];
-        newCount = (event.rsvpCount || 0) + 1;
+        newCount = (freshData.rsvpCount || 0) + 1;
       }
-
-      // Optimistic update
-      setEvent((prev) => ({
-        ...prev,
-        rsvps: newRsvps,
-        rsvpCount: newCount,
-        updatedAt: new Date().toISOString(),
-      }));
 
       await db.updateDoc('events', id, {
         rsvps: newRsvps,
         rsvpCount: newCount,
         updatedAt: new Date().toISOString(),
       });
+      setEvent((prev) => ({
+        ...prev,
+        rsvps: newRsvps,
+        rsvpCount: newCount,
+        updatedAt: new Date().toISOString(),
+      }));
     } catch (err) {
-      // RSVP failed
-      // Revert on error
+      console.error('RSVP error:', err);
+      // Re-fetch to get correct state
       const snap = await db.getDoc('events', id);
       if (snap.exists()) {
         setEvent({ id: snap.id, ...snap.data() });
@@ -239,25 +247,27 @@ export default function EventDetail() {
         </div>
 
         {/* RSVP button */}
-        <button
-          onClick={toggleRsvp}
-          disabled={rsvpLoading}
-          style={{
-            width: '100%',
-            padding: 12,
-            background: isRsvpd ? '#fff' : BLUE,
-            color: isRsvpd ? BLUE : '#fff',
-            border: isRsvpd ? `2px solid ${BLUE}` : 'none',
-            borderRadius: 8,
-            fontSize: 15,
-            fontWeight: 500,
-            cursor: rsvpLoading ? 'not-allowed' : 'pointer',
-            opacity: rsvpLoading ? 0.6 : 1,
-            marginBottom: 16,
-          }}
-        >
-          {rsvpLoading ? '...' : isRsvpd ? 'ביטול הגעה' : 'אני מגיע/ה'}
-        </button>
+        {!isPending && (
+          <button
+            onClick={toggleRsvp}
+            disabled={rsvpLoading}
+            style={{
+              width: '100%',
+              padding: 12,
+              background: isRsvpd ? '#fff' : BLUE,
+              color: isRsvpd ? BLUE : '#fff',
+              border: isRsvpd ? `2px solid ${BLUE}` : 'none',
+              borderRadius: 8,
+              fontSize: 15,
+              fontWeight: 500,
+              cursor: rsvpLoading ? 'not-allowed' : 'pointer',
+              opacity: rsvpLoading ? 0.6 : 1,
+              marginBottom: 16,
+            }}
+          >
+            {rsvpLoading ? '...' : isRsvpd ? 'ביטול הגעה' : 'אני מגיע/ה'}
+          </button>
+        )}
 
         {/* Attendees */}
         <div>

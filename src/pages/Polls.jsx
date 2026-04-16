@@ -14,7 +14,7 @@ const EMPTY_FORM = {
 };
 
 export default function Polls() {
-  const { user } = useAuth();
+  const { user, isPending } = useAuth();
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -135,31 +135,43 @@ export default function Polls() {
   }
 
   async function handleVote(pollId, optionIndices) {
+    if (isPending) return;
     const poll = polls.find((p) => p.id === pollId);
     if (!poll) return;
 
     // Check if expired
     if (poll.expiresAt && new Date(poll.expiresAt) < new Date()) return;
 
-    // Check if already voted
-    const alreadyVoted = Object.values(poll.votes || {}).some(
-      (uids) => Array.isArray(uids) && uids.includes(user.uid),
-    );
-    if (alreadyVoted) return;
-
-    // Normalize to array (single select passes one index, multi passes array)
-    const indices = Array.isArray(optionIndices) ? optionIndices : [optionIndices];
-
-    // Build updated votes in one pass
-    const votes = { ...(poll.votes || {}) };
-    for (const idx of indices) {
-      const key = String(idx);
-      const current = Array.isArray(votes[key]) ? [...votes[key]] : [];
-      current.push(user.uid);
-      votes[key] = current;
-    }
-
+    // Fetch fresh poll data to avoid race conditions
     try {
+      const freshSnap = await db.getDoc('polls', pollId);
+      if (!freshSnap.exists()) return;
+      const freshPoll = freshSnap.data();
+      const votes = { ...(freshPoll.votes || {}) };
+
+      // Check if user already voted in fresh data
+      const alreadyVoted = Object.values(votes).some(
+        (uids) => Array.isArray(uids) && uids.includes(user.uid),
+      );
+      if (alreadyVoted) {
+        // User already voted - refresh UI with fresh data
+        setPolls((prev) =>
+          prev.map((p) => (p.id === pollId ? { ...p, ...freshPoll, id: pollId } : p)),
+        );
+        return;
+      }
+
+      // Normalize to array (single select passes one index, multi passes array)
+      const indices = Array.isArray(optionIndices) ? optionIndices : [optionIndices];
+
+      // Build updated votes in one pass
+      for (const idx of indices) {
+        const key = String(idx);
+        const current = Array.isArray(votes[key]) ? [...votes[key]] : [];
+        current.push(user.uid);
+        votes[key] = current;
+      }
+
       await db.updateDoc('polls', pollId, { votes });
       setPolls((prev) => prev.map((p) => (p.id === pollId ? { ...p, votes } : p)));
     } catch (err) {
@@ -179,18 +191,20 @@ export default function Polls() {
         }}
       >
         <h2 style={{ margin: 0, fontSize: 22, color: '#222' }}>סקרים</h2>
-        <button
-          onClick={() => setShowForm((v) => !v)}
-          style={{
-            ...s.btnPrimary,
-            width: 'auto',
-            padding: '8px 18px',
-            marginTop: 0,
-            fontSize: 14,
-          }}
-        >
-          {showForm ? 'ביטול' : 'סקר חדש +'}
-        </button>
+        {!isPending && (
+          <button
+            onClick={() => setShowForm((v) => !v)}
+            style={{
+              ...s.btnPrimary,
+              width: 'auto',
+              padding: '8px 18px',
+              marginTop: 0,
+              fontSize: 14,
+            }}
+          >
+            {showForm ? 'ביטול' : 'סקר חדש +'}
+          </button>
+        )}
       </div>
 
       {/* Create Form */}

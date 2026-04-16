@@ -32,7 +32,8 @@ function parseFirestoreValue(val) {
   if ('timestampValue' in val) return val.timestampValue;
   if ('arrayValue' in val) return (val.arrayValue.values || []).map(parseFirestoreValue);
   if ('mapValue' in val) return parseFirestoreDoc(val.mapValue.fields || {});
-  return val;
+  if ('referenceValue' in val) return val.referenceValue;
+  return null; // Unknown Firestore type
 }
 
 function parseFirestoreDoc(fields) {
@@ -165,6 +166,7 @@ export const db = {
       method: 'POST',
       body: JSON.stringify({ fields }),
     });
+    if (!result?.name) throw new Error('Failed to create document');
     return result.name.split('/').pop();
   },
 };

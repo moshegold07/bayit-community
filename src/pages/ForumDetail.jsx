@@ -19,7 +19,7 @@ function avColor(id) {
 export default function ForumDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isPending } = useAuth();
   const [forum, setForum] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -84,8 +84,11 @@ export default function ForumDetail() {
         lastReplyAt: now,
       };
       const newId = await db.addDoc('forums/' + id + '/posts', data);
+      // Fetch fresh forum data to avoid stale postCount
+      const freshForum = await db.getDoc('forums', id);
+      const currentCount = freshForum.exists() ? (freshForum.data().postCount || 0) : 0;
       await db.updateDoc('forums', id, {
-        postCount: (forum.postCount || 0) + 1,
+        postCount: currentCount + 1,
         lastPostAt: now,
       });
       setPosts((prev) => [{ id: newId, ...data }, ...prev]);
@@ -175,18 +178,20 @@ export default function ForumDetail() {
         }}
       >
         <div style={{ fontSize: 15, fontWeight: 500, color: '#222' }}>פוסטים</div>
-        <button
-          onClick={() => setShowForm((v) => !v)}
-          style={{
-            ...s.btnPrimary,
-            width: 'auto',
-            padding: '6px 14px',
-            marginTop: 0,
-            fontSize: 13,
-          }}
-        >
-          {showForm ? 'ביטול' : '+ פוסט חדש'}
-        </button>
+        {!isPending && (
+          <button
+            onClick={() => setShowForm((v) => !v)}
+            style={{
+              ...s.btnPrimary,
+              width: 'auto',
+              padding: '6px 14px',
+              marginTop: 0,
+              fontSize: 13,
+            }}
+          >
+            {showForm ? 'ביטול' : '+ פוסט חדש'}
+          </button>
+        )}
       </div>
 
       {showForm && (

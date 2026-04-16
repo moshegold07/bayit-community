@@ -18,7 +18,7 @@ const STATUS_MAP = {
 export default function ProjectDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isPending } = useAuth();
   const [project, setProject] = useState(null);
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -74,7 +74,7 @@ export default function ProjectDetail() {
           updatedAt: new Date().toISOString(),
         });
       }
-      setProject({ ...project, members, memberCount: members.length });
+      setProject({ ...freshData, id: project.id, members, memberCount: members.length });
     } catch (err) {
       // Failed to join project
     }
@@ -93,7 +93,7 @@ export default function ProjectDetail() {
         memberCount: members.length,
         updatedAt: new Date().toISOString(),
       });
-      setProject({ ...project, members, memberCount: members.length });
+      setProject({ ...freshData, id: project.id, members, memberCount: members.length });
     } catch (err) {
       // Failed to leave project
     }
@@ -307,7 +307,7 @@ export default function ProjectDetail() {
           <div style={{ fontSize: 15, fontWeight: 500, color: '#222' }}>
             חברי צוות ({project.memberCount || project.members?.length || 0})
           </div>
-          {!isMember && (
+          {!isPending && !isMember && (
             <button
               onClick={handleJoin}
               disabled={joining}
@@ -326,7 +326,7 @@ export default function ProjectDetail() {
               {joining ? '...' : 'הצטרף לפרויקט'}
             </button>
           )}
-          {isMember && !isCreator && (
+          {!isPending && isMember && !isCreator && (
             <button
               onClick={handleLeave}
               disabled={joining}
@@ -364,7 +364,7 @@ export default function ProjectDetail() {
                   ? user.first + ' ' + user.last
                   : uid === project.createdBy
                     ? project.createdByName
-                    : uid}
+                    : 'חבר קהילה'}
               </span>
             ))}
           </div>
@@ -443,37 +443,41 @@ export default function ProjectDetail() {
           </div>
         )}
 
-        {commentError && (
-          <div style={{ ...s.err, marginBottom: 8, fontSize: 13 }}>{commentError}</div>
+        {!isPending && (
+          <>
+            {commentError && (
+              <div style={{ ...s.err, marginBottom: 8, fontSize: 13 }}>{commentError}</div>
+            )}
+            <form onSubmit={handleAddComment} style={{ display: 'flex', gap: 8 }}>
+              <input
+                style={{ ...s.input, flex: 1 }}
+                dir="auto"
+                placeholder="הוסף תגובה..."
+                maxLength={1000}
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+              />
+              <button
+                type="submit"
+                disabled={!commentText.trim() || submitting}
+                style={{
+                  padding: '8px 16px',
+                  background: BLUE,
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 8,
+                  fontSize: 13,
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  opacity: !commentText.trim() || submitting ? 0.5 : 1,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {submitting ? '...' : 'הוסף תגובה'}
+              </button>
+            </form>
+          </>
         )}
-        <form onSubmit={handleAddComment} style={{ display: 'flex', gap: 8 }}>
-          <input
-            style={{ ...s.input, flex: 1 }}
-            dir="auto"
-            placeholder="הוסף תגובה..."
-            maxLength={1000}
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-          />
-          <button
-            type="submit"
-            disabled={!commentText.trim() || submitting}
-            style={{
-              padding: '8px 16px',
-              background: BLUE,
-              color: '#fff',
-              border: 'none',
-              borderRadius: 8,
-              fontSize: 13,
-              fontWeight: 500,
-              cursor: 'pointer',
-              opacity: !commentText.trim() || submitting ? 0.5 : 1,
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {submitting ? '...' : 'הוסף תגובה'}
-          </button>
-        </form>
       </div>
     </div>
   );

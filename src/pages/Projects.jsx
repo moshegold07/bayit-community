@@ -20,7 +20,7 @@ const SORT_OPTIONS = [
 
 export default function Projects() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isPending } = useAuth();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -83,18 +83,20 @@ export default function Projects() {
         }}
       >
         <h1 style={{ fontSize: 22, fontWeight: 500, margin: 0, color: '#222' }}>פרויקטים</h1>
-        <button
-          onClick={() => navigate('/projects/new')}
-          style={{
-            ...s.btnPrimary,
-            width: 'auto',
-            padding: '8px 20px',
-            marginTop: 0,
-            fontSize: 14,
-          }}
-        >
-          + פרויקט חדש
-        </button>
+        {!isPending && (
+          <button
+            onClick={() => navigate('/projects/new')}
+            style={{
+              ...s.btnPrimary,
+              width: 'auto',
+              padding: '8px 20px',
+              marginTop: 0,
+              fontSize: 14,
+            }}
+          >
+            + פרויקט חדש
+          </button>
+        )}
       </div>
 
       <div style={{ display: 'flex', gap: 10, marginBottom: '1rem', flexWrap: 'wrap' }}>
