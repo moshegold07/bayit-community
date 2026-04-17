@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE, BLUE_LT, TEAL, GOLD } from '../components/shared';
+import CategoryDisplay from '../components/CategoryDisplay';
+import { parentOf, parentLabel, categoryLabel } from '../utils/categories';
 
 const AV = ['#1A8A7D', '#2A5A8A', '#8B6AAE', '#C47A3A', '#5A8A6A'];
 function avColor(id) {
@@ -28,17 +30,39 @@ function calcMatch(me, other) {
   const reasons = [];
   let score = 0;
 
-  // 1. Category overlap
-  const myCategories = (me.categories || []).map((c) => c.toLowerCase());
-  const theirCategories = (other.categories || []).map((c) => c.toLowerCase());
-  const sharedCategories = myCategories.filter((c) => theirCategories.includes(c));
-  if (sharedCategories.length > 0) {
-    score += sharedCategories.length * 3;
-    // Display original-case versions
-    const origShared = (other.categories || []).filter((c) =>
-      sharedCategories.includes(c.toLowerCase()),
-    );
-    reasons.push({ type: 'categories', label: 'תחומים משותפים', items: origShared });
+  // 1. Category overlap (exact sub-category match) + parent overlap bonus.
+  const myCategories = me.categories || [];
+  const theirCategories = other.categories || [];
+  const myLower = myCategories.map((c) => c.toLowerCase());
+  const theirLower = theirCategories.map((c) => c.toLowerCase());
+  const sharedExact = myLower.filter((c) => theirLower.includes(c));
+  if (sharedExact.length > 0) {
+    score += sharedExact.length * 3;
+    const origShared = theirCategories.filter((c) => sharedExact.includes(c.toLowerCase()));
+    reasons.push({
+      type: 'categories',
+      label: 'תחומים משותפים',
+      items: origShared.map(categoryLabel),
+    });
+  }
+  // Parent overlap (excludes parents already covered by exact match)
+  const myParents = new Set(myCategories.map(parentOf));
+  const theirParents = new Set(theirCategories.map(parentOf));
+  const sharedExactParents = new Set(
+    theirCategories
+      .filter((c) => sharedExact.includes(c.toLowerCase()))
+      .map(parentOf),
+  );
+  const sharedParents = [...myParents].filter(
+    (p) => theirParents.has(p) && !sharedExactParents.has(p) && p !== 'other',
+  );
+  if (sharedParents.length > 0) {
+    score += sharedParents.length;
+    reasons.push({
+      type: 'parents',
+      label: 'תחומי אב משותפים',
+      items: sharedParents.map(parentLabel),
+    });
   }
 
   // 2. I need -> they do / they can help with
@@ -234,13 +258,7 @@ function MatchCard({ match, isPending }) {
 
       {/* Categories tags */}
       {m.categories && m.categories.length > 0 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-          {m.categories.map((cat) => (
-            <span key={cat} style={s.tag}>
-              {cat}
-            </span>
-          ))}
-        </div>
+        <CategoryDisplay categories={m.categories} size="sm" />
       )}
 
       {/* Match reasons */}

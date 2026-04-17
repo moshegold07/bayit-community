@@ -21,6 +21,8 @@ import {
 import BadgeDisplay from '../components/BadgeDisplay';
 import ActivityFeed from '../components/ActivityFeed';
 import EndorsementSection from '../components/EndorsementSection';
+import CategoryDisplay from '../components/CategoryDisplay';
+import { TAXONOMY, parentOf, parentLabel, migrateLegacyCategory } from '../utils/categories';
 
 function visibleField(member, field, isAdmin) {
   if (isAdmin) return true;
@@ -42,15 +44,21 @@ const BAR_COLORS = [
 ];
 
 function DomainDistribution({ members, onSelect, activeDomain }) {
-  const counts = {};
+  // Aggregate by parent category (counts each member at most once per parent).
+  const parentCounts = {};
   members.forEach((m) => {
-    const cats = m.categories?.length ? m.categories : m.domain ? [m.domain] : [];
-    cats.forEach((c) => {
-      counts[c] = (counts[c] || 0) + 1;
+    const rawCats = m.categories?.length ? m.categories : m.domain ? [m.domain] : [];
+    const parents = new Set();
+    rawCats.forEach((c) => {
+      const migrated = migrateLegacyCategory(c) || c;
+      parents.add(parentOf(migrated));
+    });
+    parents.forEach((p) => {
+      parentCounts[p] = (parentCounts[p] || 0) + 1;
     });
   });
 
-  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  const sorted = Object.entries(parentCounts).sort((a, b) => b[1] - a[1]);
   if (sorted.length === 0) return null;
   const max = sorted[0][1];
 
@@ -81,13 +89,14 @@ function DomainDistribution({ members, onSelect, activeDomain }) {
         </span>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        {sorted.map(([domain, count], i) => {
+        {sorted.map(([parentKey, count], i) => {
           const pct = Math.round((count / members.length) * 100);
-          const isActive = activeDomain === domain;
+          const isActive = activeDomain === parentKey;
+          const label = parentLabel(parentKey);
           return (
             <div
-              key={domain}
-              onClick={() => onSelect(isActive ? '' : domain)}
+              key={parentKey}
+              onClick={() => onSelect(isActive ? '' : parentKey)}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -117,9 +126,9 @@ function DomainDistribution({ members, onSelect, activeDomain }) {
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                 }}
-                title={domain}
+                title={label}
               >
-                {domain}
+                {label}
               </span>
               <div
                 style={{
@@ -223,22 +232,13 @@ function MemberModal({ m, onClose, isAdmin, currentUser, isPending }) {
             {visibleField(m, 'city', isAdmin) && m.city && (
               <div style={{ fontSize: 13, color: '#888', marginTop: 2 }}>{m.city}</div>
             )}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 4 }}>
-              {(m.categories?.length ? m.categories : m.domain ? [m.domain] : []).map((cat) => (
-                <span
-                  key={cat}
-                  style={{
-                    fontSize: 11,
-                    padding: '2px 9px',
-                    borderRadius: 20,
-                    background: '#E6F1FB',
-                    color: '#0C447C',
-                    fontWeight: 500,
-                  }}
-                >
-                  {cat}
-                </span>
-              ))}
+            <div style={{ marginTop: 4 }}>
+              <CategoryDisplay
+                categories={m.categories?.length ? m.categories : m.domain ? [m.domain] : []}
+                size="sm"
+                bg="#E6F1FB"
+                color="#0C447C"
+              />
             </div>
           </div>
           <button
@@ -448,24 +448,25 @@ export default function Dashboard() {
   });
   const allForStats = [...members, ...formRegsAsDomain];
 
-  const domains = [
-    ...new Set(
-      allForStats.flatMap((m) =>
-        m.categories?.length ? m.categories : m.domain ? [m.domain] : [],
-      ),
-    ),
-  ].sort();
+  // Build the parent set from members so the dropdown only shows in-use parents.
+  const parentsInUse = new Set();
+  allForStats.forEach((m) => {
+    const cats = m.categories?.length ? m.categories : m.domain ? [m.domain] : [];
+    cats.forEach((c) => parentsInUse.add(parentOf(migrateLegacyCategory(c) || c)));
+  });
+  const parentOptions = TAXONOMY.filter((p) => parentsInUse.has(p.key));
   const cities = [...new Set(allForStats.map((m) => m.city).filter(Boolean))].sort();
 
   const list = members.filter((m) => {
     const txt = [m.first, m.last, m.city, m.domain, m.does, m.needs, m.strength, m.canHelpWith]
       .join(' ')
       .toLowerCase();
+    const matchesDomain = !filterDomain
+      ? true
+      : (m.categories || []).some((c) => parentOf(migrateLegacyCategory(c) || c) === filterDomain);
     return (
       (!search || txt.includes(search.toLowerCase())) &&
-      (!filterDomain ||
-        (m.categories || []).includes(filterDomain) ||
-        (m.domain || '').toLowerCase().includes(filterDomain.toLowerCase())) &&
+      matchesDomain &&
       (!filterCity || m.city === filterCity)
     );
   });
@@ -500,9 +501,9 @@ export default function Dashboard() {
             onChange={(e) => setFilterDomain(e.target.value)}
           >
             <option value="">כל התחומים</option>
-            {domains.map((d) => (
-              <option key={d} value={d}>
-                {d}
+            {parentOptions.map((p) => (
+              <option key={p.key} value={p.key}>
+                {p.label}
               </option>
             ))}
           </select>
@@ -525,7 +526,7 @@ export default function Dashboard() {
           {[
             ['חברים', members.length + formRegs.length, TEAL],
             ['ערים', cities.length, GOLD],
-            ['תחומים', domains.length, '#8B6AAE'],
+            ['תחומים', parentOptions.length, '#8B6AAE'],
           ].map(([label, val, color]) => (
             <div
               key={label}
@@ -615,22 +616,11 @@ export default function Dashboard() {
                     )}
                   </div>
                 </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>
-                  {(m.categories?.length ? m.categories : m.domain ? [m.domain] : []).map((cat) => (
-                    <span
-                      key={cat}
-                      style={{
-                        fontSize: 11,
-                        padding: '2px 9px',
-                        borderRadius: 20,
-                        background: BLUE_LT,
-                        color: BLUE_DK,
-                        fontWeight: 500,
-                      }}
-                    >
-                      {cat}
-                    </span>
-                  ))}
+                <div style={{ marginBottom: 8 }}>
+                  <CategoryDisplay
+                    categories={m.categories?.length ? m.categories : m.domain ? [m.domain] : []}
+                    size="sm"
+                  />
                 </div>
                 <BadgeDisplay badges={m.badges} />
                 {visibleField(m, 'does', isAdmin) && m.does && (

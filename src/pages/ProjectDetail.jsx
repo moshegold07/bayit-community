@@ -8,6 +8,7 @@ import AdminContentAction, {
   hiddenItemStyle,
   filterHidden,
 } from '../components/AdminContentAction';
+import CategoryDisplay from '../components/CategoryDisplay';
 
 const STATUS_MAP = {
   looking: { label: 'מחפש שותפים', color: '#EF9F27', bg: '#FFF8EC' },
@@ -215,12 +216,8 @@ export default function ProjectDetail() {
         </div>
 
         {project.categories?.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 12 }}>
-            {project.categories.map((cat) => (
-              <span key={cat} style={s.tag}>
-                {cat}
-              </span>
-            ))}
+          <div style={{ marginBottom: 12 }}>
+            <CategoryDisplay categories={project.categories} size="md" />
           </div>
         )}
 

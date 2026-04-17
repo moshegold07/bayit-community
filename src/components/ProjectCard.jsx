@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { s, TEAL } from './shared';
 import AdminContentAction, { HiddenBadge, hiddenItemStyle } from './AdminContentAction';
+import CategoryDisplay from './CategoryDisplay';
 
 const STATUS_MAP = {
   looking: { label: 'מחפש שותפים', color: '#D4922E', bg: '#FFF8EB' },
@@ -59,15 +60,7 @@ export default function ProjectCard({ project, onToggleHidden, onDelete }) {
           </span>
         </div>
 
-        {p.categories?.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-            {p.categories.map((cat) => (
-              <span key={cat} style={s.tag}>
-                {cat}
-              </span>
-            ))}
-          </div>
-        )}
+        {p.categories?.length > 0 && <CategoryDisplay categories={p.categories} size="sm" />}
 
         {p.description && (
           <div style={{ fontSize: 13, color: '#666', lineHeight: 1.5 }}>

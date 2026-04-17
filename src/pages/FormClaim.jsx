@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { s, Header, FieldRow, StrengthBar, TEAL, NAVY } from '../components/shared';
+import { migrateLegacyCategory } from '../utils/categories';
 
 function parseContact(contact, contactType) {
   const result = { phone: '', li: '', website: '', email: '' };
@@ -45,31 +46,19 @@ function parseContact(contact, contactType) {
 }
 
 function mapCategories(mainField, subField) {
-  const map = {
-    'AI / אוטומציה': 'AI / ML',
-    'AI / אוטומציה / SAAS': 'AI / ML',
-    'SaaS / מוצר': 'SaaS / תוכנה',
-    'פינטק / שוק הון': 'FinTech',
-    'נדל"ן': 'נדל"ן',
-    'שיווק / מדיה': 'שיווק דיגיטלי',
-    'יזמות / ייעוץ': 'ייעוץ עסקי',
-    'בנייה / הנדסה': 'בנייה והנדסה',
-    'עיצוב / יצירה': 'עיצוב ו-UX',
-    'טכנולוגיה ו AI': 'AI / ML',
-    טכנולוגיה: 'SaaS / תוכנה',
-    'שיווק ומדיה': 'שיווק דיגיטלי',
-    'מסעדנות ואופליין': 'יזמות כללית',
-    'יזמות כללית': 'יזמות כללית',
-    משפטים: 'ייעוץ עסקי',
-  };
-
   const cats = [];
-  const mainMapped = map[mainField];
-  if (mainMapped) cats.push(mainMapped);
-  const subMapped = map[subField];
-  if (subMapped && !cats.includes(subMapped)) cats.push(subMapped);
-  if (subField && !subMapped && subField !== 'אחר' && !cats.includes(subField)) cats.push(subField);
-  return cats.slice(0, 4);
+  const seen = new Set();
+  const push = (raw) => {
+    if (!raw || raw === 'אחר') return;
+    const next = migrateLegacyCategory(raw);
+    if (next && !seen.has(next)) {
+      seen.add(next);
+      cats.push(next);
+    }
+  };
+  push(mainField);
+  push(subField);
+  return cats.slice(0, 6);
 }
 
 export { parseContact, mapCategories };
