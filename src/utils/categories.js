@@ -94,6 +94,7 @@ export const TAXONOMY = [
 /** Map old free-text/legacy categories → new 'parent:child' keys. */
 export const LEGACY_MAP = {
   'SaaS / תוכנה': 'tech:saas',
+  'SaaS / מוצר': 'tech:saas',
   'AI / ML': 'tech:ai',
   'AI / אוטומציה': 'tech:ai',
   'AI / אוטומציה / SAAS': 'tech:ai',
@@ -185,20 +186,28 @@ export function categoryFullLabel(key) {
 
 /**
  * Group an array of category keys by parent.
+ * Auto-migrates legacy plain strings via LEGACY_MAP so display works
+ * uniformly across migrated and non-migrated data (e.g. formRegistrants).
  * Returns an array of { parentKey, parentLabel, items: [{key, label}] }
- * preserving taxonomy order.
+ * preserving taxonomy order, deduped by final key.
  */
 export function groupByParent(keys) {
   if (!Array.isArray(keys)) return [];
   const buckets = new Map();
-  for (const key of keys) {
+  const seenKeys = new Set();
+  for (const raw of keys) {
+    if (!raw) continue;
+    // Migrate legacy strings; valid 'parent:child' keys pass through unchanged.
+    const key = SUB_INDEX.has(raw) ? raw : migrateLegacyCategory(raw) || raw;
+    if (seenKeys.has(key)) continue;
+    seenKeys.add(key);
     const parsed = parseCategoryKey(key);
     if (!parsed) continue;
     const { parentKey } = parsed;
     if (!buckets.has(parentKey)) buckets.set(parentKey, []);
     buckets.get(parentKey).push({ key, label: categoryLabel(key) });
   }
-  const order = [...TAXONOMY.map((p) => p.key)];
+  const order = TAXONOMY.map((p) => p.key);
   return order
     .filter((pk) => buckets.has(pk))
     .map((pk) => ({

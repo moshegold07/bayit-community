@@ -760,20 +760,20 @@ export default function Dashboard() {
                             )}
                           </div>
                         </div>
-                        {r.subField && r.subField !== 'אחר' && (
-                          <span
-                            style={{
-                              fontSize: 11,
-                              padding: '2px 9px',
-                              borderRadius: 20,
-                              background: '#F5F0E8',
-                              color: '#8B6700',
-                              fontWeight: 500,
-                            }}
-                          >
-                            {r.subField}
-                          </span>
-                        )}
+                        {(() => {
+                          const cats = [r.subField, r.mainField].filter(
+                            (f) => f && f !== 'אחר',
+                          );
+                          if (cats.length === 0) return null;
+                          return (
+                            <CategoryDisplay
+                              categories={cats}
+                              size="sm"
+                              bg="#F5F0E8"
+                              color="#8B6700"
+                            />
+                          );
+                        })()}
                         {r.whatTheyDo && (
                           <div style={{ fontSize: 13, color: '#666', marginTop: 8 }}>
                             {r.whatTheyDo.slice(0, 80)}
