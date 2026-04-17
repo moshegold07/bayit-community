@@ -761,9 +761,7 @@ export default function Dashboard() {
                           </div>
                         </div>
                         {(() => {
-                          const cats = [r.subField, r.mainField].filter(
-                            (f) => f && f !== 'אחר',
-                          );
+                          const cats = [r.subField, r.mainField].filter((f) => f && f !== 'אחר');
                           if (cats.length === 0) return null;
                           return (
                             <CategoryDisplay
