@@ -49,9 +49,7 @@ function calcMatch(me, other) {
   const myParents = new Set(myCategories.map(parentOf));
   const theirParents = new Set(theirCategories.map(parentOf));
   const sharedExactParents = new Set(
-    theirCategories
-      .filter((c) => sharedExact.includes(c.toLowerCase()))
-      .map(parentOf),
+    theirCategories.filter((c) => sharedExact.includes(c.toLowerCase())).map(parentOf),
   );
   const sharedParents = [...myParents].filter(
     (p) => theirParents.has(p) && !sharedExactParents.has(p) && p !== 'other',
