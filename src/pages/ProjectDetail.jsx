@@ -405,7 +405,10 @@ export default function ProjectDetail() {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <UserLink uid={c.authorId} style={{ fontSize: 13, fontWeight: 500, color: BLUE }}>
+                    <UserLink
+                      uid={c.authorId}
+                      style={{ fontSize: 13, fontWeight: 500, color: BLUE }}
+                    >
                       {c.authorName}
                     </UserLink>
                     {c.hidden && <HiddenBadge />}

@@ -69,7 +69,9 @@ function Field({ label, children }) {
   if (!children) return null;
   return (
     <div style={{ background: BLUE_LT, borderRadius: 8, padding: '8px 10px' }}>
-      <div style={{ fontSize: 11, color: '#2A5A8A', fontWeight: 600, marginBottom: 2 }}>{label}</div>
+      <div style={{ fontSize: 11, color: '#2A5A8A', fontWeight: 600, marginBottom: 2 }}>
+        {label}
+      </div>
       <div style={{ fontSize: 13, color: '#333', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
         {children}
       </div>
@@ -168,12 +170,7 @@ export default function MemberProfileModal() {
   return (
     <div style={overlayStyle} onClick={closeProfile} role="dialog" aria-modal="true">
       <div style={cardStyle} onClick={(e) => e.stopPropagation()}>
-        <button
-          type="button"
-          onClick={closeProfile}
-          aria-label="סגור"
-          style={closeBtnStyle}
-        >
+        <button type="button" onClick={closeProfile} aria-label="סגור" style={closeBtnStyle}>
           ×
         </button>
 
@@ -215,9 +212,7 @@ export default function MemberProfileModal() {
                 {initials(member)}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 18, fontWeight: 700, color: NAVY }}>
-                  {name || 'ללא שם'}
-                </div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: NAVY }}>{name || 'ללא שם'}</div>
                 {isVisible(vis, 'city') && member.city && (
                   <div style={{ fontSize: 13, color: '#888', marginTop: 2 }}>{member.city}</div>
                 )}
@@ -242,7 +237,8 @@ export default function MemberProfileModal() {
               <Field label="נקודת חוזק">{member.strength}</Field>
               <Field label="יכול לעזור ב">{member.canHelpWith}</Field>
 
-              {(isVisible(vis, 'li') && member.li) || (isVisible(vis, 'website') && member.website) ||
+              {(isVisible(vis, 'li') && member.li) ||
+              (isVisible(vis, 'website') && member.website) ||
               (isVisible(vis, 'phone') && member.phone) ? (
                 <div
                   style={{
@@ -258,7 +254,10 @@ export default function MemberProfileModal() {
                   {isVisible(vis, 'phone') && member.phone && (
                     <div style={{ fontSize: 13, color: '#333' }}>
                       <span style={{ color: '#666' }}>טלפון: </span>
-                      <a href={`tel:${member.phone}`} style={{ color: BLUE, textDecoration: 'none' }}>
+                      <a
+                        href={`tel:${member.phone}`}
+                        style={{ color: BLUE, textDecoration: 'none' }}
+                      >
                         {member.phone}
                       </a>
                     </div>
@@ -286,9 +285,7 @@ export default function MemberProfileModal() {
                   type="button"
                   onClick={() => {
                     closeProfile();
-                    navigate(
-                      `/messages?to=${member.uid}&name=${encodeURIComponent(name)}`,
-                    );
+                    navigate(`/messages?to=${member.uid}&name=${encodeURIComponent(name)}`);
                   }}
                   style={{
                     flex: 1,
