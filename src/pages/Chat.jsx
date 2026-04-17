@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE } from '../components/shared';
+import UserLink from '../components/UserLink';
 
 const AV = ['#1A8A7D', '#2A5A8A', '#8B6AAE', '#C47A3A', '#5A8A6A'];
 function avColor(id) {
@@ -179,7 +180,13 @@ export default function Chat() {
           {headerInitials}
         </div>
         <div>
-          <div style={{ fontWeight: 500, fontSize: 16, color: '#222' }}>{headerName}</div>
+          {isGroup ? (
+            <div style={{ fontWeight: 500, fontSize: 16, color: '#222' }}>{headerName}</div>
+          ) : (
+            <UserLink uid={otherUid}>
+              <div style={{ fontWeight: 500, fontSize: 16, color: BLUE }}>{headerName}</div>
+            </UserLink>
+          )}
           {isGroup && <div style={{ fontSize: 12, color: '#999' }}>({memberCount} חברים)</div>}
         </div>
       </div>
@@ -214,8 +221,10 @@ export default function Chat() {
                 }}
               >
                 {isGroup && !isMine && m.senderName && (
-                  <div
+                  <UserLink
+                    uid={m.senderId}
                     style={{
+                      display: 'block',
                       fontSize: 11,
                       fontWeight: 600,
                       color: avColor(m.senderId || ''),
@@ -223,7 +232,7 @@ export default function Chat() {
                     }}
                   >
                     {m.senderName}
-                  </div>
+                  </UserLink>
                 )}
                 <div dir="auto" style={{ whiteSpace: 'pre-wrap' }}>
                   {m.text}

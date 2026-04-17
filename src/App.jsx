@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { ProfileModalProvider } from './contexts/ProfileModalContext';
 import PublicRoute from './components/guards/PublicRoute';
 import RequireAuth from './components/guards/RequireAuth';
 import RequireActive from './components/guards/RequireActive';
@@ -32,7 +33,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
+        <ProfileModalProvider>
+          <Routes>
           <Route
             path="/login"
             element={
@@ -68,9 +70,7 @@ export default function App() {
           <Route
             element={
               <RequireAuth>
-                <RequireActive>
-                  <AppLayout />
-                </RequireActive>
+                <AppLayout />
               </RequireAuth>
             }
           >
@@ -100,8 +100,9 @@ export default function App() {
               }
             />
           </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </ProfileModalProvider>
       </AuthProvider>
     </BrowserRouter>
   );

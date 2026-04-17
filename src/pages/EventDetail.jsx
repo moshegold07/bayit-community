@@ -4,6 +4,7 @@ import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE, BLUE_DK, BLUE_LT } from '../components/shared';
 import AdminContentAction, { HiddenBadge, hiddenItemStyle } from '../components/AdminContentAction';
+import UserLink from '../components/UserLink';
 
 const TYPE_LABELS = {
   meetup: 'מפגש',
@@ -219,7 +220,10 @@ export default function EventDetail() {
           <div
             style={{ fontSize: 13, color: '#888', display: 'flex', alignItems: 'center', gap: 8 }}
           >
-            מארגן/ת: <span style={{ color: '#555', fontWeight: 500 }}>{event.createdByName}</span>
+            מארגן/ת:{' '}
+            <UserLink uid={event.createdBy} style={{ color: BLUE, fontWeight: 500 }}>
+              {event.createdByName}
+            </UserLink>
             <AdminContentAction
               collection="events"
               docId={id}

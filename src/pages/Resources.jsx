@@ -175,6 +175,7 @@ export default function Resources() {
       logActivity({
         type: 'resource_shared',
         actorName: newResource.sharedByName,
+        actorUid: user.uid,
         title: newResource.title,
         link: '/resources',
       });

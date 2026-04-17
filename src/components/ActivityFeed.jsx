@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '../firebase';
 import { s } from './shared';
+import UserLink from './UserLink';
 
 const TYPE_CONFIG = {
   member_joined: { color: '#1A8A7D', verb: 'הצטרף/ה לקהילה' },
@@ -107,7 +108,9 @@ export default function ActivityFeed() {
                         whiteSpace: 'nowrap',
                       }}
                     >
-                      <span style={{ fontWeight: 500 }}>{entry.actorName}</span>{' '}
+                      <UserLink uid={entry.actorUid} style={{ fontWeight: 500 }}>
+                        {entry.actorName}
+                      </UserLink>{' '}
                       <span style={{ color: '#666' }}>{cfg.verb}</span>
                       {entry.title ? ': ' : ''}
                       {entry.title && <span style={{ color: '#222' }}>{entry.title}</span>}

@@ -9,6 +9,7 @@ import AdminContentAction, {
   filterHidden,
 } from '../components/AdminContentAction';
 import CategoryDisplay from '../components/CategoryDisplay';
+import UserLink from '../components/UserLink';
 
 const STATUS_MAP = {
   looking: { label: 'מחפש שותפים', color: '#EF9F27', bg: '#FFF8EC' },
@@ -277,7 +278,9 @@ export default function ProjectDetail() {
           }}
         >
           נוצר ע&quot;י{' '}
-          <span style={{ color: '#444', fontWeight: 500 }}>{project.createdByName}</span>
+          <UserLink uid={project.createdBy} style={{ color: BLUE, fontWeight: 500 }}>
+            {project.createdByName}
+          </UserLink>
           {project.createdAt && (
             <span> · {new Date(project.createdAt).toLocaleDateString('he-IL')}</span>
           )}
@@ -346,23 +349,24 @@ export default function ProjectDetail() {
         {project.members?.length > 0 ? (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {project.members.map((uid) => (
-              <span
-                key={uid}
-                style={{
-                  fontSize: 12,
-                  padding: '4px 10px',
-                  borderRadius: 8,
-                  background: uid === project.createdBy ? BLUE_LT : '#f4f4f2',
-                  color: uid === project.createdBy ? BLUE_DK : '#555',
-                  fontWeight: uid === project.createdBy ? 500 : 400,
-                }}
-              >
-                {uid === user?.uid
-                  ? user.first + ' ' + user.last
-                  : uid === project.createdBy
-                    ? project.createdByName
-                    : 'חבר קהילה'}
-              </span>
+              <UserLink key={uid} uid={uid}>
+                <span
+                  style={{
+                    fontSize: 12,
+                    padding: '4px 10px',
+                    borderRadius: 8,
+                    background: uid === project.createdBy ? BLUE_LT : '#f4f4f2',
+                    color: uid === project.createdBy ? BLUE_DK : '#555',
+                    fontWeight: uid === project.createdBy ? 500 : 400,
+                  }}
+                >
+                  {uid === user?.uid
+                    ? user.first + ' ' + user.last
+                    : uid === project.createdBy
+                      ? project.createdByName
+                      : 'חבר קהילה'}
+                </span>
+              </UserLink>
             ))}
           </div>
         ) : (
@@ -401,9 +405,9 @@ export default function ProjectDetail() {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 13, fontWeight: 500, color: '#333' }}>
+                    <UserLink uid={c.authorId} style={{ fontSize: 13, fontWeight: 500, color: BLUE }}>
                       {c.authorName}
-                    </span>
+                    </UserLink>
                     {c.hidden && <HiddenBadge />}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE } from '../components/shared';
+import UserLink from '../components/UserLink';
 import AdminContentAction, {
   HiddenBadge,
   hiddenItemStyle,
@@ -166,7 +167,9 @@ export default function ForumPost() {
               .join('')}
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 500, fontSize: 14, color: '#333' }}>{post.authorName}</div>
+            <UserLink uid={post.authorId}>
+              <div style={{ fontWeight: 500, fontSize: 14, color: BLUE }}>{post.authorName}</div>
+            </UserLink>
             <div style={{ fontSize: 12, color: '#aaa' }}>
               {post.createdAt
                 ? new Date(post.createdAt).toLocaleDateString('he-IL', {
@@ -241,7 +244,9 @@ export default function ForumPost() {
                     .map((x) => x[0] || '')
                     .join('')}
                 </div>
-                <span style={{ fontSize: 13, fontWeight: 500, color: '#333' }}>{r.authorName}</span>
+                <UserLink uid={r.authorId} style={{ fontSize: 13, fontWeight: 500, color: BLUE }}>
+                  {r.authorName}
+                </UserLink>
                 <span style={{ fontSize: 11, color: '#aaa' }}>
                   {r.createdAt
                     ? new Date(r.createdAt).toLocaleDateString('he-IL', {

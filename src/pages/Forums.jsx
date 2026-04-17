@@ -9,6 +9,7 @@ import AdminContentAction, {
   hiddenItemStyle,
   filterHidden,
 } from '../components/AdminContentAction';
+import UserLink from '../components/UserLink';
 
 const AV = ['#1A8A7D', '#2A5A8A', '#8B6AAE', '#C47A3A', '#5A8A6A'];
 function avColor(id) {
@@ -74,6 +75,7 @@ export default function Forums() {
       logActivity({
         type: 'forum_topic',
         actorName: data.createdByName,
+        actorUid: user.uid,
         title: data.title,
         link: '/forums/' + id,
       });
@@ -256,7 +258,12 @@ export default function Forums() {
                     color: '#aaa',
                   }}
                 >
-                  <span>נוצר ע&quot;י {f.createdByName}</span>
+                  <span>
+                    נוצר ע&quot;י{' '}
+                    <UserLink uid={f.createdBy} style={{ color: BLUE, fontWeight: 500 }}>
+                      {f.createdByName}
+                    </UserLink>
+                  </span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <AdminContentAction
                       collection="forums"

@@ -4,6 +4,7 @@ import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE, BLUE_LT, TEAL, GOLD } from '../components/shared';
 import CategoryDisplay from '../components/CategoryDisplay';
+import UserLink from '../components/UserLink';
 import { parentOf, parentLabel, categoryLabel } from '../utils/categories';
 
 const AV = ['#1A8A7D', '#2A5A8A', '#8B6AAE', '#C47A3A', '#5A8A6A'];
@@ -213,28 +214,34 @@ function MatchCard({ match, isPending }) {
     <div style={{ ...s.card, display: 'flex', flexDirection: 'column', gap: 12 }}>
       {/* Top row: avatar + info + score */}
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-        {/* Avatar */}
-        <div
-          style={{
-            width: 46,
-            height: 46,
-            borderRadius: '50%',
-            background: avColor(m.uid || ''),
-            color: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 16,
-            fontWeight: 600,
-            flexShrink: 0,
-          }}
-        >
-          {initials(m)}
-        </div>
+        {/* Avatar (clickable → profile) */}
+        <UserLink uid={m.uid} title={`פרופיל של ${name || 'חבר'}`}>
+          <div
+            style={{
+              width: 46,
+              height: 46,
+              borderRadius: '50%',
+              background: avColor(m.uid || ''),
+              color: '#fff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 16,
+              fontWeight: 600,
+              flexShrink: 0,
+            }}
+          >
+            {initials(m)}
+          </div>
+        </UserLink>
 
         {/* Name + city */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 16, fontWeight: 600, color: '#1C2638' }}>{name || 'ללא שם'}</div>
+          <UserLink uid={m.uid} style={{ display: 'block' }}>
+            <div style={{ fontSize: 16, fontWeight: 600, color: '#1C2638' }}>
+              {name || 'ללא שם'}
+            </div>
+          </UserLink>
           {m.city && <div style={{ fontSize: 13, color: '#888', marginTop: 2 }}>{m.city}</div>}
         </div>
 

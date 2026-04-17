@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { s, BLUE } from '../components/shared';
+import UserLink from '../components/UserLink';
 import AdminContentAction, {
   HiddenBadge,
   hiddenItemStyle,
@@ -161,7 +162,10 @@ export default function ForumDetail() {
           </div>
         )}
         <div style={{ fontSize: 12, color: '#aaa' }}>
-          נוצר ע&quot;י <span style={{ color: '#666' }}>{forum.createdByName}</span>
+          נוצר ע&quot;י{' '}
+          <UserLink uid={forum.createdBy} style={{ color: BLUE, fontWeight: 500 }}>
+            {forum.createdByName}
+          </UserLink>
           {forum.createdAt && (
             <span> &middot; {new Date(forum.createdAt).toLocaleDateString('he-IL')}</span>
           )}
@@ -300,7 +304,9 @@ export default function ForumDetail() {
                         alignItems: 'center',
                       }}
                     >
-                      <span>{p.authorName}</span>
+                      <UserLink uid={p.authorId} style={{ color: BLUE, fontWeight: 500 }}>
+                        {p.authorName}
+                      </UserLink>
                       <span>
                         {p.createdAt ? new Date(p.createdAt).toLocaleDateString('he-IL') : ''}
                       </span>

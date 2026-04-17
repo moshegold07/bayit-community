@@ -121,6 +121,7 @@ export default function Polls() {
       logActivity({
         type: 'poll_created',
         actorName: createdByName,
+        actorUid: user.uid,
         title: q,
         link: '/polls',
       });

@@ -73,6 +73,7 @@ export default function ProjectForm() {
       logActivity({
         type: 'project_posted',
         actorName: user.first + ' ' + user.last,
+        actorUid: user.uid,
         title: title.trim(),
         link: '/projects/' + newId,
       });

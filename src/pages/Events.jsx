@@ -124,6 +124,7 @@ export default function Events() {
       logActivity({
         type: 'event_created',
         actorName: newEvent.createdByName,
+        actorUid: user.uid,
         title: newEvent.title,
         link: '/events/' + id,
       });
