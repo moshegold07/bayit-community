@@ -57,6 +57,8 @@ export default function Register() {
     website: '',
     does: '',
     needs: '',
+    strength: '',
+    canHelpWith: '',
     pass: '',
     pass2: '',
   });
@@ -126,6 +128,8 @@ export default function Register() {
         website,
         does: form.does.trim(),
         needs: form.needs.trim(),
+        strength: form.strength.trim(),
+        canHelpWith: form.canHelpWith.trim(),
         status: 'pending',
         role: 'member',
         createdAt: new Date().toISOString(),
@@ -372,6 +376,24 @@ export default function Register() {
                 value={form.needs}
                 onChange={(e) => set('needs', e.target.value)}
                 placeholder="שותף, משקיע, לקוחות..."
+              />
+            </FieldRow>
+            <FieldRow label="החוזקות שלי">
+              <textarea
+                style={s.textarea}
+                dir="auto"
+                value={form.strength}
+                onChange={(e) => set('strength', e.target.value)}
+                placeholder="מה הכוח שלך? ניסיון, ידע, יכולות מיוחדות..."
+              />
+            </FieldRow>
+            <FieldRow label="במה אני יכול לעזור לאחרים">
+              <textarea
+                style={s.textarea}
+                dir="auto"
+                value={form.canHelpWith}
+                onChange={(e) => set('canHelpWith', e.target.value)}
+                placeholder="ייעוץ, קשרים, ידע מקצועי..."
               />
             </FieldRow>
 
