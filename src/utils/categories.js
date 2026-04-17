@@ -127,7 +127,37 @@ export const LEGACY_MAP = {
   'מסעדנות ואופליין': 'business:retail',
   אימפקט: 'climate:impact',
   'מיחזור ניהול פסולת': 'climate:recycling',
+  // Legacy free-text "domain" tokens from older imports
+  Marketing: 'marketing:digital',
+  marketing: 'marketing:digital',
+  'מנהל פרויקטים': 'business:pm',
+  'ניהול פרוייקטים': 'business:pm',
+  'מנתח מערכות מידע': 'tech:enterprise',
+  'הנדסה אזרחית': 'realestate:construction',
+  בינוי: 'realestate:construction',
 };
+
+/**
+ * Resolve a member's category set, handling all legacy shapes:
+ *   1. categories: string[] of new keys ('parent:child') or legacy strings
+ *   2. legacy `domain` field: comma-separated free-text tokens
+ * Returns deduped string[] of raw category tokens (NOT yet migrated —
+ * downstream consumers like groupByParent / parentOf migrate as needed).
+ */
+export function resolveMemberCategories(member) {
+  if (!member) return [];
+  if (Array.isArray(member.categories) && member.categories.length) {
+    return member.categories;
+  }
+  if (typeof member.domain === 'string' && member.domain.trim()) {
+    const tokens = member.domain
+      .split(/[,،;]+/)
+      .map((t) => t.trim())
+      .filter(Boolean);
+    return [...new Set(tokens)];
+  }
+  return [];
+}
 
 const PARENT_INDEX = new Map(TAXONOMY.map((p) => [p.key, p]));
 const SUB_INDEX = new Map();

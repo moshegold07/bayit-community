@@ -22,7 +22,13 @@ import BadgeDisplay from '../components/BadgeDisplay';
 import ActivityFeed from '../components/ActivityFeed';
 import EndorsementSection from '../components/EndorsementSection';
 import CategoryDisplay from '../components/CategoryDisplay';
-import { TAXONOMY, parentOf, parentLabel, migrateLegacyCategory } from '../utils/categories';
+import {
+  TAXONOMY,
+  parentOf,
+  parentLabel,
+  migrateLegacyCategory,
+  resolveMemberCategories,
+} from '../utils/categories';
 
 function visibleField(member, field, isAdmin) {
   if (isAdmin) return true;
@@ -47,7 +53,7 @@ function DomainDistribution({ members, onSelect, activeDomain }) {
   // Aggregate by parent category (counts each member at most once per parent).
   const parentCounts = {};
   members.forEach((m) => {
-    const rawCats = m.categories?.length ? m.categories : m.domain ? [m.domain] : [];
+    const rawCats = resolveMemberCategories(m);
     const parents = new Set();
     rawCats.forEach((c) => {
       const migrated = migrateLegacyCategory(c) || c;
@@ -451,8 +457,9 @@ export default function Dashboard() {
   // Build the parent set from members so the dropdown only shows in-use parents.
   const parentsInUse = new Set();
   allForStats.forEach((m) => {
-    const cats = m.categories?.length ? m.categories : m.domain ? [m.domain] : [];
-    cats.forEach((c) => parentsInUse.add(parentOf(migrateLegacyCategory(c) || c)));
+    resolveMemberCategories(m).forEach((c) =>
+      parentsInUse.add(parentOf(migrateLegacyCategory(c) || c)),
+    );
   });
   const parentOptions = TAXONOMY.filter((p) => parentsInUse.has(p.key));
   const cities = [...new Set(allForStats.map((m) => m.city).filter(Boolean))].sort();
@@ -461,13 +468,35 @@ export default function Dashboard() {
     const txt = [m.first, m.last, m.city, m.domain, m.does, m.needs, m.strength, m.canHelpWith]
       .join(' ')
       .toLowerCase();
+    const cats = resolveMemberCategories(m);
     const matchesDomain = !filterDomain
       ? true
-      : (m.categories || []).some((c) => parentOf(migrateLegacyCategory(c) || c) === filterDomain);
+      : cats.length === 0
+        ? filterDomain === 'other'
+        : cats.some((c) => parentOf(migrateLegacyCategory(c) || c) === filterDomain);
     return (
       (!search || txt.includes(search.toLowerCase())) &&
       matchesDomain &&
       (!filterCity || m.city === filterCity)
+    );
+  });
+
+  // formRegs share the same filters so the "Other" bar (etc.) actually surfaces
+  // matching pending registrants and isn't a dead-end UX.
+  const filteredFormRegs = formRegs.filter((r) => {
+    const txt = [r.fullName, r.location, r.mainField, r.subField, r.whatTheyDo]
+      .join(' ')
+      .toLowerCase();
+    const cats = [r.subField, r.mainField].filter((f) => f && f !== 'אחר');
+    const matchesDomain = !filterDomain
+      ? true
+      : cats.length === 0
+        ? filterDomain === 'other'
+        : cats.some((c) => parentOf(migrateLegacyCategory(c) || c) === filterDomain);
+    return (
+      (!search || txt.includes(search.toLowerCase())) &&
+      matchesDomain &&
+      (!filterCity || r.location === filterCity)
     );
   });
 
@@ -567,7 +596,7 @@ export default function Dashboard() {
               gap: 12,
             }}
           >
-            {list.length === 0 && (
+            {list.length === 0 && filteredFormRegs.length === 0 && (
               <div
                 style={{ gridColumn: '1/-1', textAlign: 'center', padding: '2rem', color: '#888' }}
               >
@@ -668,51 +697,41 @@ export default function Dashboard() {
           </div>
         )}
 
-        {!loading &&
-          formRegs.length > 0 &&
-          (() => {
-            const filtered = formRegs.filter((r) => {
-              const txt = [r.fullName, r.location, r.mainField, r.subField, r.whatTheyDo]
-                .join(' ')
-                .toLowerCase();
-              return !search || txt.includes(search.toLowerCase());
-            });
-            if (filtered.length === 0) return null;
-            return (
-              <div style={{ marginTop: '1.5rem' }}>
-                <div
-                  style={{
-                    fontSize: 15,
-                    fontWeight: 600,
-                    color: NAVY,
-                    marginBottom: 10,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                  }}
-                >
-                  <span>נרשמו בטופס — ממתינים להפעלה</span>
-                  <span
-                    style={{
-                      fontSize: 11,
-                      background: AMBER_LT,
-                      color: '#8B6700',
-                      borderRadius: 10,
-                      padding: '2px 8px',
-                      fontWeight: 500,
-                    }}
-                  >
-                    {filtered.length}
-                  </span>
-                </div>
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))',
-                    gap: 12,
-                  }}
-                >
-                  {filtered.map((r) => {
+        {!loading && filteredFormRegs.length > 0 && (
+          <div style={{ marginTop: '1.5rem' }}>
+            <div
+              style={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: NAVY,
+                marginBottom: 10,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+              }}
+            >
+              <span>נרשמו בטופס — ממתינים להפעלה</span>
+              <span
+                style={{
+                  fontSize: 11,
+                  background: AMBER_LT,
+                  color: '#8B6700',
+                  borderRadius: 10,
+                  padding: '2px 8px',
+                  fontWeight: 500,
+                }}
+              >
+                {filteredFormRegs.length}
+              </span>
+            </div>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))',
+                gap: 12,
+              }}
+            >
+              {filteredFormRegs.map((r) => {
                     const nameParts = (r.fullName || '').split(/\s+/);
                     const fi = nameParts[0]?.[0] || '';
                     const li = nameParts[1]?.[0] || '';
@@ -780,11 +799,10 @@ export default function Dashboard() {
                         )}
                       </div>
                     );
-                  })}
-                </div>
-              </div>
-            );
-          })()}
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
