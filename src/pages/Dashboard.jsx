@@ -732,73 +732,68 @@ export default function Dashboard() {
               }}
             >
               {filteredFormRegs.map((r) => {
-                    const nameParts = (r.fullName || '').split(/\s+/);
-                    const fi = nameParts[0]?.[0] || '';
-                    const li = nameParts[1]?.[0] || '';
-                    return (
+                const nameParts = (r.fullName || '').split(/\s+/);
+                const fi = nameParts[0]?.[0] || '';
+                const li = nameParts[1]?.[0] || '';
+                return (
+                  <div
+                    key={r.id}
+                    style={{
+                      background: '#fff',
+                      border: '1px dashed #D5D0C8',
+                      borderRadius: 12,
+                      padding: '1rem',
+                      opacity: 0.85,
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        marginBottom: 8,
+                      }}
+                    >
                       <div
-                        key={r.id}
                         style={{
-                          background: '#fff',
-                          border: '1px dashed #D5D0C8',
-                          borderRadius: 12,
-                          padding: '1rem',
-                          opacity: 0.85,
+                          width: 38,
+                          height: 38,
+                          borderRadius: '50%',
+                          background: '#ccc',
+                          color: '#fff',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: 500,
+                          fontSize: 13,
+                          flexShrink: 0,
                         }}
                       >
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 10,
-                            marginBottom: 8,
-                          }}
-                        >
-                          <div
-                            style={{
-                              width: 38,
-                              height: 38,
-                              borderRadius: '50%',
-                              background: '#ccc',
-                              color: '#fff',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontWeight: 500,
-                              fontSize: 13,
-                              flexShrink: 0,
-                            }}
-                          >
-                            {fi}
-                            {li}
-                          </div>
-                          <div>
-                            <div style={{ fontWeight: 500, fontSize: 15 }}>{r.fullName}</div>
-                            {r.location && (
-                              <div style={{ fontSize: 12, color: '#888' }}>{r.location}</div>
-                            )}
-                          </div>
-                        </div>
-                        {(() => {
-                          const cats = [r.subField, r.mainField].filter((f) => f && f !== 'אחר');
-                          if (cats.length === 0) return null;
-                          return (
-                            <CategoryDisplay
-                              categories={cats}
-                              size="sm"
-                              bg="#F5F0E8"
-                              color="#8B6700"
-                            />
-                          );
-                        })()}
-                        {r.whatTheyDo && (
-                          <div style={{ fontSize: 13, color: '#666', marginTop: 8 }}>
-                            {r.whatTheyDo.slice(0, 80)}
-                            {r.whatTheyDo.length > 80 ? '...' : ''}
-                          </div>
+                        {fi}
+                        {li}
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 500, fontSize: 15 }}>{r.fullName}</div>
+                        {r.location && (
+                          <div style={{ fontSize: 12, color: '#888' }}>{r.location}</div>
                         )}
                       </div>
-                    );
+                    </div>
+                    {(() => {
+                      const cats = [r.subField, r.mainField].filter((f) => f && f !== 'אחר');
+                      if (cats.length === 0) return null;
+                      return (
+                        <CategoryDisplay categories={cats} size="sm" bg="#F5F0E8" color="#8B6700" />
+                      );
+                    })()}
+                    {r.whatTheyDo && (
+                      <div style={{ fontSize: 13, color: '#666', marginTop: 8 }}>
+                        {r.whatTheyDo.slice(0, 80)}
+                        {r.whatTheyDo.length > 80 ? '...' : ''}
+                      </div>
+                    )}
+                  </div>
+                );
               })}
             </div>
           </div>
