@@ -278,6 +278,14 @@ export default function Admin() {
   const [rulesText, setRulesText] = useState('');
   const [rulesSaved, setRulesSaved] = useState(false);
   const [rulesLoading, setRulesLoading] = useState(false);
+  const [manifesto, setManifesto] = useState({
+    enabled: false,
+    title: '',
+    body: '',
+    version: 1,
+  });
+  const [manifestoSaved, setManifestoSaved] = useState(false);
+  const [manifestoLoading, setManifestoLoading] = useState(false);
   const [selected, setSelected] = useState(null);
   const [formRegs, setFormRegs] = useState([]);
   const [importJson, setImportJson] = useState('');
@@ -290,6 +298,16 @@ export default function Admin() {
       setUsers(docs.map((d) => ({ uid: d.id, ...d.data() })));
       const rulesSnap = await db.getDoc('settings', 'houseRules');
       if (rulesSnap.exists()) setRulesText(rulesSnap.data().text || '');
+      const manifestoSnap = await db.getDoc('settings', 'manifesto');
+      if (manifestoSnap.exists()) {
+        const m = manifestoSnap.data();
+        setManifesto({
+          enabled: !!m.enabled,
+          title: m.title || '',
+          body: m.body || '',
+          version: Number(m.version) || 1,
+        });
+      }
       try {
         const fDocs = await db.getDocs('formRegistrants');
         setFormRegs(fDocs.map((d) => ({ id: d.id, ...d.data() })));
@@ -386,6 +404,22 @@ export default function Admin() {
     setTimeout(() => setRulesSaved(false), 3000);
   }
 
+  async function saveManifesto() {
+    setManifestoLoading(true);
+    const newVersion = (Number(manifesto.version) || 1) + 1;
+    await db.setDoc('settings', 'manifesto', {
+      enabled: !!manifesto.enabled,
+      title: manifesto.title.trim(),
+      body: manifesto.body.trim(),
+      version: newVersion,
+      updatedAt: new Date().toISOString(),
+    });
+    setManifesto((m) => ({ ...m, version: newVersion }));
+    setManifestoSaved(true);
+    setManifestoLoading(false);
+    setTimeout(() => setManifestoSaved(false), 3000);
+  }
+
   const pending = users.filter((u) => u.status === 'pending');
   const deleteRequests = users.filter((u) => u.deleteRequest === true);
   const active = users.filter((u) => u.status === 'active' && u.role !== 'admin');
@@ -466,6 +500,74 @@ export default function Admin() {
             placeholder="כתוב כאן את חוקי הבית — יוצגו לכל משתמש בהרשמה ובדשבורד..."
             value={rulesText}
             onChange={(e) => setRulesText(e.target.value)}
+          />
+        </div>
+
+        <div style={{ ...s.card, marginBottom: 16 }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 10,
+            }}
+          >
+            <div>
+              <div style={{ fontWeight: 500, fontSize: 15 }}>מניפסט (פופ-אפ בכניסה)</div>
+              <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>
+                יוצג פעם אחת לכל חבר בכניסה לאתר. שמירה תכפה הצגה מחדש לכולם.
+                {manifesto.version ? ` · גרסה נוכחית: ${manifesto.version}` : ''}
+              </div>
+            </div>
+            <button
+              onClick={saveManifesto}
+              disabled={manifestoLoading}
+              style={{
+                padding: '6px 16px',
+                background: BLUE,
+                color: '#fff',
+                border: 'none',
+                borderRadius: 8,
+                fontSize: 13,
+                cursor: 'pointer',
+                opacity: manifestoLoading ? 0.7 : 1,
+              }}
+            >
+              {manifestoSaved ? 'נשמר!' : manifestoLoading ? 'שומר...' : 'שמור'}
+            </button>
+          </div>
+          <label
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              fontSize: 13,
+              color: '#444',
+              marginBottom: 10,
+              cursor: 'pointer',
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={manifesto.enabled}
+              onChange={(e) => setManifesto((m) => ({ ...m, enabled: e.target.checked }))}
+            />
+            הצג בכניסה לאתר
+          </label>
+          <input
+            style={{ ...s.input, marginBottom: 10 }}
+            dir="auto"
+            placeholder="כותרת (למשל: המניפסט שלנו)"
+            maxLength={100}
+            value={manifesto.title}
+            onChange={(e) => setManifesto((m) => ({ ...m, title: e.target.value }))}
+          />
+          <textarea
+            style={{ ...s.textarea, minHeight: 140, fontSize: 14, lineHeight: 1.7 }}
+            dir="auto"
+            placeholder="גוף המניפסט — יוצג לכל חבר בכניסה הראשונה אחרי כל עדכון..."
+            value={manifesto.body}
+            onChange={(e) => setManifesto((m) => ({ ...m, body: e.target.value }))}
           />
         </div>
 
