@@ -203,5 +203,15 @@ service cloud.firestore {
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }
+
+    // Ventures are created only via the /api/claim-queue-number serverless
+    // function, which uses the Firebase Admin SDK and bypasses these rules.
+    // Direct client creates are denied so the queue counter stays atomic.
+    match /ventures/{ventureId} {
+      allow read: if isSignedIn();
+      allow create: if false;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
   }
 }

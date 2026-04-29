@@ -12,6 +12,7 @@ const NAV_LINKS = [
   { to: '/events', label: 'אירועים' },
   { to: '/forums', label: 'פורומים' },
   { to: '/projects', label: 'פרויקטים' },
+  { to: '/ventures', label: 'מיזמים' },
   { to: '/resources', label: 'תוכן' },
   { to: '/messages', label: 'הודעות' },
   { to: '/matching', label: 'שדכ"ן' },
