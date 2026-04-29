@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import PendingBanner from './PendingBanner';
 import MemberProfileModal from './MemberProfileModal';
+import ManifestoModal from './ManifestoModal';
 import { s } from './shared';
 
 export default function AppLayout() {
@@ -11,6 +12,7 @@ export default function AppLayout() {
       <PendingBanner />
       <Outlet />
       <MemberProfileModal />
+      <ManifestoModal />
     </div>
   );
 }
