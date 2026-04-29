@@ -54,19 +54,13 @@ export default function VentureDetail() {
   }
 
   if (loading) {
-    return (
-      <div style={{ ...s.body, textAlign: 'center', color: '#888' }}>טוען...</div>
-    );
+    return <div style={{ ...s.body, textAlign: 'center', color: '#888' }}>טוען...</div>;
   }
   if (!venture) {
-    return (
-      <div style={{ ...s.body, textAlign: 'center', color: '#888' }}>המיזם לא נמצא.</div>
-    );
+    return <div style={{ ...s.body, textAlign: 'center', color: '#888' }}>המיזם לא נמצא.</div>;
   }
 
-  const dateStr = venture.createdAt
-    ? new Date(venture.createdAt).toLocaleDateString('he-IL')
-    : '—';
+  const dateStr = venture.createdAt ? new Date(venture.createdAt).toLocaleDateString('he-IL') : '—';
 
   return (
     <div style={{ ...s.body, maxWidth: 720 }}>

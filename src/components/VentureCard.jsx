@@ -4,9 +4,7 @@ import UserLink from './UserLink';
 import { parentLabel, parentOf, categoryLabel } from '../utils/categories';
 
 export default function VentureCard({ venture }) {
-  const dateStr = venture.createdAt
-    ? new Date(venture.createdAt).toLocaleDateString('he-IL')
-    : '—';
+  const dateStr = venture.createdAt ? new Date(venture.createdAt).toLocaleDateString('he-IL') : '—';
   const parent = venture.category ? parentOf(venture.category) : null;
   const subLabel = venture.category ? categoryLabel(venture.category) : null;
   const showParent = parent && parent !== 'other' && subLabel && subLabel !== parentLabel(parent);

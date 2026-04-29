@@ -139,9 +139,7 @@ export default function VentureForm() {
               value={story}
               onChange={(e) => setStory(e.target.value)}
             />
-            <div style={{ fontSize: 11, color: '#aaa', marginTop: 3 }}>
-              {story.length}/5000
-            </div>
+            <div style={{ fontSize: 11, color: '#aaa', marginTop: 3 }}>{story.length}/5000</div>
             {errors.story && <div style={s.err}>{errors.story}</div>}
           </FieldRow>
 
@@ -221,7 +219,11 @@ export default function VentureForm() {
             </div>
           )}
 
-          <button type="submit" disabled={submitting} style={{ ...s.btnPrimary, opacity: submitting ? 0.7 : 1 }}>
+          <button
+            type="submit"
+            disabled={submitting}
+            style={{ ...s.btnPrimary, opacity: submitting ? 0.7 : 1 }}
+          >
             {submitting ? 'שומר ומקצה מספר בתור...' : 'העלה מיזם'}
           </button>
         </div>
