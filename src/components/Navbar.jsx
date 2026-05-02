@@ -13,6 +13,7 @@ const NAV_LINKS = [
   { to: '/members', label: 'חברים' },
   { to: '/forums', label: 'פורומים' },
   { to: '/ventures', label: 'מיזמים' },
+  { to: '/journey', label: 'יומן מסע' },
   { to: '/messages', label: 'הודעות' },
   { to: '/matching', label: 'שדכ"ן' },
 ];

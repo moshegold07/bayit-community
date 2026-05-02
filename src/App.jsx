@@ -15,6 +15,7 @@ import Members from './pages/Members';
 import Ventures from './pages/Ventures';
 import VentureForm from './pages/VentureForm';
 import VentureDetail from './pages/VentureDetail';
+import Journey from './pages/Journey';
 import EditProfile from './pages/EditProfile';
 import Admin from './pages/Admin';
 import Forums from './pages/Forums';
@@ -76,6 +77,7 @@ export default function App() {
               <Route path="ventures" element={<Ventures />} />
               <Route path="ventures/new" element={<VentureForm />} />
               <Route path="ventures/:id" element={<VentureDetail />} />
+              <Route path="journey" element={<Journey />} />
               <Route path="forums" element={<Forums />} />
               <Route path="forums/:id" element={<ForumDetail />} />
               <Route path="forums/:forumId/posts/:postId" element={<ForumPost />} />

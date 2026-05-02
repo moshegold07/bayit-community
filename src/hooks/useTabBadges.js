@@ -5,6 +5,7 @@ import { db } from '../firebase';
 const TAB_CHECKS = [
   { path: '/forums', collection: 'forums', timeField: 'lastPostAt' },
   { path: '/messages', collection: 'conversations', timeField: 'lastMessageAt' },
+  { path: '/journey', collection: 'journeyPosts', timeField: 'createdAt' },
 ];
 
 function getSeenMap() {
