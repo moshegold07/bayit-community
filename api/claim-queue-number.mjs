@@ -73,6 +73,15 @@ export default async function handler(req, res) {
       res.status(403).json({ error: 'רק חברים פעילים יכולים להוסיף מיזם' });
       return;
     }
+    const isAdmin = userData.role === 'admin';
+    const userScore = Number(userData.score) || 0;
+    if (!isAdmin && userScore < 10) {
+      res.status(403).json({
+        error: 'דרושים לפחות 10 נקודות (50 חברים שמצטרפים דרך הקישור האישי) כדי לשתף מיזם',
+        code: 'insufficient_score',
+      });
+      return;
+    }
     const createdByName = `${userData.first || ''} ${userData.last || ''}`.trim() || 'חבר';
 
     const counterRef = firestore.collection('settings').doc('ventureCounter');

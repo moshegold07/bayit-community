@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { s, CREAM, DEV_PURPLE } from './shared';
 import HouseRulesModal from './HouseRulesModal';
 import SearchDropdown from './SearchDropdown';
+import ScoreCube from './ScoreCube';
 import { useTabBadges } from '../hooks/useTabBadges';
 
 const NAV_LINKS = [
@@ -193,6 +194,11 @@ export default function Navbar() {
 
           {user && (
             <span style={{ fontSize: 13, color: 'rgba(245,240,232,0.7)' }}>שלום, {user.first}</span>
+          )}
+          {user && (
+            <div className="nav-actions-desktop" style={{ display: 'inline-flex' }}>
+              <ScoreCube compact />
+            </div>
           )}
           <div
             className="nav-actions-desktop"

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../firebase';
-import { s, Header, FieldRow, StrengthBar, BLUE } from '../components/shared';
+import { s, Header, FieldRow, StrengthBar, BLUE, TEAL } from '../components/shared';
 import CategoryPicker from '../components/CategoryPicker';
 
 const COUNTRY_CODES = [
@@ -45,6 +45,9 @@ const COUNTRY_CODES = [
 
 export default function Register() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [refCode, setRefCode] = useState(null);
+  const [refName, setRefName] = useState(null);
   const [form, setForm] = useState({
     first: '',
     last: '',
@@ -77,6 +80,45 @@ export default function Register() {
     }
     loadRules();
   }, []);
+
+  // Capture referral code from URL (?ref=XXX) or sessionStorage
+  useEffect(() => {
+    const urlRef = searchParams.get('ref');
+    let candidate = null;
+    if (urlRef && urlRef.length >= 10 && urlRef.length <= 50) {
+      candidate = urlRef;
+      try {
+        sessionStorage.setItem('bayit_ref', urlRef);
+      } catch (_) {
+        /* sessionStorage may be unavailable — best effort */
+      }
+    } else {
+      try {
+        const stored = sessionStorage.getItem('bayit_ref');
+        if (stored && stored.length >= 10 && stored.length <= 50) {
+          candidate = stored;
+        }
+      } catch (_) {
+        /* sessionStorage may be unavailable — best effort */
+      }
+    }
+    if (candidate) {
+      setRefCode(candidate);
+      // Optional: try to look up referrer name; failure must not block registration
+      (async () => {
+        try {
+          const snap = await db.getDoc('users', candidate);
+          if (snap.exists()) {
+            const data = snap.data() || {};
+            const name = `${data.first || ''} ${data.last || ''}`.trim();
+            if (name) setRefName(name);
+          }
+        } catch (_) {
+          /* ignore — fall back to generic banner */
+        }
+      })();
+    }
+  }, [searchParams]);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -138,6 +180,43 @@ export default function Register() {
 
       await db.setDoc('users', uid, userData);
       await db.setDoc('phoneIndex', phoneId, { uid });
+
+      // Fire-and-forget: track referral if a ref code is set. Must not block registration.
+      if (refCode) {
+        try {
+          const idToken = await auth.currentUser.getIdToken();
+          fetch('/api/track-referral', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${idToken}`,
+            },
+            body: JSON.stringify({ referrerUid: refCode }),
+          })
+            .then(async (res) => {
+              try {
+                const data = await res.json();
+                if (!data.ok) {
+                  console.log('[track-referral] no-op:', data.reason);
+                }
+              } catch (_) {
+                /* ignore parse errors */
+              }
+            })
+            .catch((err) => {
+              console.log('[track-referral] failed:', err?.message || err);
+            });
+        } catch (err) {
+          console.log('[track-referral] token error:', err?.message || err);
+        } finally {
+          try {
+            sessionStorage.removeItem('bayit_ref');
+          } catch (_) {
+            /* best effort */
+          }
+        }
+      }
+
       createdUser = null; // success — don't cleanup
       setSubmitted(true);
     } catch (e) {
@@ -264,6 +343,22 @@ export default function Register() {
       {!submitted && (
         <div style={s.body}>
           <div style={s.card}>
+            {refCode && (
+              <div
+                style={{
+                  background: '#E8F4F2',
+                  color: TEAL,
+                  border: `1px solid ${TEAL}`,
+                  borderRadius: 8,
+                  padding: '10px 14px',
+                  marginBottom: 14,
+                  fontSize: 13,
+                  fontWeight: 500,
+                }}
+              >
+                {refName ? `🤝 הוזמנת ע"י ${refName}` : '🤝 הוזמנת ע"י חבר מהקהילה!'}
+              </div>
+            )}
             {globalErr && (
               <div
                 style={{
