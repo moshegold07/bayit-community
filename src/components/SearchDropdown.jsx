@@ -5,9 +5,7 @@ import { BLUE_DK, BLUE_LT } from './shared';
 
 const CATEGORIES = [
   { key: 'users', label: 'חברים' },
-  { key: 'events', label: 'אירועים' },
-  { key: 'projects', label: 'פרויקטים' },
-  { key: 'resources', label: 'משאבים' },
+  { key: 'ventures', label: 'מיזמים' },
 ];
 
 const MAX_PER_CATEGORY = 5;
@@ -32,40 +30,16 @@ function filterUsers(users, q) {
     .slice(0, MAX_PER_CATEGORY);
 }
 
-function filterEvents(events, q) {
-  return events
-    .filter((e) => matchText(e.title, q) || matchText(e.description, q) || matchText(e.location, q))
-    .slice(0, MAX_PER_CATEGORY);
-}
-
-function filterProjects(projects, q) {
-  return projects
+function filterVentures(ventures, q) {
+  return ventures
     .filter(
-      (p) => matchText(p.title, q) || matchText(p.description, q) || matchText(p.categories, q),
+      (v) =>
+        matchText(v.title, q) ||
+        matchText(v.story, q) ||
+        matchText(v.createdByName, q) ||
+        matchText(v.category, q),
     )
     .slice(0, MAX_PER_CATEGORY);
-}
-
-function filterResources(resources, q) {
-  return resources
-    .filter(
-      (r) =>
-        matchText(r.title, q) ||
-        matchText(r.description, q) ||
-        matchText(r.tags, q) ||
-        matchText(r.url, q),
-    )
-    .slice(0, MAX_PER_CATEGORY);
-}
-
-function formatDate(dateStr) {
-  if (!dateStr) return '';
-  try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('he-IL', { day: 'numeric', month: 'short' });
-  } catch {
-    return dateStr;
-  }
 }
 
 export default function SearchDropdown({ isMobile }) {
@@ -77,9 +51,7 @@ export default function SearchDropdown({ isMobile }) {
   const [showDropdown, setShowDropdown] = useState(false);
 
   const [allUsers, setAllUsers] = useState([]);
-  const [allEvents, setAllEvents] = useState([]);
-  const [allProjects, setAllProjects] = useState([]);
-  const [allResources, setAllResources] = useState([]);
+  const [allVentures, setAllVentures] = useState([]);
   const [loaded, setLoaded] = useState(false);
   const loadedRef = useRef(false);
 
@@ -88,16 +60,12 @@ export default function SearchDropdown({ isMobile }) {
     if (loadedRef.current) return;
     loadedRef.current = true;
     try {
-      const [u, e, p, r] = await Promise.all([
+      const [u, v] = await Promise.all([
         db.getDocs('users', [{ field: 'status', op: 'EQUAL', value: 'active' }]),
-        db.getDocs('events'),
-        db.getDocs('projects'),
-        db.getDocs('resources'),
+        db.getDocs('ventures'),
       ]);
       setAllUsers(u.map((d) => ({ id: d.id, ...d.data() })));
-      setAllEvents(e.map((d) => ({ id: d.id, ...d.data() })));
-      setAllProjects(p.map((d) => ({ id: d.id, ...d.data() })));
-      setAllResources(r.map((d) => ({ id: d.id, ...d.data() })));
+      setAllVentures(v.map((d) => ({ id: d.id, ...d.data() })));
       setLoaded(true);
     } catch {
       loadedRef.current = false; // Allow retry on failure
@@ -128,18 +96,11 @@ export default function SearchDropdown({ isMobile }) {
   const results = q
     ? {
         users: filterUsers(allUsers, q),
-        events: filterEvents(allEvents, q),
-        projects: filterProjects(allProjects, q),
-        resources: filterResources(allResources, q),
+        ventures: filterVentures(allVentures, q),
       }
     : null;
 
-  const hasResults =
-    results &&
-    (results.users.length > 0 ||
-      results.events.length > 0 ||
-      results.projects.length > 0 ||
-      results.resources.length > 0);
+  const hasResults = results && (results.users.length > 0 || results.ventures.length > 0);
 
   function handleNavigate(path) {
     setQuery('');
@@ -153,7 +114,7 @@ export default function SearchDropdown({ isMobile }) {
     return (
       <button
         key={u.id}
-        onClick={() => handleNavigate('/')}
+        onClick={() => handleNavigate('/members')}
         style={styles.resultRow}
         onMouseEnter={(e) => {
           e.currentTarget.style.background = BLUE_LT;
@@ -168,11 +129,11 @@ export default function SearchDropdown({ isMobile }) {
     );
   }
 
-  function renderEventRow(ev) {
+  function renderVentureRow(v) {
     return (
       <button
-        key={ev.id}
-        onClick={() => handleNavigate(`/events/${ev.id}`)}
+        key={v.id}
+        onClick={() => handleNavigate(`/ventures/${v.id}`)}
         style={styles.resultRow}
         onMouseEnter={(e) => {
           e.currentTarget.style.background = BLUE_LT;
@@ -181,55 +142,15 @@ export default function SearchDropdown({ isMobile }) {
           e.currentTarget.style.background = 'transparent';
         }}
       >
-        <span style={styles.resultTitle}>{ev.title}</span>
-        {ev.date && <span style={styles.resultSub}>{formatDate(ev.date)}</span>}
-      </button>
-    );
-  }
-
-  function renderProjectRow(p) {
-    return (
-      <button
-        key={p.id}
-        onClick={() => handleNavigate(`/projects/${p.id}`)}
-        style={styles.resultRow}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.background = BLUE_LT;
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = 'transparent';
-        }}
-      >
-        <span style={styles.resultTitle}>{p.title}</span>
-        {p.status && <span style={styles.resultSub}>{p.status}</span>}
-      </button>
-    );
-  }
-
-  function renderResourceRow(r) {
-    return (
-      <button
-        key={r.id}
-        onClick={() => handleNavigate('/resources')}
-        style={styles.resultRow}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.background = BLUE_LT;
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = 'transparent';
-        }}
-      >
-        <span style={styles.resultTitle}>{r.title}</span>
-        {r.category && <span style={styles.resultSub}>{r.category}</span>}
+        <span style={styles.resultTitle}>{v.title}</span>
+        {v.queueNumber != null && <span style={styles.resultSub}>#{v.queueNumber}</span>}
       </button>
     );
   }
 
   const renderers = {
     users: renderUserRow,
-    events: renderEventRow,
-    projects: renderProjectRow,
-    resources: renderResourceRow,
+    ventures: renderVentureRow,
   };
 
   return (

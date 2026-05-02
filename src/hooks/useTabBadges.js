@@ -3,12 +3,8 @@ import { useLocation } from 'react-router-dom';
 import { db } from '../firebase';
 
 const TAB_CHECKS = [
-  { path: '/events', collection: 'events', timeField: 'createdAt' },
   { path: '/forums', collection: 'forums', timeField: 'lastPostAt' },
-  { path: '/projects', collection: 'projects', timeField: 'createdAt' },
-  { path: '/resources', collection: 'resources', timeField: 'createdAt' },
   { path: '/messages', collection: 'conversations', timeField: 'lastMessageAt' },
-  { path: '/polls', collection: 'polls', timeField: 'createdAt' },
 ];
 
 function getSeenMap() {

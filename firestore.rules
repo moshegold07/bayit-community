@@ -52,58 +52,61 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    match /events/{eventId} {
-      allow read: if isSignedIn();
-      allow create: if isActiveUser() &&
-        request.resource.data.createdBy == request.auth.uid &&
-        request.resource.data.title.size() <= 200 &&
-        (!('description' in request.resource.data) || request.resource.data.description.size() <= 5000);
-      allow update: if isActiveUser() &&
-        (resource.data.createdBy == request.auth.uid || isAdmin()) &&
-        (!touchesHiddenFields() || isAdmin()) &&
-        request.resource.data.title.size() <= 200 &&
-        (!('description' in request.resource.data) || request.resource.data.description.size() <= 5000);
-      allow delete: if isAdmin() ||
-        (isActiveUser() && resource.data.createdBy == request.auth.uid);
-    }
+    // archived 2026-05-02 — admin roadmap phase 0
+    // match /events/{eventId} {
+    //   allow read: if isSignedIn();
+    //   allow create: if isActiveUser() &&
+    //     request.resource.data.createdBy == request.auth.uid &&
+    //     request.resource.data.title.size() <= 200 &&
+    //     (!('description' in request.resource.data) || request.resource.data.description.size() <= 5000);
+    //   allow update: if isActiveUser() &&
+    //     (resource.data.createdBy == request.auth.uid || isAdmin()) &&
+    //     (!touchesHiddenFields() || isAdmin()) &&
+    //     request.resource.data.title.size() <= 200 &&
+    //     (!('description' in request.resource.data) || request.resource.data.description.size() <= 5000);
+    //   allow delete: if isAdmin() ||
+    //     (isActiveUser() && resource.data.createdBy == request.auth.uid);
+    // }
 
-    match /projects/{projectId} {
-      allow read: if isSignedIn();
-      allow create: if isActiveUser() &&
-        request.resource.data.createdBy == request.auth.uid &&
-        request.resource.data.title.size() <= 200 &&
-        (!('description' in request.resource.data) || request.resource.data.description.size() <= 5000);
-      allow update: if isActiveUser() &&
-        (resource.data.createdBy == request.auth.uid || isAdmin()) &&
-        (!touchesHiddenFields() || isAdmin()) &&
-        request.resource.data.title.size() <= 200 &&
-        (!('description' in request.resource.data) || request.resource.data.description.size() <= 5000);
-      allow delete: if isAdmin() ||
-        (isActiveUser() && resource.data.createdBy == request.auth.uid);
-      match /comments/{commentId} {
-        allow read: if isSignedIn();
-        allow create: if isActiveUser() &&
-          request.resource.data.authorId == request.auth.uid;
-        allow update: if isAdmin() && touchesHiddenFields();
-        allow delete: if isAdmin() ||
-          (isActiveUser() && resource.data.authorId == request.auth.uid);
-      }
-    }
+    // archived 2026-05-02 — admin roadmap phase 0
+    // match /projects/{projectId} {
+    //   allow read: if isSignedIn();
+    //   allow create: if isActiveUser() &&
+    //     request.resource.data.createdBy == request.auth.uid &&
+    //     request.resource.data.title.size() <= 200 &&
+    //     (!('description' in request.resource.data) || request.resource.data.description.size() <= 5000);
+    //   allow update: if isActiveUser() &&
+    //     (resource.data.createdBy == request.auth.uid || isAdmin()) &&
+    //     (!touchesHiddenFields() || isAdmin()) &&
+    //     request.resource.data.title.size() <= 200 &&
+    //     (!('description' in request.resource.data) || request.resource.data.description.size() <= 5000);
+    //   allow delete: if isAdmin() ||
+    //     (isActiveUser() && resource.data.createdBy == request.auth.uid);
+    //   match /comments/{commentId} {
+    //     allow read: if isSignedIn();
+    //     allow create: if isActiveUser() &&
+    //       request.resource.data.authorId == request.auth.uid;
+    //     allow update: if isAdmin() && touchesHiddenFields();
+    //     allow delete: if isAdmin() ||
+    //       (isActiveUser() && resource.data.authorId == request.auth.uid);
+    //   }
+    // }
 
-    match /resources/{resourceId} {
-      allow read: if isSignedIn();
-      allow create: if isActiveUser() &&
-        request.resource.data.sharedBy == request.auth.uid &&
-        request.resource.data.title.size() <= 200 &&
-        (!('content' in request.resource.data) || request.resource.data.content.size() <= 5000);
-      allow update: if isActiveUser() &&
-        (resource.data.sharedBy == request.auth.uid || isAdmin()) &&
-        (!touchesHiddenFields() || isAdmin()) &&
-        request.resource.data.title.size() <= 200 &&
-        (!('content' in request.resource.data) || request.resource.data.content.size() <= 5000);
-      allow delete: if isAdmin() ||
-        (isActiveUser() && resource.data.sharedBy == request.auth.uid);
-    }
+    // archived 2026-05-02 — admin roadmap phase 0
+    // match /resources/{resourceId} {
+    //   allow read: if isSignedIn();
+    //   allow create: if isActiveUser() &&
+    //     request.resource.data.sharedBy == request.auth.uid &&
+    //     request.resource.data.title.size() <= 200 &&
+    //     (!('content' in request.resource.data) || request.resource.data.content.size() <= 5000);
+    //   allow update: if isActiveUser() &&
+    //     (resource.data.sharedBy == request.auth.uid || isAdmin()) &&
+    //     (!touchesHiddenFields() || isAdmin()) &&
+    //     request.resource.data.title.size() <= 200 &&
+    //     (!('content' in request.resource.data) || request.resource.data.content.size() <= 5000);
+    //   allow delete: if isAdmin() ||
+    //     (isActiveUser() && resource.data.sharedBy == request.auth.uid);
+    // }
 
     match /badges/{badgeId} {
       allow read: if isSignedIn();
@@ -158,17 +161,18 @@ service cloud.firestore {
       }
     }
 
-    match /polls/{pollId} {
-      allow read: if isSignedIn();
-      allow create: if isActiveUser() &&
-        request.resource.data.createdBy == request.auth.uid;
-      allow update: if isActiveUser() && (
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['votes']) ||
-        (isAdmin() && touchesHiddenFields())
-      );
-      allow delete: if isAdmin() ||
-        (isActiveUser() && resource.data.createdBy == request.auth.uid);
-    }
+    // archived 2026-05-02 — admin roadmap phase 0
+    // match /polls/{pollId} {
+    //   allow read: if isSignedIn();
+    //   allow create: if isActiveUser() &&
+    //     request.resource.data.createdBy == request.auth.uid;
+    //   allow update: if isActiveUser() && (
+    //     request.resource.data.diff(resource.data).affectedKeys().hasOnly(['votes']) ||
+    //     (isAdmin() && touchesHiddenFields())
+    //   );
+    //   allow delete: if isAdmin() ||
+    //     (isActiveUser() && resource.data.createdBy == request.auth.uid);
+    // }
 
     match /notifications/{notifId} {
       allow read: if isSignedIn() &&

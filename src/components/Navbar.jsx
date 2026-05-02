@@ -8,15 +8,12 @@ import SearchDropdown from './SearchDropdown';
 import { useTabBadges } from '../hooks/useTabBadges';
 
 const NAV_LINKS = [
-  { to: '/', label: 'חברים' },
-  { to: '/events', label: 'אירועים' },
+  { to: '/', label: 'בית' },
+  { to: '/members', label: 'חברים' },
   { to: '/forums', label: 'פורומים' },
-  { to: '/projects', label: 'פרויקטים' },
   { to: '/ventures', label: 'מיזמים' },
-  { to: '/resources', label: 'תוכן' },
   { to: '/messages', label: 'הודעות' },
   { to: '/matching', label: 'שדכ"ן' },
-  { to: '/polls', label: 'סקרים' },
 ];
 
 const badgeDotStyle = {
