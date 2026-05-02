@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { s, FieldRow } from '../components/shared';
 import CategoryPicker from '../components/CategoryPicker';
 import BadgeDisplay from '../components/BadgeDisplay';
+import ScoreCube from '../components/ScoreCube';
 
 const VISIBILITY_FIELDS = [
   { key: 'phone', label: 'טלפון' },
@@ -170,6 +171,20 @@ export default function EditProfile() {
             הפרופיל עודכן בהצלחה!
           </div>
         )}
+
+        <h3
+          style={{
+            fontSize: 15,
+            fontWeight: 600,
+            color: '#333',
+            margin: '4px 0 10px',
+          }}
+        >
+          הניקוד שלי
+        </h3>
+        <div style={{ marginBottom: 18 }}>
+          <ScoreCube />
+        </div>
 
         <div style={s.sectionTitle}>פרטים אישיים</div>
         <div style={s.twoCol}>

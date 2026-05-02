@@ -12,7 +12,10 @@ const SORT_OPTIONS = [
 ];
 
 export default function Ventures() {
-  const { isPending } = useAuth();
+  const { isPending, user } = useAuth();
+  const userScore = user?.score || 0;
+  const isAdmin = user?.role === 'admin';
+  const canCreate = isAdmin || userScore >= 10;
   const [ventures, setVentures] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -81,24 +84,50 @@ export default function Ventures() {
             שתף את המיזם שלך, קבל מספר בתור ונפיץ אותו לקהילה
           </div>
         </div>
-        {!isPending && (
-          <Link
-            to="/ventures/new"
-            style={{
-              padding: '8px 18px',
-              background: BLUE,
-              color: '#fff',
-              border: 'none',
-              borderRadius: 8,
-              fontSize: 14,
-              cursor: 'pointer',
-              textDecoration: 'none',
-              fontWeight: 500,
-            }}
-          >
-            + הוסף מיזם
-          </Link>
-        )}
+        {!isPending &&
+          (canCreate ? (
+            <Link
+              to="/ventures/new"
+              style={{
+                padding: '8px 18px',
+                background: BLUE,
+                color: '#fff',
+                border: 'none',
+                borderRadius: 8,
+                fontSize: 14,
+                cursor: 'pointer',
+                textDecoration: 'none',
+                fontWeight: 500,
+              }}
+            >
+              + הוסף מיזם
+            </Link>
+          ) : (
+            <div
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}
+            >
+              <button
+                type="button"
+                onClick={(e) => e.preventDefault()}
+                title="דרושים 10 נקודות כדי להוסיף מיזם — שתף את הקישור האישי שלך!"
+                style={{
+                  padding: '8px 18px',
+                  background: '#E5E5E5',
+                  color: '#888',
+                  border: '1px solid #D5D0C8',
+                  borderRadius: 8,
+                  fontSize: 14,
+                  cursor: 'not-allowed',
+                  fontWeight: 500,
+                }}
+              >
+                🔒 + הוסף מיזם
+              </button>
+              <span style={{ fontSize: 11, color: '#888' }}>
+                ({Math.max(0, 10 - userScore)} נקודות עוד...)
+              </span>
+            </div>
+          ))}
       </div>
 
       <div

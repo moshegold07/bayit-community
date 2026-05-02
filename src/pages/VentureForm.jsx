@@ -2,13 +2,17 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { s, BLUE, NAVY, FieldRow } from '../components/shared';
+import { s, BLUE, BLUE_LT, NAVY, AMBER, FieldRow } from '../components/shared';
 import { TAXONOMY, parentLabel } from '../utils/categories';
 import { logActivity } from '../utils/activityLog';
 
 export default function VentureForm() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const userScore = user?.score || 0;
+  const isAdmin = user?.role === 'admin';
+  const canCreate = isAdmin || userScore >= 10;
+
   const [title, setTitle] = useState('');
   const [story, setStory] = useState('');
   const [parentKey, setParentKey] = useState('');
@@ -90,6 +94,17 @@ export default function VentureForm() {
       setServerError(err.message || 'שגיאה ביצירת המיזם');
       setSubmitting(false);
     }
+  }
+
+  if (!canCreate) {
+    return (
+      <LockedView
+        navigate={navigate}
+        userScore={userScore}
+        referredCount={user?.referredCount || 0}
+        uid={user?.uid}
+      />
+    );
   }
 
   return (
@@ -228,6 +243,103 @@ export default function VentureForm() {
           </button>
         </div>
       </form>
+    </div>
+  );
+}
+
+function LockedView({ navigate, userScore, referredCount, uid }) {
+  const [copied, setCopied] = useState(false);
+  const shareLink = `bayit-community.com/?ref=${uid || ''}`;
+  const remaining = Math.max(0, 10 - userScore);
+
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(`https://${shareLink}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // clipboard unavailable — silent fail
+    }
+  }
+
+  return (
+    <div style={{ ...s.body, maxWidth: 600 }}>
+      <button
+        onClick={() => navigate('/ventures')}
+        style={{
+          background: 'none',
+          border: 'none',
+          color: BLUE,
+          cursor: 'pointer',
+          fontSize: 14,
+          padding: 0,
+          marginBottom: '1rem',
+        }}
+      >
+        ← חזרה למיזמים
+      </button>
+
+      <div
+        style={{
+          background: '#fff',
+          border: `1px solid ${BLUE_LT}`,
+          borderRadius: 16,
+          padding: '2rem 1.5rem',
+          textAlign: 'center',
+        }}
+      >
+        <div style={{ fontSize: 56, marginBottom: 12, lineHeight: 1 }}>🔒</div>
+        <h1 style={{ fontSize: 22, fontWeight: 600, margin: '0 0 0.75rem', color: NAVY }}>
+          פתיחת אפשרות שיתוף מיזם
+        </h1>
+        <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6, margin: '0 0 1rem' }}>
+          כדי לשתף מיזם בקהילה, תצטרך/י קודם לצבור 10 נקודות (50 חברים שמצטרפים דרך הקישור האישי
+          שלך).
+        </p>
+
+        <div
+          style={{
+            background: BLUE_LT,
+            borderRadius: 10,
+            padding: '0.75rem 1rem',
+            margin: '0 0 1.25rem',
+            fontSize: 13,
+            color: NAVY,
+          }}
+        >
+          הניקוד שלך כעת: <strong>{userScore}/10</strong>. {referredCount} חברים הצטרפו עד כה.
+          {remaining > 0 && (
+            <div style={{ fontSize: 12, color: AMBER, marginTop: 4 }}>
+              חסרות עוד {remaining} נקודות
+            </div>
+          )}
+        </div>
+
+        <div style={{ fontSize: 12, color: '#888', marginBottom: 6 }}>הקישור האישי שלך:</div>
+        <div
+          style={{
+            display: 'flex',
+            gap: 8,
+            marginBottom: '1rem',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+          }}
+        >
+          <input
+            readOnly
+            value={shareLink}
+            dir="ltr"
+            style={{ ...s.input, flex: 1, minWidth: 200, fontSize: 12 }}
+          />
+          <button
+            type="button"
+            onClick={copyLink}
+            style={{ ...s.btnPrimary, padding: '8px 16px', whiteSpace: 'nowrap' }}
+          >
+            {copied ? 'הועתק ✓' : 'העתק קישור'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
