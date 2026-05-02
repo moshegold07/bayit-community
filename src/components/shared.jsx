@@ -11,7 +11,7 @@ export const GOLD = '#D4A34A';
 export const DEV_PURPLE = '#7C5CBF';
 
 export const s = {
-  wrap: { fontFamily: 'sans-serif', minHeight: '100vh', background: '#F7F6F2', direction: 'rtl' },
+  wrap: { fontFamily: 'sans-serif', minHeight: '100vh', background: '#F7F6F2' },
   hdr: {
     background: `linear-gradient(135deg, ${NAVY} 0%, #2A3650 100%)`,
     padding: '1rem 1.5rem',
@@ -23,7 +23,7 @@ export const s = {
   },
   logo: { color: GOLD, fontSize: 28, fontWeight: 600, lineHeight: 1 },
   sub: { color: 'rgba(212,163,74,0.6)', fontSize: 11, letterSpacing: 1, marginTop: 2 },
-  body: { padding: '1.5rem', maxWidth: 640, margin: '0 auto', textAlign: 'right' },
+  body: { padding: '1.5rem', maxWidth: 640, margin: '0 auto' },
   card: { background: '#fff', border: '1px solid #E8E5DE', borderRadius: 12, padding: '1.25rem' },
   label: { display: 'block', fontSize: 12, color: '#666', marginBottom: 4 },
   input: {
@@ -96,7 +96,6 @@ export const s = {
     justifyContent: 'space-between',
     flexWrap: 'wrap',
     gap: 10,
-    direction: 'rtl',
     borderBottom: `2px solid ${GOLD}`,
   },
   navLink: {

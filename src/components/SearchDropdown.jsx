@@ -2,11 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { BLUE_DK, BLUE_LT } from './shared';
-
-const CATEGORIES = [
-  { key: 'users', label: 'חברים' },
-  { key: 'ventures', label: 'מיזמים' },
-];
+import { useT } from '../i18n';
 
 const MAX_PER_CATEGORY = 5;
 
@@ -45,6 +41,11 @@ function filterVentures(ventures, q) {
 export default function SearchDropdown({ isMobile }) {
   const navigate = useNavigate();
   const wrapRef = useRef(null);
+  const { t, dir } = useT();
+  const CATEGORIES = [
+    { key: 'users', label: t('nav.members') },
+    { key: 'ventures', label: t('nav.ventures') },
+  ];
 
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
@@ -166,10 +167,12 @@ export default function SearchDropdown({ isMobile }) {
           loadData();
           if (query.trim()) setShowDropdown(true);
         }}
-        placeholder="חיפוש בקהילה..."
+        placeholder={t('common.search')}
+        dir={dir}
         style={{
           ...styles.searchInput,
           width: isMobile ? '100%' : 200,
+          direction: dir,
         }}
       />
       {showDropdown && q && loaded && (
@@ -186,7 +189,7 @@ export default function SearchDropdown({ isMobile }) {
               );
             })
           ) : (
-            <div style={styles.noResults}>אין תוצאות</div>
+            <div style={{ ...styles.noResults, direction: dir }}>{t('common.noResults')}</div>
           )}
         </div>
       )}
@@ -205,7 +208,6 @@ const styles = {
     outline: 'none',
     fontFamily: 'sans-serif',
     boxSizing: 'border-box',
-    direction: 'rtl',
   },
   dropdown: {
     position: 'absolute',
@@ -220,7 +222,6 @@ const styles = {
     maxHeight: 400,
     overflowY: 'auto',
     zIndex: 1000,
-    direction: 'rtl',
   },
   groupHeader: {
     fontSize: 11,
@@ -239,10 +240,8 @@ const styles = {
     border: 'none',
     background: 'transparent',
     cursor: 'pointer',
-    textAlign: 'right',
     fontFamily: 'sans-serif',
     fontSize: 13,
-    direction: 'rtl',
     boxSizing: 'border-box',
     gap: 8,
     transition: 'background 0.1s',
@@ -265,6 +264,5 @@ const styles = {
     textAlign: 'center',
     color: '#999',
     fontSize: 13,
-    direction: 'rtl',
   },
 };
