@@ -3,13 +3,12 @@ import { db } from '../firebase';
 import { s, BLUE, BLUE_LT, BLUE_DK, NAVY } from '../components/shared';
 import VentureCard from '../components/VentureCard';
 import ManifestoBanner from '../components/ManifestoBanner';
+import { useT } from '../i18n';
 
-const TABS = [
-  { key: 'distributed', label: 'השבוע להפצה' },
-  { key: 'pending', label: 'מחכים בתור' },
-];
+const TAB_KEYS = ['distributed', 'pending'];
 
 export default function Dashboard() {
+  const { t } = useT();
   const [activeTab, setActiveTab] = useState('distributed');
   // Cache per-tab so re-clicking is instant after first fetch.
   const [cache, setCache] = useState({ distributed: null, pending: null });
@@ -76,23 +75,25 @@ export default function Dashboard() {
           flexWrap: 'wrap',
         }}
       >
-        {TABS.map((t) => {
-          const active = activeTab === t.key;
+        {TAB_KEYS.map((key) => {
+          const active = activeTab === key;
           return (
             <button
-              key={t.key}
+              key={key}
               type="button"
-              onClick={() => setActiveTab(t.key)}
+              onClick={() => setActiveTab(key)}
               style={tabStyle(active)}
             >
-              {t.label}
+              {t(`members.dashboard.tabs.${key}`)}
             </button>
           );
         })}
       </div>
 
       {isLoading ? (
-        <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>טוען...</div>
+        <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
+          {t('common.loading')}
+        </div>
       ) : items && items.length === 0 ? (
         <div
           style={{
@@ -105,8 +106,8 @@ export default function Dashboard() {
           }}
         >
           {activeTab === 'distributed'
-            ? 'השבוע אין מיזם פעיל בהפצה — חזרו בקרוב!'
-            : 'עדיין אין מיזמים בתור. תהיו הראשונים להוסיף!'}
+            ? t('members.dashboard.empty.distributed')
+            : t('members.dashboard.empty.pending')}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

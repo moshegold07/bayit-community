@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../firebase';
 import { s, Header } from '../components/shared';
+import { useT } from '../i18n';
 
 export default function Pending() {
   const navigate = useNavigate();
+  const { t } = useT();
 
   async function handleLogout() {
     await auth.signOut();
@@ -14,7 +16,7 @@ export default function Pending() {
     <div style={s.wrap}>
       <Header>
         <button style={s.btnOutline} onClick={handleLogout}>
-          התנתקות
+          {t('auth.pending.logout')}
         </button>
       </Header>
       <div style={s.body}>
@@ -29,10 +31,10 @@ export default function Pending() {
           }}
         >
           <div style={{ fontSize: 18, fontWeight: 500, color: '#633806', marginBottom: 8 }}>
-            הבקשה שלך התקבלה!
+            {t('auth.pending.title')}
           </div>
           <div style={{ fontSize: 14, color: '#854F0B', marginBottom: 12 }}>
-            הפרופיל שלך ממתין לאישור מנהל. בינתיים ניתן לצפות בתכני הקהילה.
+            {t('auth.pending.body')}
           </div>
           <a
             href="/"
@@ -47,7 +49,7 @@ export default function Pending() {
               textDecoration: 'none',
             }}
           >
-            צפייה בקהילה
+            {t('auth.pending.viewCommunity')}
           </a>
         </div>
       </div>

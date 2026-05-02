@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { BLUE, BLUE_LT, BLUE_DK, AMBER, TEAL, NAVY, CREAM, GOLD } from './shared';
+import { useT } from '../i18n';
 
 const MAX_SCORE = 10;
 // 1 friend = 1 point. 10 friends unlocks venture sharing.
@@ -38,6 +39,7 @@ async function copyToClipboard(text) {
 }
 
 export default function ScoreCube({ compact = false }) {
+  const { t, dir } = useT();
   const { user } = useAuth();
   const score = Math.max(0, Number(user?.score) || 0);
   const referredCount = Math.max(0, Number(user?.referredCount) || 0);
@@ -87,7 +89,7 @@ export default function ScoreCube({ compact = false }) {
         <button
           type="button"
           onClick={() => setPopoverOpen((o) => !o)}
-          aria-label="הניקוד שלי"
+          aria-label={t('members.score.ariaLabel')}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -125,10 +127,10 @@ export default function ScoreCube({ compact = false }) {
               border: `1px solid ${GOLD}`,
               zIndex: 50,
               boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
-              direction: 'rtl',
+              direction: dir,
             }}
           >
-            {referredCount} חברים הצטרפו דרכך · {score}/{MAX_SCORE} נקודות
+            {t('members.score.tooltip', { count: referredCount, score, max: MAX_SCORE })}
           </div>
         )}
 
@@ -146,13 +148,13 @@ export default function ScoreCube({ compact = false }) {
               border: `1px solid ${GOLD}`,
               zIndex: 60,
               boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
-              direction: 'rtl',
+              direction: dir,
               textAlign: 'right',
               fontFamily: 'inherit',
             }}
           >
             <div style={{ fontSize: 13, fontWeight: 600, color: NAVY, marginBottom: 6 }}>
-              הניקוד שלי
+              {t('members.score.title')}
             </div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 6 }}>
               <span style={{ fontSize: 28, fontWeight: 700, color: AMBER }}>{score}</span>
@@ -177,11 +179,11 @@ export default function ScoreCube({ compact = false }) {
               />
             </div>
             <div style={{ fontSize: 12, color: '#555', marginBottom: shareClickCount > 0 ? 2 : 6 }}>
-              {referredCount} חברים הצטרפו דרכך
+              {t('members.score.referredCount', { count: referredCount })}
             </div>
             {shareClickCount > 0 && (
               <div style={{ fontSize: 11, color: '#888', marginBottom: 6 }}>
-                {shareClickCount} קליקים על הקישור
+                {t('members.score.shareClicks', { count: shareClickCount })}
               </div>
             )}
             <div
@@ -193,8 +195,8 @@ export default function ScoreCube({ compact = false }) {
               }}
             >
               {unlocked
-                ? '🎉 פתחת אפשרות שיתוף מיזם!'
-                : `עוד ${remainingFriends} חברים — ותוכל לשתף את המיזם שלך`}
+                ? t('members.score.unlocked')
+                : t('members.score.remainingFriends', { n: remainingFriends })}
             </div>
           </div>
         )}
@@ -210,13 +212,15 @@ export default function ScoreCube({ compact = false }) {
         border: `1px solid ${unlocked ? GOLD : '#E8E5DE'}`,
         borderRadius: 12,
         padding: '16px 18px',
-        direction: 'rtl',
+        direction: dir,
         textAlign: 'right',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 8 }}>
         <span style={{ fontSize: 36, fontWeight: 700, color: AMBER, lineHeight: 1 }}>{score}</span>
-        <span style={{ fontSize: 14, color: '#888' }}>/ {MAX_SCORE} נקודות</span>
+        <span style={{ fontSize: 14, color: '#888' }}>
+          {t('members.score.outOfSuffix', { max: MAX_SCORE })}
+        </span>
         <span aria-hidden="true" style={{ marginInlineStart: 'auto', fontSize: 22 }}>
           🏆
         </span>
@@ -244,11 +248,11 @@ export default function ScoreCube({ compact = false }) {
       </div>
 
       <div style={{ fontSize: 13, color: '#555', marginBottom: shareClickCount > 0 ? 2 : 6 }}>
-        {referredCount} חברים הצטרפו דרכך
+        {t('members.score.referredCount', { count: referredCount })}
       </div>
       {shareClickCount > 0 && (
         <div style={{ fontSize: 12, color: '#888', marginBottom: 6 }}>
-          {shareClickCount} קליקים על הקישור
+          {t('members.score.shareClicks', { count: shareClickCount })}
         </div>
       )}
 
@@ -262,8 +266,8 @@ export default function ScoreCube({ compact = false }) {
         }}
       >
         {unlocked
-          ? '🎉 פתחת אפשרות שיתוף מיזם!'
-          : `עוד ${remainingFriends} חברים — ותוכל לשתף את המיזם שלך`}
+          ? t('members.score.unlocked')
+          : t('members.score.remainingFriends', { n: remainingFriends })}
       </div>
 
       <div
@@ -278,7 +282,9 @@ export default function ScoreCube({ compact = false }) {
         }}
       >
         <div style={{ flex: '1 1 180px', minWidth: 0 }}>
-          <div style={{ fontSize: 11, color: '#666', marginBottom: 2 }}>הקישור האישי שלך</div>
+          <div style={{ fontSize: 11, color: '#666', marginBottom: 2 }}>
+            {t('members.score.personalLink')}
+          </div>
           <div
             style={{
               fontSize: 12,
@@ -312,7 +318,7 @@ export default function ScoreCube({ compact = false }) {
             flexShrink: 0,
           }}
         >
-          {copied ? 'הועתק ✓' : 'העתק קישור'}
+          {copied ? t('common.copied') : t('common.copy')}
         </button>
       </div>
     </div>

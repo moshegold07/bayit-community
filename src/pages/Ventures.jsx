@@ -2,16 +2,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { useT } from '../i18n';
 import { s, BLUE, BLUE_LT, BLUE_DK, NAVY } from '../components/shared';
 import VentureCard from '../components/VentureCard';
 import { TAXONOMY, parentOf, parentLabel } from '../utils/categories';
 
-const SORT_OPTIONS = [
-  { value: 'newest', label: 'הכי חדש' },
-  { value: 'queue', label: 'מספר בתור' },
-];
-
 export default function Ventures() {
+  const { t, dir } = useT();
   const { isPending, user } = useAuth();
   const userScore = user?.score || 0;
   const isAdmin = user?.role === 'admin';
@@ -21,6 +18,11 @@ export default function Ventures() {
   const [search, setSearch] = useState('');
   const [filterParent, setFilterParent] = useState('');
   const [sortBy, setSortBy] = useState('newest');
+
+  const sortOptions = [
+    { value: 'newest', label: t('content.ventures.list.sortNewest') },
+    { value: 'queue', label: t('content.ventures.list.sortQueue') },
+  ];
 
   useEffect(() => {
     let cancelled = false;
@@ -79,9 +81,11 @@ export default function Ventures() {
         }}
       >
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 600, margin: 0, color: NAVY }}>מיזמים להפצה</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 600, margin: 0, color: NAVY }}>
+            {t('content.ventures.list.title')}
+          </h1>
           <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>
-            שתף את המיזם שלך, קבל מספר בתור ונפיץ אותו לקהילה
+            {t('content.ventures.list.subtitle')}
           </div>
         </div>
         {!isPending &&
@@ -100,7 +104,7 @@ export default function Ventures() {
                 fontWeight: 500,
               }}
             >
-              + הוסף מיזם
+              {t('content.ventures.list.addVenture')}
             </Link>
           ) : (
             <div
@@ -109,7 +113,7 @@ export default function Ventures() {
               <button
                 type="button"
                 onClick={(e) => e.preventDefault()}
-                title="דרושים 10 נקודות כדי להוסיף מיזם — שתף את הקישור האישי שלך!"
+                title={t('content.ventures.list.addVentureLockedTitle')}
                 style={{
                   padding: '8px 18px',
                   background: '#E5E5E5',
@@ -121,10 +125,12 @@ export default function Ventures() {
                   fontWeight: 500,
                 }}
               >
-                🔒 + הוסף מיזם
+                {t('content.ventures.list.addVentureLocked')}
               </button>
               <span style={{ fontSize: 11, color: '#888' }}>
-                ({Math.max(0, 10 - userScore)} נקודות עוד...)
+                {t('content.ventures.list.pointsRemaining', {
+                  remaining: Math.max(0, 10 - userScore),
+                })}
               </span>
             </div>
           ))}
@@ -141,18 +147,18 @@ export default function Ventures() {
       >
         <input
           style={{ ...s.input, flex: 2, minWidth: 180 }}
-          placeholder="חיפוש לפי שם, סיפור או יוצר..."
+          placeholder={t('content.ventures.list.searchPlaceholder')}
           dir="auto"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
         <select
           style={{ ...s.input, flex: 1, minWidth: 140 }}
-          dir="rtl"
+          dir={dir}
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
         >
-          {SORT_OPTIONS.map((o) => (
+          {sortOptions.map((o) => (
             <option key={o.value} value={o.value}>
               {o.label}
             </option>
@@ -181,9 +187,12 @@ export default function Ventures() {
               alignItems: 'center',
             }}
           >
-            <span>קטלוג לפי קטגוריה</span>
+            <span>{t('content.ventures.list.categoryHeader')}</span>
             <span style={{ fontSize: 11, color: '#aaa', fontWeight: 400 }}>
-              {parentsWithVentures.length} קטגוריות · {ventures.length} מיזמים
+              {t('content.ventures.list.categoryStats', {
+                categories: parentsWithVentures.length,
+                ventures: ventures.length,
+              })}
             </span>
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -192,7 +201,7 @@ export default function Ventures() {
               onClick={() => setFilterParent('')}
               style={chipStyle(filterParent === '')}
             >
-              הכל
+              {t('content.ventures.list.categoryAll')}
               <span style={countBadge(filterParent === '')}>{ventures.length}</span>
             </button>
             {parentsWithVentures.map((p) => {
@@ -214,7 +223,9 @@ export default function Ventures() {
       )}
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>טוען...</div>
+        <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
+          {t('common.loading')}
+        </div>
       ) : filtered.length === 0 ? (
         <div
           style={{
@@ -227,8 +238,8 @@ export default function Ventures() {
           }}
         >
           {ventures.length === 0
-            ? 'עדיין לא הועלו מיזמים. תהיה הראשון!'
-            : 'אין תוצאות לסינון הנוכחי.'}
+            ? t('content.ventures.list.emptyNoVentures')
+            : t('content.ventures.list.emptyNoResults')}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

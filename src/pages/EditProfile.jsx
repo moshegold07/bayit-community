@@ -7,17 +7,11 @@ import CategoryPicker from '../components/CategoryPicker';
 import BadgeDisplay from '../components/BadgeDisplay';
 import ScoreCube from '../components/ScoreCube';
 import ReferralsList from '../components/ReferralsList';
+import { useT } from '../i18n';
 
-const VISIBILITY_FIELDS = [
-  { key: 'phone', label: 'טלפון' },
-  { key: 'city', label: 'עיר מגורים' },
-  { key: 'li', label: 'לינקדין' },
-  { key: 'website', label: 'אתר אינטרנט' },
-  { key: 'does', label: 'מה אני עושה' },
-  { key: 'needs', label: 'מה אני מחפש / צריך' },
-];
+const VISIBILITY_KEYS = ['phone', 'city', 'li', 'website', 'does', 'needs'];
 
-const defaultVisibility = Object.fromEntries(VISIBILITY_FIELDS.map((f) => [f.key, true]));
+const defaultVisibility = Object.fromEntries(VISIBILITY_KEYS.map((k) => [k, true]));
 
 function VisibilityToggle({ checked, onChange }) {
   return (
@@ -53,6 +47,7 @@ function VisibilityToggle({ checked, onChange }) {
 }
 
 export default function EditProfile() {
+  const { t } = useT();
   const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -94,7 +89,7 @@ export default function EditProfile() {
 
   async function save() {
     if (!form.first.trim() || !form.last.trim()) {
-      setErr('שם פרטי ושם משפחה הם שדות חובה');
+      setErr(t('members.editProfile.validation.nameRequired'));
       return;
     }
     setLoading(true);
@@ -124,18 +119,18 @@ export default function EditProfile() {
       await refreshUser();
       navigate('/');
     } catch (e) {
-      setErr('שגיאה בשמירה: ' + e.message);
+      setErr(t('members.editProfile.validation.saveError', { message: e.message }));
     }
     setLoading(false);
   }
 
   async function requestDelete() {
-    if (!window.confirm('האם אתה בטוח שברצונך לבקש מחיקת הפרופיל שלך?')) return;
+    if (!window.confirm(t('members.editProfile.deleteConfirm'))) return;
     try {
       await db.updateDoc('users', user.uid, { deleteRequest: true });
-      alert('הבקשה נשלחה לאדמין. הפרופיל שלך יימחק בהקדם.');
+      alert(t('members.editProfile.deleteRequestSent'));
     } catch (_e) {
-      setErr('שגיאה בשליחת הבקשה');
+      setErr(t('members.editProfile.validation.deleteRequestError'));
     }
   }
 
@@ -169,7 +164,7 @@ export default function EditProfile() {
               fontSize: 13,
             }}
           >
-            הפרופיל עודכן בהצלחה!
+            {t('members.editProfile.success')}
           </div>
         )}
 
@@ -181,7 +176,7 @@ export default function EditProfile() {
             margin: '4px 0 10px',
           }}
         >
-          הניקוד שלי
+          {t('members.editProfile.score')}
         </h3>
         <div style={{ marginBottom: 18 }}>
           <ScoreCube />
@@ -191,9 +186,9 @@ export default function EditProfile() {
           <ReferralsList />
         </div>
 
-        <div style={s.sectionTitle}>פרטים אישיים</div>
+        <div style={s.sectionTitle}>{t('members.editProfile.sections.personal')}</div>
         <div style={s.twoCol}>
-          <FieldRow label="שם פרטי *">
+          <FieldRow label={t('members.editProfile.fields.first')}>
             <input
               style={s.input}
               dir="auto"
@@ -201,7 +196,7 @@ export default function EditProfile() {
               onChange={(e) => set('first', e.target.value)}
             />
           </FieldRow>
-          <FieldRow label="שם משפחה *">
+          <FieldRow label={t('members.editProfile.fields.last')}>
             <input
               style={s.input}
               dir="auto"
@@ -210,7 +205,7 @@ export default function EditProfile() {
             />
           </FieldRow>
         </div>
-        <FieldRow label="עיר מגורים">
+        <FieldRow label={t('members.editProfile.fields.city')}>
           <input
             style={s.input}
             dir="auto"
@@ -218,7 +213,7 @@ export default function EditProfile() {
             onChange={(e) => set('city', e.target.value)}
           />
         </FieldRow>
-        <FieldRow label="לינקדין">
+        <FieldRow label={t('members.editProfile.fields.li')}>
           <input
             style={s.input}
             placeholder="https://linkedin.com/in/..."
@@ -227,7 +222,7 @@ export default function EditProfile() {
             onChange={(e) => set('li', e.target.value)}
           />
         </FieldRow>
-        <FieldRow label="אתר אינטרנט">
+        <FieldRow label={t('members.editProfile.fields.website')}>
           <input
             style={s.input}
             placeholder="https://yourwebsite.com"
@@ -237,11 +232,11 @@ export default function EditProfile() {
           />
         </FieldRow>
 
-        <div style={s.sectionTitle}>תחומי עיסוק (עד 4)</div>
+        <div style={s.sectionTitle}>{t('members.editProfile.sections.categories')}</div>
         <CategoryPicker value={form.categories} onChange={(v) => set('categories', v)} />
 
-        <div style={s.sectionTitle}>פרופיל מקצועי</div>
-        <FieldRow label="מה אני עושה">
+        <div style={s.sectionTitle}>{t('members.editProfile.sections.professional')}</div>
+        <FieldRow label={t('members.editProfile.fields.does')}>
           <textarea
             style={s.textarea}
             dir="auto"
@@ -249,7 +244,7 @@ export default function EditProfile() {
             onChange={(e) => set('does', e.target.value)}
           />
         </FieldRow>
-        <FieldRow label="מה אני מחפש / צריך">
+        <FieldRow label={t('members.editProfile.fields.needs')}>
           <textarea
             style={s.textarea}
             dir="auto"
@@ -257,36 +252,36 @@ export default function EditProfile() {
             onChange={(e) => set('needs', e.target.value)}
           />
         </FieldRow>
-        <FieldRow label="החוזקות שלי">
+        <FieldRow label={t('members.editProfile.fields.strength')}>
           <textarea
             style={s.textarea}
             dir="auto"
             value={form.strength}
             onChange={(e) => set('strength', e.target.value)}
-            placeholder="מה הכוח שלך? ניסיון, ידע, יכולות מיוחדות..."
+            placeholder={t('members.editProfile.placeholders.strength')}
           />
         </FieldRow>
-        <FieldRow label="במה אני יכול לעזור לאחרים">
+        <FieldRow label={t('members.editProfile.fields.canHelpWith')}>
           <textarea
             style={s.textarea}
             dir="auto"
             value={form.canHelpWith}
             onChange={(e) => set('canHelpWith', e.target.value)}
-            placeholder="ייעוץ, קשרים, ידע מקצועי..."
+            placeholder={t('members.editProfile.placeholders.canHelpWith')}
           />
         </FieldRow>
 
         {user.badges?.length > 0 && (
           <div style={{ marginBottom: 16 }}>
-            <div style={s.sectionTitle}>תגים</div>
+            <div style={s.sectionTitle}>{t('members.editProfile.sections.badges')}</div>
             <BadgeDisplay badges={user.badges} size="md" />
             <div style={{ fontSize: 11, color: '#aaa', marginTop: 6 }}>
-              תגים מוענקים על ידי מנהלי הקהילה
+              {t('members.editProfile.badgesNote')}
             </div>
           </div>
         )}
 
-        <div style={s.sectionTitle}>הגדרות פרטיות</div>
+        <div style={s.sectionTitle}>{t('members.editProfile.sections.privacy')}</div>
         <div
           style={{
             fontSize: 12,
@@ -295,7 +290,7 @@ export default function EditProfile() {
             lineHeight: 1.6,
           }}
         >
-          בחר אילו פרטים יוצגו לחברי הקהילה. מנהלים יכולים לראות את כל הפרטים תמיד.
+          {t('members.editProfile.visibility.intro')}
         </div>
         <div
           style={{
@@ -305,9 +300,9 @@ export default function EditProfile() {
             marginBottom: 16,
           }}
         >
-          {VISIBILITY_FIELDS.map((f) => (
+          {VISIBILITY_KEYS.map((key) => (
             <div
-              key={f.key}
+              key={key}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -316,14 +311,18 @@ export default function EditProfile() {
                 borderBottom: '0.5px solid #eee',
               }}
             >
-              <span style={{ fontSize: 13, color: '#333' }}>{f.label}</span>
+              <span style={{ fontSize: 13, color: '#333' }}>
+                {t(`members.editProfile.visibility.${key}`)}
+              </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 11, color: '#aaa' }}>
-                  {visibility[f.key] ? 'גלוי' : 'מוסתר'}
+                  {visibility[key]
+                    ? t('members.editProfile.visibility.visible')
+                    : t('members.editProfile.visibility.hidden')}
                 </span>
                 <VisibilityToggle
-                  checked={visibility[f.key]}
-                  onChange={() => setVisibility((v) => ({ ...v, [f.key]: !v[f.key] }))}
+                  checked={visibility[key]}
+                  onChange={() => setVisibility((v) => ({ ...v, [key]: !v[key] }))}
                 />
               </div>
             </div>
@@ -331,7 +330,7 @@ export default function EditProfile() {
         </div>
 
         <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>
-          טלפון ואימייל אינם ניתנים לשינוי
+          {t('members.editProfile.phoneEmailNote')}
         </div>
         <div style={s.twoCol}>
           <div
@@ -364,11 +363,13 @@ export default function EditProfile() {
           onClick={save}
           disabled={loading}
         >
-          {loading ? 'שומר...' : 'שמור שינויים'}
+          {loading ? t('members.editProfile.saving') : t('members.editProfile.saveChanges')}
         </button>
 
         <div style={{ marginTop: 24, paddingTop: 16, borderTop: '0.5px solid #eee' }}>
-          <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>מחיקת פרופיל</div>
+          <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>
+            {t('members.editProfile.deleteProfile')}
+          </div>
           <button
             onClick={requestDelete}
             style={{
@@ -381,7 +382,7 @@ export default function EditProfile() {
               cursor: 'pointer',
             }}
           >
-            בקש מחיקת פרופיל
+            {t('members.editProfile.requestDelete')}
           </button>
         </div>
       </div>

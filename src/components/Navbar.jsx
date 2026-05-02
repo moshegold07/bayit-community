@@ -6,16 +6,18 @@ import { s, CREAM, DEV_PURPLE } from './shared';
 import HouseRulesModal from './HouseRulesModal';
 import SearchDropdown from './SearchDropdown';
 import ScoreCube from './ScoreCube';
+import LanguageSwitcher from './LanguageSwitcher';
 import { useTabBadges } from '../hooks/useTabBadges';
+import { useT } from '../i18n';
 
 const NAV_LINKS = [
-  { to: '/', label: 'בית' },
-  { to: '/members', label: 'חברים' },
-  { to: '/forums', label: 'פורומים' },
-  { to: '/ventures', label: 'מיזמים' },
-  { to: '/journey', label: 'יומן מסע' },
-  { to: '/messages', label: 'הודעות' },
-  { to: '/matching', label: 'שדכ"ן' },
+  { to: '/', labelKey: 'nav.home' },
+  { to: '/members', labelKey: 'nav.members' },
+  { to: '/forums', labelKey: 'nav.forums' },
+  { to: '/ventures', labelKey: 'nav.ventures' },
+  { to: '/journey', labelKey: 'nav.journey' },
+  { to: '/messages', labelKey: 'nav.messages' },
+  { to: '/matching', labelKey: 'nav.matching' },
 ];
 
 const badgeDotStyle = {
@@ -36,6 +38,7 @@ export default function Navbar() {
   const [showRules, setShowRules] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { badges, notificationCount } = useTabBadges(user?.uid);
+  const { t } = useT();
 
   function isActive(to) {
     if (to === '/') return location.pathname === '/';
@@ -49,7 +52,7 @@ export default function Navbar() {
 
   const linkItems = (
     <>
-      {NAV_LINKS.filter(({ to }) => !isPending || to !== '/messages').map(({ to, label }) => (
+      {NAV_LINKS.filter(({ to }) => !isPending || to !== '/messages').map(({ to, labelKey }) => (
         <Link
           key={to}
           to={to}
@@ -63,7 +66,7 @@ export default function Navbar() {
             gap: 0,
           }}
         >
-          {label}
+          {t(labelKey)}
           {badges[to] && <span style={badgeDotStyle} />}
         </Link>
       ))}
@@ -78,7 +81,7 @@ export default function Navbar() {
           textDecoration: 'none',
         }}
       >
-        פיתוח
+        {t('nav.dev')}
       </Link>
       {user?.role === 'admin' && (
         <Link
@@ -90,7 +93,7 @@ export default function Navbar() {
             textDecoration: 'none',
           }}
         >
-          ניהול
+          {t('nav.admin')}
         </Link>
       )}
     </>
@@ -105,17 +108,17 @@ export default function Navbar() {
           setMenuOpen(false);
         }}
       >
-        חוקי הבית
+        {t('nav.houseRules')}
       </button>
       <Link
         to="/edit-profile"
         onClick={() => setMenuOpen(false)}
         style={{ ...s.btnOutline, textDecoration: 'none', display: 'inline-block' }}
       >
-        עריכת פרופיל
+        {t('nav.editProfile')}
       </Link>
       <button style={s.btnOutline} onClick={handleLogout}>
-        התנתקות
+        {t('nav.logout')}
       </button>
     </>
   );
@@ -194,7 +197,9 @@ export default function Navbar() {
           </Link>
 
           {user && (
-            <span style={{ fontSize: 13, color: 'rgba(245,240,232,0.7)' }}>שלום, {user.first}</span>
+            <span style={{ fontSize: 13, color: 'rgba(245,240,232,0.7)' }}>
+              {t('nav.greeting', { name: user.first })}
+            </span>
           )}
           {user && (
             <div className="nav-actions-desktop" style={{ display: 'inline-flex' }}>
@@ -205,6 +210,7 @@ export default function Navbar() {
             className="nav-actions-desktop"
             style={{ display: 'flex', gap: 8, alignItems: 'center' }}
           >
+            <LanguageSwitcher compact />
             {actionItems}
           </div>
           <button
@@ -238,7 +244,16 @@ export default function Navbar() {
           >
             <SearchDropdown isMobile />
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>{linkItems}</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 4 }}>
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 6,
+                marginTop: 4,
+                alignItems: 'center',
+              }}
+            >
+              <LanguageSwitcher />
               {actionItems}
             </div>
           </div>

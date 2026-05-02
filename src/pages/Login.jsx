@@ -4,9 +4,11 @@ import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/aut
 import { auth } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { s, Header, FieldRow } from '../components/shared';
+import { useT } from '../i18n';
 
 export default function Login() {
   const { refreshUser } = useAuth();
+  const { t } = useT();
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
   const [err, setErr] = useState('');
@@ -16,21 +18,21 @@ export default function Login() {
   async function resetPassword() {
     setErr('');
     if (!email.trim()) {
-      setErr('יש להזין אימייל לאיפוס סיסמה');
+      setErr(t('auth.login.resetEmailRequired'));
       return;
     }
     try {
       await sendPasswordResetEmail(auth, email.trim());
       setResetSent(true);
     } catch (_e) {
-      setErr('שגיאה בשליחת אימייל לאיפוס. בדוק שהאימייל נכון.');
+      setErr(t('auth.login.resetError'));
     }
   }
 
   async function login() {
     setErr('');
     if (!email || !pass) {
-      setErr('יש למלא אימייל וסיסמא');
+      setErr(t('auth.login.missingFields'));
       return;
     }
     setLoading(true);
@@ -43,8 +45,8 @@ export default function Login() {
         e.code === 'auth/wrong-password' ||
         e.code === 'auth/user-not-found'
       )
-        setErr('אימייל או סיסמא שגויים');
-      else setErr('שגיאה: ' + e.message);
+        setErr(t('auth.login.invalidCredentials'));
+      else setErr(t('auth.login.errorPrefix', { message: e.message }));
     } finally {
       setLoading(false);
     }
@@ -53,20 +55,24 @@ export default function Login() {
   return (
     <div style={s.wrap}>
       <Header>
-        <span style={{ fontSize: 13, color: 'rgba(245,240,232,0.7)' }}>חדש?</span>
+        <span style={{ fontSize: 13, color: 'rgba(245,240,232,0.7)' }}>
+          {t('auth.login.newQuestion')}
+        </span>
         <Link
           to="/register"
           style={{ ...s.btnSolid, textDecoration: 'none', display: 'inline-block' }}
         >
-          הצטרפות
+          {t('auth.login.joinLink')}
         </Link>
       </Header>
       <div style={{ ...s.body, maxWidth: 400 }}>
         <div style={s.card}>
           <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
-            <div style={{ fontSize: 20, fontWeight: 500, color: '#222' }}>התחברות</div>
+            <div style={{ fontSize: 20, fontWeight: 500, color: '#222' }}>
+              {t('auth.login.title')}
+            </div>
             <div style={{ fontSize: 13, color: '#888', marginTop: 4 }}>
-              הכנס/י את פרטי הגישה שלך
+              {t('auth.login.subtitle')}
             </div>
           </div>
           {err && (
@@ -83,7 +89,7 @@ export default function Login() {
               {err}
             </div>
           )}
-          <FieldRow label="אימייל">
+          <FieldRow label={t('auth.login.emailLabel')}>
             <input
               style={s.input}
               type="email"
@@ -93,7 +99,7 @@ export default function Login() {
               onKeyDown={(e) => e.key === 'Enter' && login()}
             />
           </FieldRow>
-          <FieldRow label="סיסמא">
+          <FieldRow label={t('auth.login.passwordLabel')}>
             <input
               style={s.input}
               type="password"
@@ -107,11 +113,11 @@ export default function Login() {
             onClick={login}
             disabled={loading}
           >
-            {loading ? 'מתחבר...' : 'התחבר/י'}
+            {loading ? t('auth.login.submitting') : t('auth.login.submit')}
           </button>
           {resetSent ? (
             <div style={{ textAlign: 'center', marginTop: 10, fontSize: 13, color: '#059669' }}>
-              נשלח אימייל לאיפוס סיסמה
+              {t('auth.login.resetSent')}
             </div>
           ) : (
             <button
@@ -128,7 +134,7 @@ export default function Login() {
                 textDecoration: 'underline',
               }}
             >
-              שכחתי סיסמה
+              {t('auth.login.forgotPassword')}
             </button>
           )}
           <div
@@ -139,7 +145,9 @@ export default function Login() {
               textAlign: 'center',
             }}
           >
-            <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>נרשמת דרך טופס גוגל?</div>
+            <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>
+              {t('auth.login.formClaimQuestion')}
+            </div>
             <Link
               to="/form-claim"
               style={{
@@ -154,7 +162,7 @@ export default function Login() {
                 textDecoration: 'none',
               }}
             >
-              נרשמת בטופס? הפעל חשבון
+              {t('auth.login.formClaimLink')}
             </Link>
           </div>
         </div>
