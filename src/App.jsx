@@ -11,15 +11,10 @@ import Register from './pages/Register';
 import FormClaim from './pages/FormClaim';
 import Pending from './pages/Pending';
 import Dashboard from './pages/Dashboard';
-import Events from './pages/Events';
-import EventDetail from './pages/EventDetail';
-import Projects from './pages/Projects';
-import ProjectForm from './pages/ProjectForm';
-import ProjectDetail from './pages/ProjectDetail';
+import Members from './pages/Members';
 import Ventures from './pages/Ventures';
 import VentureForm from './pages/VentureForm';
 import VentureDetail from './pages/VentureDetail';
-import Resources from './pages/Resources';
 import EditProfile from './pages/EditProfile';
 import Admin from './pages/Admin';
 import Forums from './pages/Forums';
@@ -30,7 +25,6 @@ import Chat from './pages/Chat';
 import DevTickets from './pages/DevTickets';
 import Notifications from './pages/Notifications';
 import Matching from './pages/Matching';
-import Polls from './pages/Polls';
 
 export default function App() {
   return (
@@ -78,15 +72,10 @@ export default function App() {
               }
             >
               <Route index element={<Dashboard />} />
-              <Route path="events" element={<Events />} />
-              <Route path="events/:id" element={<EventDetail />} />
-              <Route path="projects" element={<Projects />} />
-              <Route path="projects/new" element={<ProjectForm />} />
-              <Route path="projects/:id" element={<ProjectDetail />} />
+              <Route path="members" element={<Members />} />
               <Route path="ventures" element={<Ventures />} />
               <Route path="ventures/new" element={<VentureForm />} />
               <Route path="ventures/:id" element={<VentureDetail />} />
-              <Route path="resources" element={<Resources />} />
               <Route path="forums" element={<Forums />} />
               <Route path="forums/:id" element={<ForumDetail />} />
               <Route path="forums/:forumId/posts/:postId" element={<ForumPost />} />
@@ -94,7 +83,6 @@ export default function App() {
               <Route path="messages/:conversationId" element={<Chat />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="matching" element={<Matching />} />
-              <Route path="polls" element={<Polls />} />
               <Route path="dev" element={<DevTickets />} />
               <Route path="edit-profile" element={<EditProfile />} />
               <Route
