@@ -217,5 +217,19 @@ service cloud.firestore {
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }
+
+    match /journeyPosts/{postId} {
+      allow read: if isActiveUser();
+      allow create: if isActiveUser()
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 200;
+      allow update: if isActiveUser()
+        && resource.data.authorId == request.auth.uid
+        && request.resource.data.authorId == resource.data.authorId
+        && request.resource.data.text.size() <= 200;
+      allow delete: if isAdmin() || (isActiveUser() && resource.data.authorId == request.auth.uid);
+    }
   }
 }
