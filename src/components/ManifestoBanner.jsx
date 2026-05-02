@@ -3,7 +3,8 @@ import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { BLUE, BLUE_LT, NAVY } from './shared';
 
-const STORAGE_KEY = 'manifestoSeenVersion';
+const STORAGE_KEY = 'bayit_manifesto_dismissed';
+const LEGACY_KEY = 'manifestoSeenVersion';
 
 // Brand colors
 const WA_GREEN = '#25D366';
@@ -11,7 +12,7 @@ const X_BLACK = '#000000';
 const FB_BLUE = '#1877F2';
 const IG_GRADIENT = 'linear-gradient(45deg, #F58529 0%, #DD2A7B 50%, #8134AF 100%)';
 
-export default function ManifestoBanner() {
+export default function ManifestoBanner({ onDismiss }) {
   const { user, loading: authLoading } = useAuth();
   const [data, setData] = useState(null);
   const [open, setOpen] = useState(false);
@@ -26,10 +27,16 @@ export default function ManifestoBanner() {
         if (cancelled || !snap.exists()) return;
         const d = snap.data();
         if (!d?.enabled || !d?.body) return;
-        const version = String(d.version ?? 1);
-        const seen = localStorage.getItem(STORAGE_KEY);
-        if (seen === version) return;
-        setData({ ...d, version });
+        // Once-only dismissal: if user has dismissed (new key) OR seen any prior
+        // version (legacy key), keep it hidden.
+        if (
+          localStorage.getItem(STORAGE_KEY) === 'true' ||
+          localStorage.getItem(LEGACY_KEY) !== null
+        ) {
+          onDismiss?.();
+          return;
+        }
+        setData(d);
         setOpen(true);
       } catch {
         // silent — banner is non-critical
@@ -38,11 +45,12 @@ export default function ManifestoBanner() {
     return () => {
       cancelled = true;
     };
-  }, [authLoading, user]);
+  }, [authLoading, user, onDismiss]);
 
   function dismiss() {
-    if (data?.version) localStorage.setItem(STORAGE_KEY, data.version);
+    localStorage.setItem(STORAGE_KEY, 'true');
     setOpen(false);
+    onDismiss?.();
   }
 
   if (authLoading || !user || !open || !data) return null;
@@ -53,9 +61,19 @@ export default function ManifestoBanner() {
     ? baseText.slice(0, 120) + (baseText.length > 120 ? '…' : '')
     : data.title || 'המניפסט שלנו';
 
+  function dismissAfterShare() {
+    localStorage.setItem(STORAGE_KEY, 'true');
+    // Slight delay so the share popup opens before the banner unmounts.
+    setTimeout(() => {
+      setOpen(false);
+      onDismiss?.();
+    }, 300);
+  }
+
   function shareWhatsApp() {
     const url = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + refUrl)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
+    dismissAfterShare();
   }
 
   function shareTwitter() {
@@ -63,11 +81,13 @@ export default function ManifestoBanner() {
       shareText,
     )}&url=${encodeURIComponent(refUrl)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
+    dismissAfterShare();
   }
 
   function shareFacebook() {
     const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(refUrl)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
+    dismissAfterShare();
   }
 
   async function shareInstagram() {
@@ -80,6 +100,12 @@ export default function ManifestoBanner() {
       // clipboard may not be available — still open Instagram
     }
     window.open('https://www.instagram.com/', '_blank', 'noopener,noreferrer');
+    // Wait a bit longer so the toast is visible before dismissing.
+    setTimeout(() => {
+      localStorage.setItem(STORAGE_KEY, 'true');
+      setOpen(false);
+      onDismiss?.();
+    }, 1800);
   }
 
   const shareBtn = {

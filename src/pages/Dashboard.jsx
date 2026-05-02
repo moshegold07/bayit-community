@@ -14,8 +14,20 @@ export default function Dashboard() {
   // Cache per-tab so re-clicking is instant after first fetch.
   const [cache, setCache] = useState({ distributed: null, pending: null });
   const [loading, setLoading] = useState(false);
+  // Tabs are hidden until the manifesto is dismissed (closed or shared).
+  // Initial value reads localStorage synchronously so first paint is correct.
+  const [manifestoVisible, setManifestoVisible] = useState(() => {
+    try {
+      if (localStorage.getItem('bayit_manifesto_dismissed') === 'true') return false;
+      if (localStorage.getItem('manifestoSeenVersion') !== null) return false;
+      return true;
+    } catch {
+      return true;
+    }
+  });
 
   useEffect(() => {
+    if (!manifestoVisible) return;
     if (cache[activeTab] !== null) return; // already fetched
     let cancelled = false;
     (async () => {
@@ -41,15 +53,21 @@ export default function Dashboard() {
     return () => {
       cancelled = true;
     };
-  }, [activeTab, cache]);
+  }, [activeTab, cache, manifestoVisible]);
 
   const items = cache[activeTab];
   const isLoading = loading && items === null;
 
+  if (manifestoVisible) {
+    return (
+      <div style={{ ...s.body, maxWidth: 900 }}>
+        <ManifestoBanner onDismiss={() => setManifestoVisible(false)} />
+      </div>
+    );
+  }
+
   return (
     <div style={{ ...s.body, maxWidth: 900 }}>
-      <ManifestoBanner />
-
       <div
         style={{
           display: 'flex',
