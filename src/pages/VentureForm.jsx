@@ -293,8 +293,7 @@ function LockedView({ navigate, userScore, referredCount, uid }) {
           פתיחת אפשרות שיתוף מיזם
         </h1>
         <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6, margin: '0 0 1rem' }}>
-          כדי לשתף מיזם בקהילה, תצטרך/י קודם לצבור 10 נקודות (50 חברים שמצטרפים דרך הקישור האישי
-          שלך).
+          כדי לשתף מיזם בקהילה, תצטרך/י להביא 10 חברים שמצטרפים דרך הקישור האישי שלך.
         </p>
 
         <div
@@ -310,7 +309,7 @@ function LockedView({ navigate, userScore, referredCount, uid }) {
           הניקוד שלך כעת: <strong>{userScore}/10</strong>. {referredCount} חברים הצטרפו עד כה.
           {remaining > 0 && (
             <div style={{ fontSize: 12, color: AMBER, marginTop: 4 }}>
-              חסרות עוד {remaining} נקודות
+              חסרים עוד {remaining} חברים
             </div>
           )}
         </div>

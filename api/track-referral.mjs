@@ -138,7 +138,8 @@ export default async function handler(req, res) {
 
       const prevCount = Number(freshReferrerData.referredCount) || 0;
       const newCount = prevCount + 1;
-      const newScore = Math.floor(newCount / 5);
+      // 1 friend = 1 point. 10 friends unlocks venture sharing.
+      const newScore = newCount;
 
       tx.update(newUserRef, {
         referredBy: referrerUid,

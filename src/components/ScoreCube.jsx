@@ -3,7 +3,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { BLUE, BLUE_LT, BLUE_DK, AMBER, TEAL, NAVY, CREAM, GOLD } from './shared';
 
 const MAX_SCORE = 10;
-const FRIENDS_PER_POINT = 5;
+// 1 friend = 1 point. 10 friends unlocks venture sharing.
+const FRIENDS_PER_POINT = 1;
 
 function buildShareLink(uid) {
   return `https://bayit-community.com/?ref=${uid || ''}`;
@@ -187,7 +188,7 @@ export default function ScoreCube({ compact = false }) {
             >
               {unlocked
                 ? '🎉 פתחת אפשרות שיתוף מיזם!'
-                : `עוד ${remainingPoints} נקודות (${remainingFriends} חברים) — ותוכל לשתף את המיזם שלך`}
+                : `עוד ${remainingFriends} חברים — ותוכל לשתף את המיזם שלך`}
             </div>
           </div>
         )}
@@ -251,7 +252,7 @@ export default function ScoreCube({ compact = false }) {
       >
         {unlocked
           ? '🎉 פתחת אפשרות שיתוף מיזם!'
-          : `עוד ${remainingPoints} נקודות (${remainingFriends} חברים) — ותוכל לשתף את המיזם שלך`}
+          : `עוד ${remainingFriends} חברים — ותוכל לשתף את המיזם שלך`}
       </div>
 
       <div

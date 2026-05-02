@@ -36,6 +36,34 @@ function visibleField(member, field, isAdmin) {
   return member.visibility[field] !== false;
 }
 
+function ScoreChip({ score, size = 'sm' }) {
+  const s = Math.max(0, Number(score) || 0);
+  const unlocked = s >= 10;
+  const small = size === 'sm';
+  return (
+    <span
+      title={`${s} חברים הצטרפו דרכך${unlocked ? ' · פתוח לשיתוף מיזם' : ''}`}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 3,
+        padding: small ? '2px 7px' : '3px 10px',
+        borderRadius: 12,
+        fontSize: small ? 11 : 13,
+        fontWeight: 600,
+        background: unlocked ? '#FFF4D9' : '#F2F1ED',
+        color: unlocked ? '#8B6700' : '#666',
+        border: `1px solid ${unlocked ? '#E8A838' : '#E0DDD7'}`,
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
+      }}
+    >
+      <span aria-hidden="true">🏆</span>
+      <span>{s}</span>
+    </span>
+  );
+}
+
 const BAR_COLORS = [
   '#1A8A7D',
   '#3B7DD8',
@@ -232,8 +260,11 @@ function MemberModal({ m, onClose, isAdmin, currentUser, isPending }) {
             {initials(m.first, m.last)}
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 500, fontSize: 18 }}>
-              {m.first} {m.last}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <div style={{ fontWeight: 500, fontSize: 18 }}>
+                {m.first} {m.last}
+              </div>
+              <ScoreChip score={m.score} size="md" />
             </div>
             {visibleField(m, 'city', isAdmin) && m.city && (
               <div style={{ fontSize: 13, color: '#888', marginTop: 2 }}>{m.city}</div>
@@ -636,7 +667,7 @@ export default function Members() {
                   >
                     {initials(m.first, m.last)}
                   </div>
-                  <div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 500, fontSize: 15 }}>
                       {m.first} {m.last}
                     </div>
@@ -644,6 +675,7 @@ export default function Members() {
                       <div style={{ fontSize: 12, color: '#888' }}>{m.city}</div>
                     )}
                   </div>
+                  <ScoreChip score={m.score} />
                 </div>
                 <div style={{ marginBottom: 8 }}>
                   <CategoryDisplay
