@@ -127,22 +127,22 @@ export default function Navbar() {
     <>
       {showRules && <HouseRulesModal onClose={() => setShowRules(false)} />}
       <div style={s.navWrap}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <Link to="/" style={{ textDecoration: 'none' }}>
             <div style={s.logo}>בַּיִת</div>
             <div style={s.sub}>— יזמים עבור יזמים —</div>
           </Link>
-          <nav style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+          <nav style={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             <div
               className="nav-links-desktop"
-              style={{ display: 'flex', gap: 4, alignItems: 'center' }}
+              style={{ display: 'flex', gap: 2, alignItems: 'center' }}
             >
               {linkItems}
             </div>
           </nav>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <div className="nav-search-desktop" style={{ display: 'flex', alignItems: 'center' }}>
             <SearchDropdown />
           </div>
@@ -197,8 +197,12 @@ export default function Navbar() {
           </Link>
 
           {user && (
-            <span style={{ fontSize: 13, color: 'rgba(245,240,232,0.7)' }}>
-              {t('nav.greeting', { name: user.first })}
+            <span
+              className="nav-greeting-desktop"
+              style={{ fontSize: 12, color: 'rgba(245,240,232,0.7)', whiteSpace: 'nowrap' }}
+              title={t('nav.greeting', { name: user.first })}
+            >
+              {user.first}
             </span>
           )}
           {user && (
@@ -208,7 +212,7 @@ export default function Navbar() {
           )}
           <div
             className="nav-actions-desktop"
-            style={{ display: 'flex', gap: 8, alignItems: 'center' }}
+            style={{ display: 'flex', gap: 6, alignItems: 'center' }}
           >
             <LanguageSwitcher compact />
             {actionItems}
@@ -261,6 +265,9 @@ export default function Navbar() {
       </div>
 
       <style>{`
+        @media (max-width: 1100px) {
+          .nav-greeting-desktop { display: none !important; }
+        }
         @media (max-width: 768px) {
           .nav-links-desktop { display: none !important; }
           .nav-actions-desktop { display: none !important; }
