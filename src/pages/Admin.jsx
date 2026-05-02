@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { db } from '../firebase';
-import { s, BLUE, safeHref } from '../components/shared';
+import { s, BLUE, AMBER, TEAL, NAVY, safeHref } from '../components/shared';
 import BadgeDisplay, { BADGE_DEFS } from '../components/BadgeDisplay';
 
 const AV_COLORS = ['#1A6FBF', '#0F4F8A', '#1A8080', '#7A4F9A', '#B05020'];
@@ -291,6 +291,9 @@ export default function Admin() {
   const [importJson, setImportJson] = useState('');
   const [importStatus, setImportStatus] = useState('');
   const [importing, setImporting] = useState(false);
+  const [refSortKey, setRefSortKey] = useState('referredCount');
+  const [refSortDir, setRefSortDir] = useState('desc');
+  const [refShowAll, setRefShowAll] = useState(false);
 
   async function load() {
     try {
@@ -454,6 +457,101 @@ export default function Admin() {
     verticalAlign: 'middle',
   };
 
+  // ===== Phase 4: Referrals Analytics =====
+  const referralStats = useMemo(() => {
+    const nonAdmins = users.filter((u) => u.role !== 'admin');
+    const totalClicks = nonAdmins.reduce((sum, u) => sum + (Number(u.shareClickCount) || 0), 0);
+    const totalReferrals = nonAdmins.reduce((sum, u) => sum + (Number(u.referredCount) || 0), 0);
+    const conversionRate =
+      totalClicks > 0 ? ((totalReferrals / totalClicks) * 100).toFixed(1) + '%' : '—';
+    const top = nonAdmins.reduce(
+      (best, u) => ((Number(u.referredCount) || 0) > (Number(best?.referredCount) || 0) ? u : best),
+      null,
+    );
+    const topUser =
+      top && (Number(top.referredCount) || 0) > 0
+        ? `${top.first || ''} ${top.last || ''}`.trim() || '—'
+        : '—';
+    return { totalClicks, totalReferrals, conversionRate, topUser };
+  }, [users]);
+
+  const referralRows = useMemo(() => {
+    const rows = users
+      .filter((u) => u.role !== 'admin')
+      .map((u) => {
+        const score = Number(u.score) || 0;
+        const referredCount = Number(u.referredCount) || 0;
+        const shareClickCount = Number(u.shareClickCount) || 0;
+        const conv = shareClickCount > 0 ? (referredCount / shareClickCount) * 100 : null;
+        return {
+          uid: u.uid,
+          name: `${u.first || ''} ${u.last || ''}`.trim() || '—',
+          score,
+          referredCount,
+          shareClickCount,
+          conv,
+          lastReferralAt: u.lastReferralAt || null,
+        };
+      });
+    rows.sort((a, b) => {
+      let av = a[refSortKey];
+      let bv = b[refSortKey];
+      if (refSortKey === 'lastReferralAt') {
+        av = av ? new Date(av).getTime() : 0;
+        bv = bv ? new Date(bv).getTime() : 0;
+      }
+      if (av == null) av = -Infinity;
+      if (bv == null) bv = -Infinity;
+      if (av < bv) return refSortDir === 'asc' ? -1 : 1;
+      if (av > bv) return refSortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return rows;
+  }, [users, refSortKey, refSortDir]);
+
+  const hasReferralActivity = referralRows.some(
+    (r) => r.score > 0 || r.referredCount > 0 || r.shareClickCount > 0,
+  );
+  const visibleRefRows = refShowAll ? referralRows : referralRows.slice(0, 20);
+
+  function toggleRefSort(key) {
+    if (refSortKey === key) {
+      setRefSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setRefSortKey(key);
+      setRefSortDir('desc');
+    }
+  }
+  function fmtRefDate(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (isNaN(d)) return '—';
+    return `${d.getDate()}/${d.getMonth() + 1}/${String(d.getFullYear()).slice(-2)}`;
+  }
+  const refSortIndicator = (key) =>
+    refSortKey === key ? (refSortDir === 'asc' ? ' ▲' : ' ▼') : '';
+  const refThStyle = () => ({
+    ...thStyle,
+    cursor: 'pointer',
+    userSelect: 'none',
+  });
+  const refStatCard = (label, value, accent) => (
+    <div
+      style={{
+        flex: '1 1 140px',
+        minWidth: 140,
+        background: '#fff',
+        border: '0.5px solid #e6e6e6',
+        borderRadius: 10,
+        padding: '12px 14px',
+        borderTop: `3px solid ${accent}`,
+      }}
+    >
+      <div style={{ fontSize: 11, color: '#888', marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 22, fontWeight: 600, color: NAVY, lineHeight: 1.1 }}>{value}</div>
+    </div>
+  );
+
   return (
     <>
       {selected && (
@@ -569,6 +667,110 @@ export default function Admin() {
             value={manifesto.body}
             onChange={(e) => setManifesto((m) => ({ ...m, body: e.target.value }))}
           />
+        </div>
+
+        <div style={{ ...s.card, marginBottom: 16 }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 12,
+            }}
+          >
+            <div>
+              <div style={{ fontWeight: 500, fontSize: 15 }}>מעקב הפניות</div>
+              <div style={{ fontSize: 11, color: '#888', marginTop: 2 }}>
+                סיכום קליקים, הצטרפויות והמרות לפי חבר
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 14 }}>
+            {refStatCard('סה"כ קליקים', referralStats.totalClicks, BLUE)}
+            {refStatCard('סה"כ הצטרפו דרך הפניה', referralStats.totalReferrals, TEAL)}
+            {refStatCard('אחוז המרה', referralStats.conversionRate, AMBER)}
+            {refStatCard('משתמש מוביל', referralStats.topUser, NAVY)}
+          </div>
+
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '1.5rem', color: '#888' }}>טוען...</div>
+          ) : !hasReferralActivity ? (
+            <div
+              style={{
+                textAlign: 'center',
+                padding: '1.5rem',
+                color: '#888',
+                background: '#f9f9f7',
+                borderRadius: 8,
+                fontSize: 13,
+              }}
+            >
+              עדיין אין פעילות הפניות. שתפו עם החברים!
+            </div>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr>
+                    <th style={refThStyle()} onClick={() => toggleRefSort('name')}>
+                      שם{refSortIndicator('name')}
+                    </th>
+                    <th style={refThStyle()} onClick={() => toggleRefSort('score')}>
+                      🏆 ניקוד{refSortIndicator('score')}
+                    </th>
+                    <th style={refThStyle()} onClick={() => toggleRefSort('referredCount')}>
+                      👥 הצטרפו{refSortIndicator('referredCount')}
+                    </th>
+                    <th style={refThStyle()} onClick={() => toggleRefSort('shareClickCount')}>
+                      🔗 קליקים{refSortIndicator('shareClickCount')}
+                    </th>
+                    <th style={refThStyle()} onClick={() => toggleRefSort('conv')}>
+                      📈 המרה{refSortIndicator('conv')}
+                    </th>
+                    <th style={refThStyle()} onClick={() => toggleRefSort('lastReferralAt')}>
+                      ⏱ הפניה אחרונה{refSortIndicator('lastReferralAt')}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visibleRefRows.map((r) => (
+                    <tr
+                      key={r.uid}
+                      style={{ transition: 'background 0.12s' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = '#f9fbfd')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      <td style={{ ...tdStyle, fontWeight: 500 }}>{r.name}</td>
+                      <td style={tdStyle}>{r.score}</td>
+                      <td style={tdStyle}>{r.referredCount}</td>
+                      <td style={tdStyle}>{r.shareClickCount}</td>
+                      <td style={tdStyle}>{r.conv == null ? '—' : `${r.conv.toFixed(1)}%`}</td>
+                      <td style={{ ...tdStyle, color: '#666' }}>{fmtRefDate(r.lastReferralAt)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {referralRows.length > 20 && !refShowAll && (
+                <div style={{ textAlign: 'center', marginTop: 10 }}>
+                  <button
+                    onClick={() => setRefShowAll(true)}
+                    style={{
+                      padding: '6px 18px',
+                      background: 'transparent',
+                      color: BLUE,
+                      border: `0.5px solid ${BLUE}`,
+                      borderRadius: 8,
+                      fontSize: 13,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    טען עוד ({referralRows.length - 20})
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div style={{ display: 'flex', gap: 8, marginBottom: '1rem', flexWrap: 'wrap' }}>

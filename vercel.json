@@ -35,6 +35,7 @@
     }
   ],
   "rewrites": [
+    { "source": "/r/:code", "destination": "/api/r?code=:code" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

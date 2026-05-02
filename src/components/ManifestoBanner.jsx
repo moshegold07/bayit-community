@@ -55,7 +55,7 @@ export default function ManifestoBanner({ onDismiss }) {
 
   if (authLoading || !user || !open || !data) return null;
 
-  const refUrl = `${window.location.origin}/?ref=${user.uid}`;
+  const refUrl = `${window.location.origin}/r/${user.uid}`;
   const baseText = (data.body || '').trim();
   const shareText = baseText
     ? baseText.slice(0, 120) + (baseText.length > 120 ? '…' : '')

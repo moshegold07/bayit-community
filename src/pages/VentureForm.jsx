@@ -249,7 +249,7 @@ export default function VentureForm() {
 
 function LockedView({ navigate, userScore, referredCount, uid }) {
   const [copied, setCopied] = useState(false);
-  const shareLink = `bayit-community.com/?ref=${uid || ''}`;
+  const shareLink = `bayit-community.com/r/${uid || ''}`;
   const remaining = Math.max(0, 10 - userScore);
 
   async function copyLink() {
