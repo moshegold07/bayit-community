@@ -1,0 +1,42 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Try again",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "delete": "Delete",
+    "edit": "Edit",
+    "submit": "Submit",
+    "search": "Search...",
+    "share": "Share",
+    "copy": "Copy",
+    "copied": "Copied ✓",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "yes": "Yes",
+    "no": "No",
+    "noResults": "No results found"
+  },
+  "nav": {
+    "home": "Home",
+    "members": "Members",
+    "forums": "Forums",
+    "ventures": "Ventures",
+    "journey": "Journey",
+    "messages": "Messages",
+    "matching": "Matchmaker",
+    "admin": "Admin",
+    "dev": "Dev",
+    "houseRules": "House Rules",
+    "editProfile": "Edit Profile",
+    "logout": "Log out",
+    "greeting": "Hi, {name}"
+  },
+  "lang": {
+    "switch": "Language",
+    "he": "עברית",
+    "en": "English"
+  }
+}

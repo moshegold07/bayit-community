@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { useT } from '../i18n';
 import { s, BLUE, BLUE_LT, BLUE_DK, NAVY, GOLD, safeHref } from '../components/shared';
 import UserLink from '../components/UserLink';
 import { categoryFullLabel } from '../utils/categories';
 
 export default function VentureDetail() {
   const navigate = useNavigate();
+  const { t, lang } = useT();
   const { id } = useParams();
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
@@ -54,13 +56,24 @@ export default function VentureDetail() {
   }
 
   if (loading) {
-    return <div style={{ ...s.body, textAlign: 'center', color: '#888' }}>טוען...</div>;
+    return (
+      <div style={{ ...s.body, textAlign: 'center', color: '#888' }}>
+        {t('content.ventures.detail.loading')}
+      </div>
+    );
   }
   if (!venture) {
-    return <div style={{ ...s.body, textAlign: 'center', color: '#888' }}>המיזם לא נמצא.</div>;
+    return (
+      <div style={{ ...s.body, textAlign: 'center', color: '#888' }}>
+        {t('content.ventures.detail.notFound')}
+      </div>
+    );
   }
 
-  const dateStr = venture.createdAt ? new Date(venture.createdAt).toLocaleDateString('he-IL') : '—';
+  const dateLocale = lang === 'he' ? 'he-IL' : 'en-US';
+  const dateStr = venture.createdAt
+    ? new Date(venture.createdAt).toLocaleDateString(dateLocale)
+    : '—';
 
   return (
     <div style={{ ...s.body, maxWidth: 720 }}>
@@ -76,7 +89,7 @@ export default function VentureDetail() {
           marginBottom: '1rem',
         }}
       >
-        → חזרה למיזמים
+        {t('content.ventures.detail.back')}
       </button>
 
       <div style={s.card}>
@@ -92,7 +105,7 @@ export default function VentureDetail() {
               fontFamily: 'monospace',
               direction: 'ltr',
             }}
-            title="מספר בתור הפצה"
+            title={t('content.ventures.detail.queueTitle')}
           >
             #{venture.queueNumber ?? '—'}
           </span>
@@ -128,10 +141,10 @@ export default function VentureDetail() {
               {categoryFullLabel(venture.category)}
             </span>
           )}
-          <span>פורסם ב-{dateStr}</span>
+          <span>{t('content.ventures.detail.publishedOn', { date: dateStr })}</span>
           <UserLink uid={venture.createdBy} style={{ fontSize: 12, color: '#666' }}>
-            {'ע"י '}
-            {venture.createdByName || 'חבר'}
+            {t('content.ventures.detail.byMember')}
+            {venture.createdByName || t('content.ventures.detail.memberFallback')}
           </UserLink>
           {venture.status === 'distributed' && (
             <span
@@ -144,9 +157,9 @@ export default function VentureDetail() {
                 fontWeight: 500,
               }}
             >
-              הופץ
+              {t('content.ventures.detail.distributed')}
               {venture.distributedAt
-                ? ' · ' + new Date(venture.distributedAt).toLocaleDateString('he-IL')
+                ? ' · ' + new Date(venture.distributedAt).toLocaleDateString(dateLocale)
                 : ''}
             </span>
           )}
@@ -180,7 +193,7 @@ export default function VentureDetail() {
               fontWeight: 500,
             }}
           >
-            לאתר המיזם ↗
+            {t('content.ventures.detail.visitSite')}
           </a>
         )}
 
@@ -195,7 +208,9 @@ export default function VentureDetail() {
               flexWrap: 'wrap',
             }}
           >
-            <span style={{ fontSize: 12, color: '#888', alignSelf: 'center' }}>ניהול:</span>
+            <span style={{ fontSize: 12, color: '#888', alignSelf: 'center' }}>
+              {t('content.ventures.detail.adminLabel')}
+            </span>
             {venture.status !== 'distributed' && (
               <button
                 onClick={() => setStatus('distributed')}
@@ -211,7 +226,7 @@ export default function VentureDetail() {
                   opacity: updating ? 0.6 : 1,
                 }}
               >
-                סמן כהופץ
+                {t('content.ventures.detail.markDistributed')}
               </button>
             )}
             {venture.status === 'distributed' && (
@@ -229,7 +244,7 @@ export default function VentureDetail() {
                   opacity: updating ? 0.6 : 1,
                 }}
               >
-                החזר לממתין
+                {t('content.ventures.detail.markPending')}
               </button>
             )}
             {venture.status !== 'archived' && (
@@ -247,7 +262,7 @@ export default function VentureDetail() {
                   opacity: updating ? 0.6 : 1,
                 }}
               >
-                ארכוב
+                {t('content.ventures.detail.archive')}
               </button>
             )}
           </div>

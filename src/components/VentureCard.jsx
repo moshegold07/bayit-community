@@ -1,10 +1,15 @@
 import { Link } from 'react-router-dom';
+import { useT } from '../i18n';
 import { BLUE, BLUE_LT, BLUE_DK, GOLD, NAVY, safeHref } from './shared';
 import UserLink from './UserLink';
 import { parentLabel, parentOf, categoryLabel } from '../utils/categories';
 
 export default function VentureCard({ venture }) {
-  const dateStr = venture.createdAt ? new Date(venture.createdAt).toLocaleDateString('he-IL') : '—';
+  const { t, lang } = useT();
+  const dateLocale = lang === 'he' ? 'he-IL' : 'en-US';
+  const dateStr = venture.createdAt
+    ? new Date(venture.createdAt).toLocaleDateString(dateLocale)
+    : '—';
   const parent = venture.category ? parentOf(venture.category) : null;
   const subLabel = venture.category ? categoryLabel(venture.category) : null;
   const showParent = parent && parent !== 'other' && subLabel && subLabel !== parentLabel(parent);
@@ -34,7 +39,7 @@ export default function VentureCard({ venture }) {
             direction: 'ltr',
             flexShrink: 0,
           }}
-          title="מספר בתור הפצה"
+          title={t('content.ventures.card.queueTitle')}
         >
           #{venture.queueNumber ?? '—'}
         </span>
@@ -61,7 +66,7 @@ export default function VentureCard({ venture }) {
               fontWeight: 500,
             }}
           >
-            הופץ
+            {t('content.ventures.card.statusDistributed')}
           </span>
         )}
       </div>
@@ -110,7 +115,7 @@ export default function VentureCard({ venture }) {
               fontWeight: 500,
             }}
           >
-            לאתר המיזם ↗
+            {t('content.ventures.card.visitSite')}
           </a>
         )}
       </div>
@@ -127,7 +132,7 @@ export default function VentureCard({ venture }) {
         }}
       >
         <UserLink uid={venture.createdBy} style={{ fontSize: 11, color: '#666' }}>
-          {venture.createdByName || 'חבר'}
+          {venture.createdByName || t('content.ventures.card.memberFallback')}
         </UserLink>
         <span>{dateStr}</span>
       </div>

@@ -1,0 +1,140 @@
+{
+  "members": {
+    "dashboard": {
+      "tabs": {
+        "distributed": "השבוע להפצה",
+        "pending": "מחכים בתור"
+      },
+      "empty": {
+        "distributed": "השבוע אין מיזם פעיל בהפצה — חזרו בקרוב!",
+        "pending": "עדיין אין מיזמים בתור. תהיו הראשונים להוסיף!"
+      }
+    },
+    "directory": {
+      "filters": {
+        "search": "חיפוש...",
+        "allCities": "כל הערים",
+        "allDomains": "כל התחומים"
+      },
+      "stats": {
+        "members": "חברים",
+        "cities": "ערים",
+        "domains": "תחומים"
+      },
+      "distribution": {
+        "title": "התפלגות תחומי עניין",
+        "summary": "{domains} תחומים | {members} חברים"
+      },
+      "card": {
+        "does": "עושה:",
+        "needs": "צריך:",
+        "clickForDetails": "לחץ לפרטים ›"
+      },
+      "scoreChip": {
+        "title": "{count} חברים הצטרפו דרכך",
+        "titleUnlocked": "{count} חברים הצטרפו דרכך · פתוח לשיתוף מיזם"
+      },
+      "pending": {
+        "title": "נרשמו בטופס — ממתינים להפעלה"
+      }
+    },
+    "editProfile": {
+      "validation": {
+        "nameRequired": "שם פרטי ושם משפחה הם שדות חובה",
+        "saveError": "שגיאה בשמירה: {message}",
+        "deleteRequestError": "שגיאה בשליחת הבקשה"
+      },
+      "deleteConfirm": "האם אתה בטוח שברצונך לבקש מחיקת הפרופיל שלך?",
+      "deleteRequestSent": "הבקשה נשלחה לאדמין. הפרופיל שלך יימחק בהקדם.",
+      "success": "הפרופיל עודכן בהצלחה!",
+      "score": "הניקוד שלי",
+      "sections": {
+        "personal": "פרטים אישיים",
+        "categories": "תחומי עיסוק (עד 4)",
+        "professional": "פרופיל מקצועי",
+        "badges": "תגים",
+        "privacy": "הגדרות פרטיות"
+      },
+      "fields": {
+        "first": "שם פרטי *",
+        "last": "שם משפחה *",
+        "city": "עיר מגורים",
+        "li": "לינקדין",
+        "website": "אתר אינטרנט",
+        "does": "מה אני עושה",
+        "needs": "מה אני מחפש / צריך",
+        "strength": "החוזקות שלי",
+        "canHelpWith": "במה אני יכול לעזור לאחרים"
+      },
+      "placeholders": {
+        "strength": "מה הכוח שלך? ניסיון, ידע, יכולות מיוחדות...",
+        "canHelpWith": "ייעוץ, קשרים, ידע מקצועי..."
+      },
+      "visibility": {
+        "phone": "טלפון",
+        "city": "עיר מגורים",
+        "li": "לינקדין",
+        "website": "אתר אינטרנט",
+        "does": "מה אני עושה",
+        "needs": "מה אני מחפש / צריך",
+        "visible": "גלוי",
+        "hidden": "מוסתר",
+        "intro": "בחר אילו פרטים יוצגו לחברי הקהילה. מנהלים יכולים לראות את כל הפרטים תמיד."
+      },
+      "badgesNote": "תגים מוענקים על ידי מנהלי הקהילה",
+      "phoneEmailNote": "טלפון ואימייל אינם ניתנים לשינוי",
+      "saving": "שומר...",
+      "saveChanges": "שמור שינויים",
+      "deleteProfile": "מחיקת פרופיל",
+      "requestDelete": "בקש מחיקת פרופיל"
+    },
+    "score": {
+      "title": "הניקוד שלי",
+      "ariaLabel": "הניקוד שלי",
+      "outOf": "{score}/{max} נקודות",
+      "outOfSuffix": "/ {max} נקודות",
+      "outOfShort": "{score}/{max}",
+      "tooltip": "{count} חברים הצטרפו דרכך · {score}/{max} נקודות",
+      "referredCount": "{count} חברים הצטרפו דרכך",
+      "shareClicks": "{count} קליקים על הקישור",
+      "unlocked": "🎉 פתחת אפשרות שיתוף מיזם!",
+      "remainingFriends": "עוד {n} חברים — ותוכל לשתף את המיזם שלך",
+      "personalLink": "הקישור האישי שלך"
+    },
+    "referrals": {
+      "title": "חברים שהצטרפו דרכך",
+      "count": "{count} חברים",
+      "empty": "אין חברים שהצטרפו דרך הקישור שלך עדיין. שתפו את הקישור!",
+      "unlocked": "🎉 פתחת אפשרות שיתוף מיזם!",
+      "showMore": "הצג עוד ({count})"
+    },
+    "modal": {
+      "loading": "טוען פרופיל...",
+      "userNotFound": "המשתמש לא נמצא",
+      "profileUnavailable": "הפרופיל אינו זמין",
+      "loadError": "שגיאה בטעינת הפרופיל",
+      "noName": "ללא שם",
+      "closeAria": "סגור",
+      "fields": {
+        "does": "מה אני עושה",
+        "needs": "מה אני מחפש",
+        "strength": "נקודת חוזק",
+        "canHelpWith": "יכול לעזור ב",
+        "phone": "טלפון: ",
+        "li": "לינקדאין: ",
+        "website": "אתר: "
+      },
+      "sendMessage": "שלח הודעה",
+      "membersModal": {
+        "doesLabel": "מה אני עושה",
+        "needsLabel": "מה אני מחפש / צריך",
+        "strengthLabel": "החוזקות שלי",
+        "canHelpWithLabel": "במה אני יכול לעזור",
+        "phoneLabel": "טלפון",
+        "liLabel": "לינקדין",
+        "liOpen": "פתח פרופיל",
+        "websiteLabel": "אתר"
+      }
+    }
+  }
+}

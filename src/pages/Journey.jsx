@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { useT } from '../i18n';
 import { s, BLUE, NAVY } from '../components/shared';
 import JourneyPostCard from '../components/JourneyPostCard';
 import JourneyComposer from '../components/JourneyComposer';
 
 export default function Journey() {
+  const { t } = useT();
   const { user, isPending } = useAuth();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +40,7 @@ export default function Journey() {
       await db.deleteDoc('journeyPosts', postId);
       setPosts((prev) => prev.filter((p) => p.id !== postId));
     } catch {
-      window.alert('מחיקה נכשלה. נסה שוב.');
+      window.alert(t('content.journey.feed.deleteFailed'));
     }
   }
 
@@ -60,9 +62,11 @@ export default function Journey() {
         }}
       >
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 600, margin: 0, color: NAVY }}>יומן מסע</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 600, margin: 0, color: NAVY }}>
+            {t('content.journey.feed.title')}
+          </h1>
           <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>
-            התקדמות יומיומית של היזמים בקהילה
+            {t('content.journey.feed.subtitle')}
           </div>
         </div>
         {!isPending && user && (
@@ -80,7 +84,7 @@ export default function Journey() {
               fontWeight: 500,
             }}
           >
-            שתף עדכון יומי
+            {t('content.journey.feed.shareUpdate')}
           </button>
         )}
       </div>
@@ -90,7 +94,9 @@ export default function Journey() {
       )}
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>טוען...</div>
+        <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
+          {t('common.loading')}
+        </div>
       ) : posts.length === 0 ? (
         <div
           style={{
@@ -102,7 +108,7 @@ export default function Journey() {
             borderRadius: 12,
           }}
         >
-          עדיין אין עדכונים. תהיה הראשון לשתף משהו על המסע שלך! 🚀
+          {t('content.journey.feed.empty')}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>

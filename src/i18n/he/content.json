@@ -1,0 +1,125 @@
+{
+  "content": {
+    "ventures": {
+      "list": {
+        "title": "מיזמים להפצה",
+        "subtitle": "שתף את המיזם שלך, קבל מספר בתור ונפיץ אותו לקהילה",
+        "addVenture": "+ הוסף מיזם",
+        "addVentureLocked": "🔒 + הוסף מיזם",
+        "addVentureLockedTitle": "דרושים 10 נקודות כדי להוסיף מיזם — שתף את הקישור האישי שלך!",
+        "pointsRemaining": "({remaining} נקודות עוד...)",
+        "searchPlaceholder": "חיפוש לפי שם, סיפור או יוצר...",
+        "sortNewest": "הכי חדש",
+        "sortQueue": "מספר בתור",
+        "categoryHeader": "קטלוג לפי קטגוריה",
+        "categoryStats": "{categories} קטגוריות · {ventures} מיזמים",
+        "categoryAll": "הכל",
+        "emptyNoVentures": "עדיין לא הועלו מיזמים. תהיה הראשון!",
+        "emptyNoResults": "אין תוצאות לסינון הנוכחי."
+      },
+      "form": {
+        "back": "→ חזרה למיזמים",
+        "title": "העלאת מיזם חדש",
+        "subtitle": "כל מיזם מקבל מספר בתור הפצה אוטומטית.",
+        "labelName": "שם המיזם *",
+        "placeholderName": "שם המיזם",
+        "labelStory": "הסיפור של המיזם *",
+        "placeholderStory": "ספר על המיזם — מה הבעיה שהוא פותר, את מי הוא משרת, ולמה זה חשוב...",
+        "labelCategory": "קטגוריה *",
+        "placeholderParent": "בחר קטגוריה ראשית",
+        "placeholderSub": "בחר תת-קטגוריה",
+        "placeholderCustom": "תאר את הקטגוריה",
+        "labelLink": "קישור למיזם *",
+        "placeholderLink": "https://example.com",
+        "submit": "העלה מיזם",
+        "submitting": "שומר ומקצה מספר בתור...",
+        "errTitleRequired": "שם המיזם נדרש",
+        "errTitleMax": "מקסימום 200 תווים",
+        "errStoryRequired": "סיפור המיזם נדרש",
+        "errStoryMax": "מקסימום 5000 תווים",
+        "errCategoryRequired": "בחר קטגוריה",
+        "errCategoryCustom": "הוסף תת-קטגוריה",
+        "errCategorySub": "בחר תת-קטגוריה",
+        "errLinkRequired": "קישור נדרש",
+        "errLinkProtocol": "הקישור חייב להתחיל ב-http:// או https://",
+        "errServerGeneric": "שגיאה ביצירת המיזם",
+        "errServerStatus": "שגיאה: {status}"
+      },
+      "detail": {
+        "back": "→ חזרה למיזמים",
+        "loading": "טוען...",
+        "notFound": "המיזם לא נמצא.",
+        "queueTitle": "מספר בתור הפצה",
+        "publishedOn": "פורסם ב-{date}",
+        "byMember": "ע\"י ",
+        "memberFallback": "חבר",
+        "distributed": "הופץ",
+        "visitSite": "לאתר המיזם ↗",
+        "adminLabel": "ניהול:",
+        "markDistributed": "סמן כהופץ",
+        "markPending": "החזר לממתין",
+        "archive": "ארכוב"
+      },
+      "card": {
+        "queueTitle": "מספר בתור הפצה",
+        "statusDistributed": "הופץ",
+        "statusPending": "ממתין",
+        "statusArchived": "בארכיון",
+        "memberFallback": "חבר",
+        "visitSite": "לאתר המיזם ↗"
+      },
+      "locked": {
+        "back": "← חזרה למיזמים",
+        "title": "פתיחת אפשרות שיתוף מיזם",
+        "explanation": "כדי לשתף מיזם בקהילה, תצטרך/י להביא 10 חברים שמצטרפים דרך הקישור האישי שלך.",
+        "scoreLine": "הניקוד שלך כעת: {score}/10. {referred} חברים הצטרפו עד כה.",
+        "missingMembers": "חסרים עוד {remaining} חברים",
+        "yourLink": "הקישור האישי שלך:",
+        "copyLink": "העתק קישור",
+        "copied": "הועתק ✓"
+      }
+    },
+    "journey": {
+      "feed": {
+        "title": "יומן מסע",
+        "subtitle": "התקדמות יומיומית של היזמים בקהילה",
+        "shareUpdate": "שתף עדכון יומי",
+        "loading": "טוען...",
+        "empty": "עדיין אין עדכונים. תהיה הראשון לשתף משהו על המסע שלך! 🚀",
+        "deleteFailed": "מחיקה נכשלה. נסה שוב."
+      },
+      "composer": {
+        "title": "שתף עדכון יומי",
+        "closeAria": "סגור",
+        "placeholder": "מה התקדם היום? (עד 200 תווים)",
+        "tooLong": "מעבר למגבלה — קצר את הטקסט",
+        "errSavePost": "שגיאה בשמירת הפוסט. נסה שוב.",
+        "ideasToggle": "רעיונות לפוסט",
+        "ideaPrompt1": "מה הצעד הקטן שעשית היום קדימה?",
+        "ideaPrompt2": "מה למדת היום על המוצר שלך?",
+        "ideaPrompt3": "במה אתה צריך עזרה השבוע?",
+        "ideaPrompt4": "מה הדבר הכי מפתיע שגילית היום?",
+        "replaceConfirm": "להחליף את הטקסט הקיים ברעיון הזה?",
+        "cancel": "ביטול",
+        "publish": "פרסם",
+        "publishing": "מפרסם…",
+        "authorFallback": "חבר",
+        "footerHint": "יומן מסע — לא בלוג. שתי שורות שמזכירות לך כמה התקדמת."
+      },
+      "card": {
+        "deleteAria": "מחק עדכון",
+        "deleteTitle": "מחק",
+        "deleteConfirm": "למחוק את העדכון הזה?",
+        "anonymous": "אנונימי",
+        "shareLabel": "שתפו:",
+        "shareWhatsApp": "שתף בוואטסאפ",
+        "shareTwitter": "שתף בטוויטר",
+        "shareFacebook": "שתף בפייסבוק",
+        "shareLinkedIn": "שתף בלינקדאין",
+        "shareInstagram": "שתף באינסטגרם",
+        "shareSuffix": "מתוך יומן מסע ב'בית'",
+        "copyToast": "הקישור הועתק! הדבק בסטורי או בפוסט"
+      }
+    }
+  }
+}

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { BLUE, BLUE_LT, NAVY } from './shared';
+import { useT } from '../i18n';
 
 const STORAGE_KEY = 'bayit_manifesto_dismissed';
 const LEGACY_KEY = 'manifestoSeenVersion';
@@ -14,6 +15,7 @@ const IG_GRADIENT = 'linear-gradient(45deg, #F58529 0%, #DD2A7B 50%, #8134AF 100
 
 export default function ManifestoBanner({ onDismiss }) {
   const { user, loading: authLoading } = useAuth();
+  const { t, dir } = useT();
   const [data, setData] = useState(null);
   const [open, setOpen] = useState(false);
   const [copyToast, setCopyToast] = useState(false);
@@ -59,7 +61,7 @@ export default function ManifestoBanner({ onDismiss }) {
   const baseText = (data.body || '').trim();
   const shareText = baseText
     ? baseText.slice(0, 120) + (baseText.length > 120 ? '…' : '')
-    : data.title || 'המניפסט שלנו';
+    : data.title || t('auth.manifesto.defaultTitle');
 
   function dismissAfterShare() {
     localStorage.setItem(STORAGE_KEY, 'true');
@@ -128,7 +130,7 @@ export default function ManifestoBanner({ onDismiss }) {
         maxWidth: 640,
         margin: '1rem auto 0',
         padding: '0 1.5rem',
-        direction: 'rtl',
+        direction: dir,
       }}
     >
       <div
@@ -144,7 +146,7 @@ export default function ManifestoBanner({ onDismiss }) {
         {/* X close button — top-right (RTL) */}
         <button
           onClick={dismiss}
-          aria-label="סגור מניפסט"
+          aria-label={t('auth.manifesto.close')}
           style={{
             position: 'absolute',
             top: 8,
@@ -178,7 +180,7 @@ export default function ManifestoBanner({ onDismiss }) {
         >
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: BLUE }} />
           <span style={{ fontWeight: 600, fontSize: 16, color: NAVY }}>
-            {data.title || 'המניפסט שלנו'}
+            {data.title || t('auth.manifesto.defaultTitle')}
           </span>
         </div>
 
@@ -205,12 +207,14 @@ export default function ManifestoBanner({ onDismiss }) {
             borderTop: `1px solid ${BLUE}22`,
           }}
         >
-          <span style={{ fontSize: 12, color: '#666', marginLeft: 4 }}>שתפו:</span>
+          <span style={{ fontSize: 12, color: '#666', marginLeft: 4 }}>
+            {t('auth.manifesto.shareLabel')}
+          </span>
 
           <button
             type="button"
             onClick={shareWhatsApp}
-            aria-label="שתף בוואטסאפ"
+            aria-label={t('auth.manifesto.shareWhatsApp')}
             title="WhatsApp"
             style={{ ...shareBtn, background: WA_GREEN }}
           >
@@ -222,7 +226,7 @@ export default function ManifestoBanner({ onDismiss }) {
           <button
             type="button"
             onClick={shareTwitter}
-            aria-label="שתף בטוויטר"
+            aria-label={t('auth.manifesto.shareTwitter')}
             title="X / Twitter"
             style={{ ...shareBtn, background: X_BLACK }}
           >
@@ -234,7 +238,7 @@ export default function ManifestoBanner({ onDismiss }) {
           <button
             type="button"
             onClick={shareFacebook}
-            aria-label="שתף בפייסבוק"
+            aria-label={t('auth.manifesto.shareFacebook')}
             title="Facebook"
             style={{ ...shareBtn, background: FB_BLUE }}
           >
@@ -246,7 +250,7 @@ export default function ManifestoBanner({ onDismiss }) {
           <button
             type="button"
             onClick={shareInstagram}
-            aria-label="שתף באינסטגרם"
+            aria-label={t('auth.manifesto.shareInstagram')}
             title="Instagram"
             style={{ ...shareBtn, background: IG_GRADIENT }}
           >
@@ -267,7 +271,7 @@ export default function ManifestoBanner({ onDismiss }) {
                 marginRight: 'auto',
               }}
             >
-              הקישור הועתק! הדבק בסטורי או בפוסט
+              {t('auth.manifesto.copyToast')}
             </span>
           )}
         </div>

@@ -2,25 +2,31 @@ import { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { BLUE, TEAL, NAVY, AMBER, avColor, initials } from './shared';
+import { useT } from '../i18n';
 
 const INITIAL_VISIBLE = 5;
 
-function formatRelativeTime(iso) {
+/**
+ * Locale-aware relative time using Intl.RelativeTimeFormat.
+ * Falls back to localized short date for older entries (>= 7 days).
+ */
+function formatRelativeTime(iso, lang) {
   if (!iso) return '';
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) return '';
-  const now = Date.now();
-  const diffSec = Math.max(0, Math.round((now - then) / 1000));
-  if (diffSec < 60) return 'עכשיו';
-  const diffMin = Math.round(diffSec / 60);
-  if (diffMin < 60) return `לפני ${diffMin} דק'`;
-  const diffHr = Math.round(diffMin / 60);
-  if (diffHr < 24) return `לפני ${diffHr} שעות`;
-  const diffDay = Math.round(diffHr / 24);
-  if (diffDay === 1) return 'אתמול';
-  if (diffDay < 7) return `לפני ${diffDay} ימים`;
+  const ms = Date.now() - then;
+  const sec = Math.max(0, Math.floor(ms / 1000));
+  const rtf = new Intl.RelativeTimeFormat(lang, { numeric: 'auto' });
+  if (sec < 60) return rtf.format(0, 'second');
+  const min = Math.floor(sec / 60);
+  if (min < 60) return rtf.format(-min, 'minute');
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return rtf.format(-hr, 'hour');
+  const day = Math.floor(hr / 24);
+  if (day < 7) return rtf.format(-day, 'day');
   try {
-    return new Date(iso).toLocaleDateString('he-IL', {
+    const localeTag = lang === 'he' ? 'he-IL' : 'en-US';
+    return new Date(iso).toLocaleDateString(localeTag, {
       day: 'numeric',
       month: 'short',
     });
@@ -30,6 +36,7 @@ function formatRelativeTime(iso) {
 }
 
 export default function ReferralsList() {
+  const { t, lang } = useT();
   const { user } = useAuth();
   const [referrals, setReferrals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -98,7 +105,7 @@ export default function ReferralsList() {
           gap: 10,
         }}
       >
-        <h3 style={titleStyle}>חברים שהצטרפו דרכך</h3>
+        <h3 style={titleStyle}>{t('members.referrals.title')}</h3>
         {count > 0 && (
           <span
             style={{
@@ -110,13 +117,13 @@ export default function ReferralsList() {
               fontWeight: 500,
             }}
           >
-            {count} חברים
+            {t('members.referrals.count', { count })}
           </span>
         )}
       </div>
 
       {loading ? (
-        <div style={{ fontSize: 13, color: '#888', padding: '6px 0' }}>טוען...</div>
+        <div style={{ fontSize: 13, color: '#888', padding: '6px 0' }}>{t('common.loading')}</div>
       ) : count === 0 ? (
         <div
           style={{
@@ -129,7 +136,7 @@ export default function ReferralsList() {
             padding: '10px 12px',
           }}
         >
-          אין חברים שהצטרפו דרך הקישור שלך עדיין. שתפו את הקישור!
+          {t('members.referrals.empty')}
         </div>
       ) : (
         <>
@@ -145,7 +152,7 @@ export default function ReferralsList() {
                 marginBottom: 10,
               }}
             >
-              🎉 פתחת אפשרות שיתוף מיזם!
+              {t('members.referrals.unlocked')}
             </div>
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -198,7 +205,7 @@ export default function ReferralsList() {
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  {formatRelativeTime(r.createdAt)}
+                  {formatRelativeTime(r.createdAt, lang)}
                 </span>
               </div>
             ))}
@@ -218,7 +225,7 @@ export default function ReferralsList() {
                 padding: '4px 0',
               }}
             >
-              הצג עוד ({count - INITIAL_VISIBLE})
+              {t('members.referrals.showMore', { count: count - INITIAL_VISIBLE })}
             </button>
           )}
         </>

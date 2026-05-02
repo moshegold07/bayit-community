@@ -1,0 +1,140 @@
+{
+  "members": {
+    "dashboard": {
+      "tabs": {
+        "distributed": "This week's spotlight",
+        "pending": "In the queue"
+      },
+      "empty": {
+        "distributed": "No active venture this week — check back soon!",
+        "pending": "No ventures in the queue yet. Be the first to add one!"
+      }
+    },
+    "directory": {
+      "filters": {
+        "search": "Search...",
+        "allCities": "All cities",
+        "allDomains": "All domains"
+      },
+      "stats": {
+        "members": "Members",
+        "cities": "Cities",
+        "domains": "Domains"
+      },
+      "distribution": {
+        "title": "Domain distribution",
+        "summary": "{domains} domains | {members} members"
+      },
+      "card": {
+        "does": "Does:",
+        "needs": "Needs:",
+        "clickForDetails": "Click for details ›"
+      },
+      "scoreChip": {
+        "title": "{count} members joined through you",
+        "titleUnlocked": "{count} members joined through you · venture sharing unlocked"
+      },
+      "pending": {
+        "title": "Registered via form — pending activation"
+      }
+    },
+    "editProfile": {
+      "validation": {
+        "nameRequired": "First name and last name are required",
+        "saveError": "Save error: {message}",
+        "deleteRequestError": "Error sending request"
+      },
+      "deleteConfirm": "Are you sure you want to request deletion of your profile?",
+      "deleteRequestSent": "Request sent to admin. Your profile will be deleted shortly.",
+      "success": "Profile updated successfully!",
+      "score": "My score",
+      "sections": {
+        "personal": "Personal details",
+        "categories": "Areas of expertise (up to 4)",
+        "professional": "Professional profile",
+        "badges": "Badges",
+        "privacy": "Privacy settings"
+      },
+      "fields": {
+        "first": "First name *",
+        "last": "Last name *",
+        "city": "City",
+        "li": "LinkedIn",
+        "website": "Website",
+        "does": "What I do",
+        "needs": "What I'm looking for / need",
+        "strength": "My strengths",
+        "canHelpWith": "How I can help others"
+      },
+      "placeholders": {
+        "strength": "What's your superpower? Experience, knowledge, special skills...",
+        "canHelpWith": "Advice, connections, professional knowledge..."
+      },
+      "visibility": {
+        "phone": "Phone",
+        "city": "City",
+        "li": "LinkedIn",
+        "website": "Website",
+        "does": "What I do",
+        "needs": "What I'm looking for / need",
+        "visible": "Visible",
+        "hidden": "Hidden",
+        "intro": "Choose which details are shown to community members. Admins can always see all details."
+      },
+      "badgesNote": "Badges are awarded by community admins",
+      "phoneEmailNote": "Phone and email cannot be changed",
+      "saving": "Saving...",
+      "saveChanges": "Save changes",
+      "deleteProfile": "Delete profile",
+      "requestDelete": "Request profile deletion"
+    },
+    "score": {
+      "title": "My score",
+      "ariaLabel": "My score",
+      "outOf": "{score}/{max} points",
+      "outOfSuffix": "/ {max} points",
+      "outOfShort": "{score}/{max}",
+      "tooltip": "{count} members joined through you · {score}/{max} points",
+      "referredCount": "{count} members joined through you",
+      "shareClicks": "{count} clicks on your link",
+      "unlocked": "🎉 You've unlocked venture sharing!",
+      "remainingFriends": "{n} more members — and you'll be able to share your venture",
+      "personalLink": "Your personal link"
+    },
+    "referrals": {
+      "title": "Members who joined through you",
+      "count": "{count} members",
+      "empty": "No members have joined through your link yet. Share your link!",
+      "unlocked": "🎉 You've unlocked venture sharing!",
+      "showMore": "Show more ({count})"
+    },
+    "modal": {
+      "loading": "Loading profile...",
+      "userNotFound": "User not found",
+      "profileUnavailable": "Profile unavailable",
+      "loadError": "Error loading profile",
+      "noName": "No name",
+      "closeAria": "Close",
+      "fields": {
+        "does": "What I do",
+        "needs": "What I'm looking for",
+        "strength": "Strength",
+        "canHelpWith": "Can help with",
+        "phone": "Phone: ",
+        "li": "LinkedIn: ",
+        "website": "Website: "
+      },
+      "sendMessage": "Send message",
+      "membersModal": {
+        "doesLabel": "What I do",
+        "needsLabel": "What I'm looking for / need",
+        "strengthLabel": "My strengths",
+        "canHelpWithLabel": "How I can help",
+        "phoneLabel": "Phone",
+        "liLabel": "LinkedIn",
+        "liOpen": "Open profile",
+        "websiteLabel": "Website"
+      }
+    }
+  }
+}

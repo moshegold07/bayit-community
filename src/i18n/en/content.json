@@ -1,0 +1,125 @@
+{
+  "content": {
+    "ventures": {
+      "list": {
+        "title": "Ventures for distribution",
+        "subtitle": "Share your venture, get a queue number, and we'll distribute it to the community",
+        "addVenture": "+ Add venture",
+        "addVentureLocked": "🔒 + Add venture",
+        "addVentureLockedTitle": "You need 10 points to add a venture — share your personal link!",
+        "pointsRemaining": "({remaining} more points...)",
+        "searchPlaceholder": "Search by name, story, or creator...",
+        "sortNewest": "Newest",
+        "sortQueue": "Queue number",
+        "categoryHeader": "Browse by category",
+        "categoryStats": "{categories} categories · {ventures} ventures",
+        "categoryAll": "All",
+        "emptyNoVentures": "No ventures yet. Be the first!",
+        "emptyNoResults": "No results for the current filter."
+      },
+      "form": {
+        "back": "→ Back to ventures",
+        "title": "Add a new venture",
+        "subtitle": "Every venture is automatically assigned a distribution queue number.",
+        "labelName": "Venture name *",
+        "placeholderName": "Venture name",
+        "labelStory": "The venture's story *",
+        "placeholderStory": "Tell us about the venture — what problem it solves, who it serves, and why it matters...",
+        "labelCategory": "Category *",
+        "placeholderParent": "Choose main category",
+        "placeholderSub": "Choose sub-category",
+        "placeholderCustom": "Describe the category",
+        "labelLink": "Venture link *",
+        "placeholderLink": "https://example.com",
+        "submit": "Submit venture",
+        "submitting": "Saving and assigning queue number...",
+        "errTitleRequired": "Venture name is required",
+        "errTitleMax": "Maximum 200 characters",
+        "errStoryRequired": "Venture story is required",
+        "errStoryMax": "Maximum 5000 characters",
+        "errCategoryRequired": "Choose a category",
+        "errCategoryCustom": "Add a sub-category",
+        "errCategorySub": "Choose a sub-category",
+        "errLinkRequired": "Link is required",
+        "errLinkProtocol": "Link must start with http:// or https://",
+        "errServerGeneric": "Error creating the venture",
+        "errServerStatus": "Error: {status}"
+      },
+      "detail": {
+        "back": "→ Back to ventures",
+        "loading": "Loading...",
+        "notFound": "Venture not found.",
+        "queueTitle": "Distribution queue number",
+        "publishedOn": "Published on {date}",
+        "byMember": "by ",
+        "memberFallback": "member",
+        "distributed": "Distributed",
+        "visitSite": "Visit the venture site ↗",
+        "adminLabel": "Admin:",
+        "markDistributed": "Mark as distributed",
+        "markPending": "Return to pending",
+        "archive": "Archive"
+      },
+      "card": {
+        "queueTitle": "Distribution queue number",
+        "statusDistributed": "Distributed",
+        "statusPending": "Pending",
+        "statusArchived": "Archived",
+        "memberFallback": "member",
+        "visitSite": "Visit site ↗"
+      },
+      "locked": {
+        "back": "← Back to ventures",
+        "title": "Unlock venture sharing",
+        "explanation": "To share a venture in the community, you need to bring 10 members who join through your personal link.",
+        "scoreLine": "Your score: {score}/10. {referred} members have joined so far.",
+        "missingMembers": "{remaining} more members needed",
+        "yourLink": "Your personal link:",
+        "copyLink": "Copy link",
+        "copied": "Copied ✓"
+      }
+    },
+    "journey": {
+      "feed": {
+        "title": "Journey log",
+        "subtitle": "Daily progress from the community's entrepreneurs",
+        "shareUpdate": "Share daily update",
+        "loading": "Loading...",
+        "empty": "No updates yet. Be the first to share something about your journey! 🚀",
+        "deleteFailed": "Delete failed. Try again."
+      },
+      "composer": {
+        "title": "Share daily update",
+        "closeAria": "Close",
+        "placeholder": "What progress did you make today? (up to 200 characters)",
+        "tooLong": "Over the limit — shorten the text",
+        "errSavePost": "Error saving the post. Try again.",
+        "ideasToggle": "Post ideas",
+        "ideaPrompt1": "What small step did you take forward today?",
+        "ideaPrompt2": "What did you learn about your product today?",
+        "ideaPrompt3": "What do you need help with this week?",
+        "ideaPrompt4": "What was the most surprising thing you discovered today?",
+        "replaceConfirm": "Replace the existing text with this idea?",
+        "cancel": "Cancel",
+        "publish": "Publish",
+        "publishing": "Publishing…",
+        "authorFallback": "member",
+        "footerHint": "Journey log — not a blog. Two lines that remind you how far you've come."
+      },
+      "card": {
+        "deleteAria": "Delete update",
+        "deleteTitle": "Delete",
+        "deleteConfirm": "Delete this update?",
+        "anonymous": "Anonymous",
+        "shareLabel": "Share:",
+        "shareWhatsApp": "Share on WhatsApp",
+        "shareTwitter": "Share on X / Twitter",
+        "shareFacebook": "Share on Facebook",
+        "shareLinkedIn": "Share on LinkedIn",
+        "shareInstagram": "Share on Instagram",
+        "shareSuffix": "From the Bayit journey",
+        "copyToast": "Link copied! Paste in your story or post"
+      }
+    }
+  }
+}

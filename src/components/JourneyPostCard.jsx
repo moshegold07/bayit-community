@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '../i18n';
 import { BLUE, NAVY } from './shared';
 
 // Brand colors for share buttons
@@ -8,23 +9,23 @@ const FB_BLUE = '#1877F2';
 const LI_BLUE = '#0A66C2';
 const IG_GRADIENT = 'linear-gradient(45deg, #F58529 0%, #DD2A7B 50%, #8134AF 100%)';
 
-function formatRelativeTime(iso) {
+function formatRelativeTime(iso, lang) {
   if (!iso) return '';
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) return '';
-  const now = Date.now();
-  const diffSec = Math.max(0, Math.round((now - then) / 1000));
-  if (diffSec < 60) return 'עכשיו';
-  const diffMin = Math.round(diffSec / 60);
-  if (diffMin < 60) return `לפני ${diffMin} דק'`;
-  const diffHr = Math.round(diffMin / 60);
-  if (diffHr < 24) return `לפני ${diffHr} שעות`;
-  const diffDay = Math.round(diffHr / 24);
-  if (diffDay === 1) return 'אתמול';
-  if (diffDay < 7) return `לפני ${diffDay} ימים`;
+  const ms = Date.now() - then;
+  const rtf = new Intl.RelativeTimeFormat(lang, { numeric: 'auto' });
+  const sec = Math.floor(ms / 1000);
+  if (sec < 60) return rtf.format(0, 'second');
+  const min = Math.floor(sec / 60);
+  if (min < 60) return rtf.format(-min, 'minute');
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return rtf.format(-hr, 'hour');
+  const days = Math.floor(hr / 24);
+  if (days < 7) return rtf.format(-days, 'day');
   // Fall back to a short date
   try {
-    return new Date(iso).toLocaleDateString('he-IL', {
+    return new Date(iso).toLocaleDateString(lang === 'he' ? 'he-IL' : 'en-US', {
       day: 'numeric',
       month: 'short',
     });
@@ -34,6 +35,7 @@ function formatRelativeTime(iso) {
 }
 
 export default function JourneyPostCard({ post, currentUser, onDelete }) {
+  const { t, lang } = useT();
   const [copyToast, setCopyToast] = useState(false);
 
   if (!post) return null;
@@ -43,14 +45,14 @@ export default function JourneyPostCard({ post, currentUser, onDelete }) {
 
   const baseText = (post.text || '').trim();
   const truncated = baseText.length > 120 ? baseText.slice(0, 120) + '…' : baseText;
-  const shareText = `${truncated}\n\nמתוך יומן מסע ב'בית'`;
+  const shareText = `${truncated}\n\n${t('content.journey.card.shareSuffix')}`;
   const shareUrl = `https://bayit-community.com/journey${
     currentUser?.uid ? `?ref=${currentUser.uid}` : ''
   }`;
 
   function handleDelete() {
     if (!canDelete) return;
-    if (!window.confirm('למחוק את העדכון הזה?')) return;
+    if (!window.confirm(t('content.journey.card.deleteConfirm'))) return;
     onDelete?.(post.id);
   }
 
@@ -120,8 +122,8 @@ export default function JourneyPostCard({ post, currentUser, onDelete }) {
         <button
           type="button"
           onClick={handleDelete}
-          aria-label="מחק עדכון"
-          title="מחק"
+          aria-label={t('content.journey.card.deleteAria')}
+          title={t('content.journey.card.deleteTitle')}
           style={{
             position: 'absolute',
             top: 8,
@@ -156,10 +158,10 @@ export default function JourneyPostCard({ post, currentUser, onDelete }) {
         }}
       >
         <span style={{ fontSize: 15, fontWeight: 600, color: NAVY }}>
-          {post.authorName || 'אנונימי'}
+          {post.authorName || t('content.journey.card.anonymous')}
         </span>
         <span style={{ fontSize: 11, color: '#999', whiteSpace: 'nowrap' }}>
-          {formatRelativeTime(post.createdAt)}
+          {formatRelativeTime(post.createdAt, lang)}
         </span>
       </div>
 
@@ -187,12 +189,14 @@ export default function JourneyPostCard({ post, currentUser, onDelete }) {
           borderTop: `1px solid ${BLUE}1A`,
         }}
       >
-        <span style={{ fontSize: 11, color: '#888', marginLeft: 2 }}>שתפו:</span>
+        <span style={{ fontSize: 11, color: '#888', marginLeft: 2 }}>
+          {t('content.journey.card.shareLabel')}
+        </span>
 
         <button
           type="button"
           onClick={shareWhatsApp}
-          aria-label="שתף בוואטסאפ"
+          aria-label={t('content.journey.card.shareWhatsApp')}
           title="WhatsApp"
           style={{ ...shareBtn, background: WA_GREEN }}
         >
@@ -204,7 +208,7 @@ export default function JourneyPostCard({ post, currentUser, onDelete }) {
         <button
           type="button"
           onClick={shareTwitter}
-          aria-label="שתף בטוויטר"
+          aria-label={t('content.journey.card.shareTwitter')}
           title="X / Twitter"
           style={{ ...shareBtn, background: X_BLACK }}
         >
@@ -216,7 +220,7 @@ export default function JourneyPostCard({ post, currentUser, onDelete }) {
         <button
           type="button"
           onClick={shareFacebook}
-          aria-label="שתף בפייסבוק"
+          aria-label={t('content.journey.card.shareFacebook')}
           title="Facebook"
           style={{ ...shareBtn, background: FB_BLUE }}
         >
@@ -228,7 +232,7 @@ export default function JourneyPostCard({ post, currentUser, onDelete }) {
         <button
           type="button"
           onClick={shareLinkedIn}
-          aria-label="שתף בלינקדאין"
+          aria-label={t('content.journey.card.shareLinkedIn')}
           title="LinkedIn"
           style={{ ...shareBtn, background: LI_BLUE }}
         >
@@ -240,7 +244,7 @@ export default function JourneyPostCard({ post, currentUser, onDelete }) {
         <button
           type="button"
           onClick={shareInstagram}
-          aria-label="שתף באינסטגרם"
+          aria-label={t('content.journey.card.shareInstagram')}
           title="Instagram"
           style={{ ...shareBtn, background: IG_GRADIENT }}
         >
@@ -261,7 +265,7 @@ export default function JourneyPostCard({ post, currentUser, onDelete }) {
               marginRight: 'auto',
             }}
           >
-            הקישור הועתק! הדבק בסטורי או בפוסט
+            {t('content.journey.card.copyToast')}
           </span>
         )}
       </div>

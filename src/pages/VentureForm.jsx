@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { useT } from '../i18n';
 import { s, BLUE, BLUE_LT, NAVY, AMBER, FieldRow } from '../components/shared';
 import { TAXONOMY, parentLabel } from '../utils/categories';
 import { logActivity } from '../utils/activityLog';
 
 export default function VentureForm() {
   const navigate = useNavigate();
+  const { t, dir } = useT();
   const { user } = useAuth();
   const userScore = user?.score || 0;
   const isAdmin = user?.role === 'admin';
@@ -36,18 +38,19 @@ export default function VentureForm() {
 
   function validate() {
     const errs = {};
-    if (!title.trim()) errs.title = 'שם המיזם נדרש';
-    else if (title.trim().length > 200) errs.title = 'מקסימום 200 תווים';
-    if (!story.trim()) errs.story = 'סיפור המיזם נדרש';
-    else if (story.trim().length > 5000) errs.story = 'מקסימום 5000 תווים';
-    if (!parentKey) errs.category = 'בחר קטגוריה';
-    else if (isOther && !customSub.trim()) errs.category = 'הוסף תת-קטגוריה';
-    else if (!isOther && !subKey) errs.category = 'בחר תת-קטגוריה';
-    if (!link.trim()) errs.link = 'קישור נדרש';
+    if (!title.trim()) errs.title = t('content.ventures.form.errTitleRequired');
+    else if (title.trim().length > 200) errs.title = t('content.ventures.form.errTitleMax');
+    if (!story.trim()) errs.story = t('content.ventures.form.errStoryRequired');
+    else if (story.trim().length > 5000) errs.story = t('content.ventures.form.errStoryMax');
+    if (!parentKey) errs.category = t('content.ventures.form.errCategoryRequired');
+    else if (isOther && !customSub.trim())
+      errs.category = t('content.ventures.form.errCategoryCustom');
+    else if (!isOther && !subKey) errs.category = t('content.ventures.form.errCategorySub');
+    if (!link.trim()) errs.link = t('content.ventures.form.errLinkRequired');
     else {
-      const t = link.trim().toLowerCase();
-      if (!t.startsWith('http://') && !t.startsWith('https://')) {
-        errs.link = 'הקישור חייב להתחיל ב-http:// או https://';
+      const tt = link.trim().toLowerCase();
+      if (!tt.startsWith('http://') && !tt.startsWith('https://')) {
+        errs.link = t('content.ventures.form.errLinkProtocol');
       }
     }
     return errs;
@@ -80,7 +83,9 @@ export default function VentureForm() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(data.error || `שגיאה: ${res.status}`);
+        throw new Error(
+          data.error || t('content.ventures.form.errServerStatus', { status: res.status }),
+        );
       }
       logActivity({
         type: 'venture_posted',
@@ -91,7 +96,7 @@ export default function VentureForm() {
       });
       navigate('/ventures/' + data.id);
     } catch (err) {
-      setServerError(err.message || 'שגיאה ביצירת המיזם');
+      setServerError(err.message || t('content.ventures.form.errServerGeneric'));
       setSubmitting(false);
     }
   }
@@ -121,23 +126,23 @@ export default function VentureForm() {
           marginBottom: '1rem',
         }}
       >
-        → חזרה למיזמים
+        {t('content.ventures.form.back')}
       </button>
 
       <h1 style={{ fontSize: 22, fontWeight: 500, margin: '0 0 0.25rem', color: NAVY }}>
-        העלאת מיזם חדש
+        {t('content.ventures.form.title')}
       </h1>
       <div style={{ fontSize: 12, color: '#888', marginBottom: '1rem' }}>
-        כל מיזם מקבל מספר בתור הפצה אוטומטית.
+        {t('content.ventures.form.subtitle')}
       </div>
 
       <form onSubmit={handleSubmit}>
         <div style={s.card}>
-          <FieldRow label="שם המיזם *">
+          <FieldRow label={t('content.ventures.form.labelName')}>
             <input
               style={s.input}
               dir="auto"
-              placeholder="שם המיזם"
+              placeholder={t('content.ventures.form.placeholderName')}
               maxLength={200}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -145,11 +150,11 @@ export default function VentureForm() {
             {errors.title && <div style={s.err}>{errors.title}</div>}
           </FieldRow>
 
-          <FieldRow label="הסיפור של המיזם *">
+          <FieldRow label={t('content.ventures.form.labelStory')}>
             <textarea
               style={{ ...s.textarea, minHeight: 140 }}
               dir="auto"
-              placeholder="ספר על המיזם — מה הבעיה שהוא פותר, את מי הוא משרת, ולמה זה חשוב..."
+              placeholder={t('content.ventures.form.placeholderStory')}
               maxLength={5000}
               value={story}
               onChange={(e) => setStory(e.target.value)}
@@ -158,11 +163,11 @@ export default function VentureForm() {
             {errors.story && <div style={s.err}>{errors.story}</div>}
           </FieldRow>
 
-          <FieldRow label="קטגוריה *">
+          <FieldRow label={t('content.ventures.form.labelCategory')}>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <select
                 style={{ ...s.input, flex: 1, minWidth: 160 }}
-                dir="rtl"
+                dir={dir}
                 value={parentKey}
                 onChange={(e) => {
                   setParentKey(e.target.value);
@@ -170,7 +175,7 @@ export default function VentureForm() {
                   setCustomSub('');
                 }}
               >
-                <option value="">בחר קטגוריה ראשית</option>
+                <option value="">{t('content.ventures.form.placeholderParent')}</option>
                 {TAXONOMY.map((p) => (
                   <option key={p.key} value={p.key}>
                     {parentLabel(p.key)}
@@ -180,11 +185,11 @@ export default function VentureForm() {
               {parentKey && !isOther && subs.length > 0 && (
                 <select
                   style={{ ...s.input, flex: 1, minWidth: 160 }}
-                  dir="rtl"
+                  dir={dir}
                   value={subKey}
                   onChange={(e) => setSubKey(e.target.value)}
                 >
-                  <option value="">בחר תת-קטגוריה</option>
+                  <option value="">{t('content.ventures.form.placeholderSub')}</option>
                   {subs.map((sub) => (
                     <option key={sub.key} value={sub.key}>
                       {sub.label}
@@ -196,7 +201,7 @@ export default function VentureForm() {
                 <input
                   style={{ ...s.input, flex: 1, minWidth: 160 }}
                   dir="auto"
-                  placeholder="תאר את הקטגוריה"
+                  placeholder={t('content.ventures.form.placeholderCustom')}
                   maxLength={50}
                   value={customSub}
                   onChange={(e) => setCustomSub(e.target.value)}
@@ -206,12 +211,12 @@ export default function VentureForm() {
             {errors.category && <div style={s.err}>{errors.category}</div>}
           </FieldRow>
 
-          <FieldRow label="קישור למיזם *">
+          <FieldRow label={t('content.ventures.form.labelLink')}>
             <input
               style={s.input}
               dir="ltr"
               type="url"
-              placeholder="https://example.com"
+              placeholder={t('content.ventures.form.placeholderLink')}
               maxLength={500}
               value={link}
               onChange={(e) => setLink(e.target.value)}
@@ -239,7 +244,7 @@ export default function VentureForm() {
             disabled={submitting}
             style={{ ...s.btnPrimary, opacity: submitting ? 0.7 : 1 }}
           >
-            {submitting ? 'שומר ומקצה מספר בתור...' : 'העלה מיזם'}
+            {submitting ? t('content.ventures.form.submitting') : t('content.ventures.form.submit')}
           </button>
         </div>
       </form>
@@ -248,6 +253,7 @@ export default function VentureForm() {
 }
 
 function LockedView({ navigate, userScore, referredCount, uid }) {
+  const { t } = useT();
   const [copied, setCopied] = useState(false);
   const shareLink = `bayit-community.com/r/${uid || ''}`;
   const remaining = Math.max(0, 10 - userScore);
@@ -276,7 +282,7 @@ function LockedView({ navigate, userScore, referredCount, uid }) {
           marginBottom: '1rem',
         }}
       >
-        ← חזרה למיזמים
+        {t('content.ventures.locked.back')}
       </button>
 
       <div
@@ -290,10 +296,10 @@ function LockedView({ navigate, userScore, referredCount, uid }) {
       >
         <div style={{ fontSize: 56, marginBottom: 12, lineHeight: 1 }}>🔒</div>
         <h1 style={{ fontSize: 22, fontWeight: 600, margin: '0 0 0.75rem', color: NAVY }}>
-          פתיחת אפשרות שיתוף מיזם
+          {t('content.ventures.locked.title')}
         </h1>
         <p style={{ fontSize: 14, color: '#555', lineHeight: 1.6, margin: '0 0 1rem' }}>
-          כדי לשתף מיזם בקהילה, תצטרך/י להביא 10 חברים שמצטרפים דרך הקישור האישי שלך.
+          {t('content.ventures.locked.explanation')}
         </p>
 
         <div
@@ -306,15 +312,17 @@ function LockedView({ navigate, userScore, referredCount, uid }) {
             color: NAVY,
           }}
         >
-          הניקוד שלך כעת: <strong>{userScore}/10</strong>. {referredCount} חברים הצטרפו עד כה.
+          {t('content.ventures.locked.scoreLine', { score: userScore, referred: referredCount })}
           {remaining > 0 && (
             <div style={{ fontSize: 12, color: AMBER, marginTop: 4 }}>
-              חסרים עוד {remaining} חברים
+              {t('content.ventures.locked.missingMembers', { remaining })}
             </div>
           )}
         </div>
 
-        <div style={{ fontSize: 12, color: '#888', marginBottom: 6 }}>הקישור האישי שלך:</div>
+        <div style={{ fontSize: 12, color: '#888', marginBottom: 6 }}>
+          {t('content.ventures.locked.yourLink')}
+        </div>
         <div
           style={{
             display: 'flex',
@@ -335,7 +343,7 @@ function LockedView({ navigate, userScore, referredCount, uid }) {
             onClick={copyLink}
             style={{ ...s.btnPrimary, padding: '8px 16px', whiteSpace: 'nowrap' }}
           >
-            {copied ? 'הועתק ✓' : 'העתק קישור'}
+            {copied ? t('content.ventures.locked.copied') : t('content.ventures.locked.copyLink')}
           </button>
         </div>
       </div>

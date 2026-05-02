@@ -4,6 +4,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { s, Header, FieldRow, StrengthBar, BLUE, TEAL } from '../components/shared';
 import CategoryPicker from '../components/CategoryPicker';
+import { useT } from '../i18n';
 
 const COUNTRY_CODES = [
   { code: '+972', flag: '🇮🇱', name: 'ישראל' },
@@ -45,6 +46,7 @@ const COUNTRY_CODES = [
 
 export default function Register() {
   const navigate = useNavigate();
+  const { t } = useT();
   const [searchParams] = useSearchParams();
   const [refCode, setRefCode] = useState(null);
   const [refName, setRefName] = useState(null);
@@ -124,14 +126,15 @@ export default function Register() {
 
   async function submit() {
     const errs = {};
-    if (!form.first.trim()) errs.first = 'שדה חובה';
-    if (!form.last.trim()) errs.last = 'שדה חובה';
+    if (!form.first.trim()) errs.first = t('auth.register.errors.required');
+    if (!form.last.trim()) errs.last = t('auth.register.errors.required');
     if (!/^\d{5,15}$/.test(form.phoneNum.trim()))
-      errs.phone = 'יש להזין מספר טלפון תקין (ספרות בלבד)';
-    if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) errs.email = 'אימייל לא תקין';
-    if (form.pass.length < 8) errs.pass = 'לפחות 8 תווים';
-    if (form.pass !== form.pass2) errs.pass2 = 'הסיסמאות אינן תואמות';
-    if (rulesText && !rulesAccepted) errs.rules = 'יש לאשר את חוקי הבית';
+      errs.phone = t('auth.register.errors.invalidPhone');
+    if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email))
+      errs.email = t('auth.register.errors.invalidEmail');
+    if (form.pass.length < 8) errs.pass = t('auth.register.errors.passwordTooShort');
+    if (form.pass !== form.pass2) errs.pass2 = t('auth.register.errors.passwordMismatch');
+    if (rulesText && !rulesAccepted) errs.rules = t('auth.register.errors.rulesRequired');
     setErrors(errs);
     if (Object.keys(errs).length) return;
 
@@ -228,11 +231,11 @@ export default function Register() {
         }
       }
       if (e.message === 'PHONE_TAKEN') {
-        setErrors({ phone: 'מספר זה כבר רשום' });
+        setErrors({ phone: t('auth.register.errors.phoneTaken') });
       } else if (e.code === 'auth/email-already-in-use') {
-        setGlobalErr('אימייל זה כבר רשום במערכת');
+        setGlobalErr(t('auth.register.errors.emailTaken'));
       } else {
-        setGlobalErr('שגיאה: ' + e.message);
+        setGlobalErr(t('auth.register.errors.errorPrefix', { message: e.message }));
       }
     } finally {
       setLoading(false);
@@ -248,12 +251,12 @@ export default function Register() {
             <div style={{ ...s.card, textAlign: 'center', padding: '2.5rem 1.5rem' }}>
               <div style={{ fontSize: 48, marginBottom: 16 }}>&#x2705;</div>
               <div style={{ fontSize: 20, fontWeight: 600, color: '#1C2638', marginBottom: 12 }}>
-                בקשת ההצטרפות התקבלה!
+                {t('auth.register.submittedTitle')}
               </div>
               <div style={{ fontSize: 15, color: '#555', lineHeight: 1.8, marginBottom: 24 }}>
-                הבקשה הועברה למנהלי הקהילה ותאושר בקרוב.
+                {t('auth.register.submittedBody')}
                 <br />
-                נא להמתין בסבלנות — תקבל/י הודעה כשהחשבון יאושר.
+                {t('auth.register.submittedWaitMessage')}
               </div>
               <Link
                 to="/login"
@@ -265,7 +268,7 @@ export default function Register() {
                   width: 'auto',
                 }}
               >
-                למסך ההתחברות
+                {t('auth.register.submittedLoginCta')}
               </Link>
             </div>
           </div>
@@ -297,7 +300,9 @@ export default function Register() {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ fontSize: 17, fontWeight: 500, marginBottom: '1rem' }}>חוקי הבית</div>
+            <div style={{ fontSize: 17, fontWeight: 500, marginBottom: '1rem' }}>
+              {t('auth.register.houseRulesTitle')}
+            </div>
             <div
               style={{
                 fontSize: 14,
@@ -323,7 +328,7 @@ export default function Register() {
                 cursor: 'pointer',
               }}
             >
-              סגור
+              {t('auth.register.houseRulesClose')}
             </button>
           </div>
         </div>
@@ -331,12 +336,14 @@ export default function Register() {
 
       {!submitted && (
         <Header>
-          <span style={{ fontSize: 13, color: 'rgba(245,240,232,0.7)' }}>כבר רשום?</span>
+          <span style={{ fontSize: 13, color: 'rgba(245,240,232,0.7)' }}>
+            {t('auth.register.alreadyRegistered')}
+          </span>
           <Link
             to="/login"
             style={{ ...s.btnSolid, textDecoration: 'none', display: 'inline-block' }}
           >
-            התחברות
+            {t('auth.register.loginLink')}
           </Link>
         </Header>
       )}
@@ -356,7 +363,9 @@ export default function Register() {
                   fontWeight: 500,
                 }}
               >
-                {refName ? `🤝 הוזמנת ע"י ${refName}` : '🤝 הוזמנת ע"י חבר מהקהילה!'}
+                {refName
+                  ? t('auth.register.referralByName', { name: refName })
+                  : t('auth.register.referralGeneric')}
               </div>
             )}
             {globalErr && (
@@ -374,9 +383,9 @@ export default function Register() {
               </div>
             )}
 
-            <div style={s.sectionTitle}>פרטים אישיים</div>
+            <div style={s.sectionTitle}>{t('auth.register.sectionPersonal')}</div>
             <div style={s.twoCol}>
-              <FieldRow label="שם פרטי *">
+              <FieldRow label={t('auth.register.firstNameLabel')}>
                 <input
                   style={s.input}
                   dir="auto"
@@ -385,7 +394,7 @@ export default function Register() {
                 />
                 {errors.first && <div style={s.err}>{errors.first}</div>}
               </FieldRow>
-              <FieldRow label="שם משפחה *">
+              <FieldRow label={t('auth.register.lastNameLabel')}>
                 <input
                   style={s.input}
                   dir="auto"
@@ -395,7 +404,7 @@ export default function Register() {
                 {errors.last && <div style={s.err}>{errors.last}</div>}
               </FieldRow>
             </div>
-            <FieldRow label="טלפון * (מזהה ייחודי)">
+            <FieldRow label={t('auth.register.phoneLabel')}>
               <div style={{ display: 'flex', gap: 8, direction: 'ltr' }}>
                 <select
                   value={form.countryCode}
@@ -424,7 +433,7 @@ export default function Register() {
               </div>
               {errors.phone && <div style={s.err}>{errors.phone}</div>}
             </FieldRow>
-            <FieldRow label="עיר מגורים">
+            <FieldRow label={t('auth.register.cityLabel')}>
               <input
                 style={s.input}
                 dir="auto"
@@ -432,7 +441,7 @@ export default function Register() {
                 onChange={(e) => set('city', e.target.value)}
               />
             </FieldRow>
-            <FieldRow label="לינקדין">
+            <FieldRow label={t('auth.register.linkedinLabel')}>
               <input
                 style={s.input}
                 placeholder="https://linkedin.com/in/..."
@@ -441,7 +450,7 @@ export default function Register() {
                 onChange={(e) => set('li', e.target.value)}
               />
             </FieldRow>
-            <FieldRow label="אתר אינטרנט">
+            <FieldRow label={t('auth.register.websiteLabel')}>
               <input
                 style={s.input}
                 placeholder="https://yourwebsite.com"
@@ -451,49 +460,49 @@ export default function Register() {
               />
             </FieldRow>
 
-            <div style={s.sectionTitle}>תחומי עיסוק (עד 4)</div>
+            <div style={s.sectionTitle}>{t('auth.register.sectionCategories')}</div>
             <CategoryPicker value={form.categories} onChange={(v) => set('categories', v)} />
 
-            <div style={s.sectionTitle}>פרופיל מקצועי</div>
-            <FieldRow label="מה אני עושה">
+            <div style={s.sectionTitle}>{t('auth.register.sectionProfile')}</div>
+            <FieldRow label={t('auth.register.doesLabel')}>
               <textarea
                 style={s.textarea}
                 dir="auto"
                 value={form.does}
                 onChange={(e) => set('does', e.target.value)}
-                placeholder="תאר/י את הפרויקט שלך..."
+                placeholder={t('auth.register.doesPlaceholder')}
               />
             </FieldRow>
-            <FieldRow label="מה אני מחפש / צריך">
+            <FieldRow label={t('auth.register.needsLabel')}>
               <textarea
                 style={s.textarea}
                 dir="auto"
                 value={form.needs}
                 onChange={(e) => set('needs', e.target.value)}
-                placeholder="שותף, משקיע, לקוחות..."
+                placeholder={t('auth.register.needsPlaceholder')}
               />
             </FieldRow>
-            <FieldRow label="החוזקות שלי">
+            <FieldRow label={t('auth.register.strengthLabel')}>
               <textarea
                 style={s.textarea}
                 dir="auto"
                 value={form.strength}
                 onChange={(e) => set('strength', e.target.value)}
-                placeholder="מה הכוח שלך? ניסיון, ידע, יכולות מיוחדות..."
+                placeholder={t('auth.register.strengthPlaceholder')}
               />
             </FieldRow>
-            <FieldRow label="במה אני יכול לעזור לאחרים">
+            <FieldRow label={t('auth.register.canHelpLabel')}>
               <textarea
                 style={s.textarea}
                 dir="auto"
                 value={form.canHelpWith}
                 onChange={(e) => set('canHelpWith', e.target.value)}
-                placeholder="ייעוץ, קשרים, ידע מקצועי..."
+                placeholder={t('auth.register.canHelpPlaceholder')}
               />
             </FieldRow>
 
-            <div style={s.sectionTitle}>פרטי כניסה</div>
-            <FieldRow label="אימייל *">
+            <div style={s.sectionTitle}>{t('auth.register.sectionLogin')}</div>
+            <FieldRow label={t('auth.register.emailLabel')}>
               <input
                 style={s.input}
                 type="email"
@@ -503,7 +512,7 @@ export default function Register() {
               />
               {errors.email && <div style={s.err}>{errors.email}</div>}
             </FieldRow>
-            <FieldRow label="סיסמא * (לפחות 8 תווים)">
+            <FieldRow label={t('auth.register.passwordLabel')}>
               <input
                 style={s.input}
                 type="password"
@@ -513,7 +522,7 @@ export default function Register() {
               <StrengthBar password={form.pass} />
               {errors.pass && <div style={s.err}>{errors.pass}</div>}
             </FieldRow>
-            <FieldRow label="אימות סיסמא *">
+            <FieldRow label={t('auth.register.passwordConfirmLabel')}>
               <input
                 style={s.input}
                 type="password"
@@ -543,7 +552,7 @@ export default function Register() {
                     style={{ marginTop: 3, flexShrink: 0 }}
                   />
                   <span style={{ fontSize: 13, color: '#444', lineHeight: 1.5 }}>
-                    קראתי ואני מסכים/ה ל
+                    {t('auth.register.rulesAcceptPrefix')}
                     <button
                       onClick={() => setShowRules(true)}
                       style={{
@@ -556,7 +565,7 @@ export default function Register() {
                         textDecoration: 'underline',
                       }}
                     >
-                      חוקי הבית
+                      {t('auth.register.rulesAcceptLink')}
                     </button>
                   </span>
                 </label>
@@ -569,10 +578,10 @@ export default function Register() {
               onClick={submit}
               disabled={loading}
             >
-              {loading ? 'שולח...' : 'הגש בקשת הצטרפות'}
+              {loading ? t('auth.register.submitting') : t('auth.register.submit')}
             </button>
             <p style={{ fontSize: 12, color: '#888', textAlign: 'center', marginTop: 10 }}>
-              לאחר ההגשה, הפרופיל ממתין לאישור מנהל
+              {t('auth.register.pendingNote')}
             </p>
           </div>
         </div>

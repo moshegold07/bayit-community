@@ -29,6 +29,7 @@ import {
   migrateLegacyCategory,
   resolveMemberCategories,
 } from '../utils/categories';
+import { useT } from '../i18n';
 
 function visibleField(member, field, isAdmin) {
   if (isAdmin) return true;
@@ -37,12 +38,16 @@ function visibleField(member, field, isAdmin) {
 }
 
 function ScoreChip({ score, size = 'sm' }) {
+  const { t } = useT();
   const s = Math.max(0, Number(score) || 0);
   const unlocked = s >= 10;
   const small = size === 'sm';
+  const titleKey = unlocked
+    ? 'members.directory.scoreChip.titleUnlocked'
+    : 'members.directory.scoreChip.title';
   return (
     <span
-      title={`${s} חברים הצטרפו דרכך${unlocked ? ' · פתוח לשיתוף מיזם' : ''}`}
+      title={t(titleKey, { count: s })}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
@@ -78,6 +83,7 @@ const BAR_COLORS = [
 ];
 
 function DomainDistribution({ members, onSelect, activeDomain }) {
+  const { t } = useT();
   // Aggregate by parent category (counts each member at most once per parent).
   const parentCounts = {};
   members.forEach((m) => {
@@ -117,9 +123,12 @@ function DomainDistribution({ members, onSelect, activeDomain }) {
           alignItems: 'center',
         }}
       >
-        <span>התפלגות תחומי עניין</span>
+        <span>{t('members.directory.distribution.title')}</span>
         <span style={{ fontSize: 11, color: '#aaa', fontWeight: 400 }}>
-          {sorted.length} תחומים | {members.length} חברים
+          {t('members.directory.distribution.summary', {
+            domains: sorted.length,
+            members: members.length,
+          })}
         </span>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -206,6 +215,7 @@ function DomainDistribution({ members, onSelect, activeDomain }) {
 }
 
 function MemberModal({ m, onClose, isAdmin, currentUser, isPending }) {
+  const { t, dir } = useT();
   return (
     <div
       style={{
@@ -308,7 +318,9 @@ function MemberModal({ m, onClose, isAdmin, currentUser, isPending }) {
               borderRadius: 8,
             }}
           >
-            <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>מה אני עושה</div>
+            <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>
+              {t('members.modal.membersModal.doesLabel')}
+            </div>
             <div style={{ fontSize: 14, color: '#222', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
               {m.does}
             </div>
@@ -323,7 +335,9 @@ function MemberModal({ m, onClose, isAdmin, currentUser, isPending }) {
               borderRadius: 8,
             }}
           >
-            <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>מה אני מחפש / צריך</div>
+            <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>
+              {t('members.modal.membersModal.needsLabel')}
+            </div>
             <div style={{ fontSize: 14, color: '#222', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
               {m.needs}
             </div>
@@ -338,7 +352,9 @@ function MemberModal({ m, onClose, isAdmin, currentUser, isPending }) {
               borderRadius: 8,
             }}
           >
-            <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>החוזקות שלי</div>
+            <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>
+              {t('members.modal.membersModal.strengthLabel')}
+            </div>
             <div style={{ fontSize: 14, color: '#222', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
               {m.strength}
             </div>
@@ -353,7 +369,9 @@ function MemberModal({ m, onClose, isAdmin, currentUser, isPending }) {
               borderRadius: 8,
             }}
           >
-            <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>במה אני יכול לעזור</div>
+            <div style={{ fontSize: 11, color: '#888', marginBottom: 4 }}>
+              {t('members.modal.membersModal.canHelpWithLabel')}
+            </div>
             <div style={{ fontSize: 14, color: '#222', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
               {m.canHelpWith}
             </div>
@@ -363,7 +381,7 @@ function MemberModal({ m, onClose, isAdmin, currentUser, isPending }) {
         <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
           {visibleField(m, 'phone', isAdmin) && (
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-              <span style={{ color: '#888' }}>טלפון</span>
+              <span style={{ color: '#888' }}>{t('members.modal.membersModal.phoneLabel')}</span>
               <span style={{ fontFamily: 'monospace', direction: 'ltr' }}>
                 {maskPhone(m.phone)}
               </span>
@@ -371,20 +389,20 @@ function MemberModal({ m, onClose, isAdmin, currentUser, isPending }) {
           )}
           {visibleField(m, 'li', isAdmin) && m.li && (
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-              <span style={{ color: '#888' }}>לינקדין</span>
+              <span style={{ color: '#888' }}>{t('members.modal.membersModal.liLabel')}</span>
               <a
                 href={safeHref(m.li)}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: BLUE, textDecoration: 'none' }}
               >
-                פתח פרופיל
+                {t('members.modal.membersModal.liOpen')}
               </a>
             </div>
           )}
           {visibleField(m, 'website', isAdmin) && m.website && (
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-              <span style={{ color: '#888' }}>אתר</span>
+              <span style={{ color: '#888' }}>{t('members.modal.membersModal.websiteLabel')}</span>
               <a
                 href={safeHref(m.website)}
                 target="_blank"
@@ -418,7 +436,7 @@ function MemberModal({ m, onClose, isAdmin, currentUser, isPending }) {
               boxSizing: 'border-box',
             }}
           >
-            שלח הודעה
+            {t('members.modal.sendMessage')}
           </Link>
         )}
         {!isPending && (
@@ -443,7 +461,7 @@ function MemberModal({ m, onClose, isAdmin, currentUser, isPending }) {
             cursor: 'pointer',
           }}
         >
-          סגור
+          {t('common.close')}
         </button>
       </div>
     </div>
@@ -451,6 +469,7 @@ function MemberModal({ m, onClose, isAdmin, currentUser, isPending }) {
 }
 
 export default function Members() {
+  const { t, dir } = useT();
   const { user: currentUser, isPending } = useAuth();
   const isAdmin = currentUser?.role === 'admin';
   const [members, setMembers] = useState([]);
@@ -549,18 +568,18 @@ export default function Members() {
         <div style={{ display: 'flex', gap: 10, marginBottom: '1rem', flexWrap: 'wrap' }}>
           <input
             style={{ ...s.input, flex: 2, minWidth: 180 }}
-            placeholder="חיפוש..."
+            placeholder={t('members.directory.filters.search')}
             dir="auto"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
           <select
             style={selStyle}
-            dir="rtl"
+            dir={dir}
             value={filterDomain}
             onChange={(e) => setFilterDomain(e.target.value)}
           >
-            <option value="">כל התחומים</option>
+            <option value="">{t('members.directory.filters.allDomains')}</option>
             {parentOptions.map((p) => (
               <option key={p.key} value={p.key}>
                 {p.label}
@@ -569,11 +588,11 @@ export default function Members() {
           </select>
           <select
             style={selStyle}
-            dir="rtl"
+            dir={dir}
             value={filterCity}
             onChange={(e) => setFilterCity(e.target.value)}
           >
-            <option value="">כל הערים</option>
+            <option value="">{t('members.directory.filters.allCities')}</option>
             {cities.map((c) => (
               <option key={c} value={c}>
                 {c}
@@ -584,12 +603,12 @@ export default function Members() {
 
         <div style={{ display: 'flex', gap: 10, marginBottom: '1rem' }}>
           {[
-            ['חברים', members.length + formRegs.length, TEAL],
-            ['ערים', cities.length, GOLD],
-            ['תחומים', parentOptions.length, '#8B6AAE'],
-          ].map(([label, val, color]) => (
+            ['members', members.length + formRegs.length, TEAL],
+            ['cities', cities.length, GOLD],
+            ['domains', parentOptions.length, '#8B6AAE'],
+          ].map(([key, val, color]) => (
             <div
-              key={label}
+              key={key}
               style={{
                 background: '#fff',
                 border: '1px solid #E8E5DE',
@@ -599,7 +618,9 @@ export default function Members() {
                 borderTop: `3px solid ${color}`,
               }}
             >
-              <div style={{ fontSize: 11, color: '#888', marginBottom: 2 }}>{label}</div>
+              <div style={{ fontSize: 11, color: '#888', marginBottom: 2 }}>
+                {t(`members.directory.stats.${key}`)}
+              </div>
               <div style={{ fontSize: 22, fontWeight: 600, color }}>{val}</div>
             </div>
           ))}
@@ -618,7 +639,9 @@ export default function Members() {
         )}
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>טוען...</div>
+          <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
+            {t('common.loading')}
+          </div>
         ) : (
           <div
             style={{
@@ -631,7 +654,7 @@ export default function Members() {
               <div
                 style={{ gridColumn: '1/-1', textAlign: 'center', padding: '2rem', color: '#888' }}
               >
-                לא נמצאו תוצאות
+                {t('common.noResults')}
               </div>
             )}
             {list.map((m) => (
@@ -686,7 +709,7 @@ export default function Members() {
                 <BadgeDisplay badges={m.badges} />
                 {visibleField(m, 'does', isAdmin) && m.does && (
                   <div style={{ fontSize: 13, color: '#666', marginBottom: 4 }}>
-                    עושה:{' '}
+                    {t('members.directory.card.does')}{' '}
                     <span style={{ color: '#222' }}>
                       {m.does.slice(0, 60)}
                       {m.does.length > 60 ? '...' : ''}
@@ -695,7 +718,7 @@ export default function Members() {
                 )}
                 {visibleField(m, 'needs', isAdmin) && m.needs && (
                   <div style={{ fontSize: 13, color: '#666', marginBottom: 4 }}>
-                    צריך:{' '}
+                    {t('members.directory.card.needs')}{' '}
                     <span style={{ color: '#222' }}>
                       {m.needs.slice(0, 60)}
                       {m.needs.length > 60 ? '...' : ''}
@@ -722,7 +745,9 @@ export default function Members() {
                   >
                     {visibleField(m, 'phone', isAdmin) ? maskPhone(m.phone) : ''}
                   </span>
-                  <span style={{ fontSize: 11, color: '#aaa' }}>לחץ לפרטים ›</span>
+                  <span style={{ fontSize: 11, color: '#aaa' }}>
+                    {t('members.directory.card.clickForDetails')}
+                  </span>
                 </div>
               </div>
             ))}
@@ -742,7 +767,7 @@ export default function Members() {
                 gap: 8,
               }}
             >
-              <span>נרשמו בטופס — ממתינים להפעלה</span>
+              <span>{t('members.directory.pending.title')}</span>
               <span
                 style={{
                   fontSize: 11,

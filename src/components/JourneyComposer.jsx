@@ -1,23 +1,29 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { useT } from '../i18n';
 import { BLUE, BLUE_DK, AMBER, NAVY, CREAM } from './shared';
 
 const MAX_LEN = 200;
-const IDEA_PROMPTS = [
-  'מה הצעד הקטן שעשית היום קדימה?',
-  'מה למדת היום על המוצר שלך?',
-  'במה אתה צריך עזרה השבוע?',
-  'מה הדבר הכי מפתיע שגילית היום?',
-];
 
 export default function JourneyComposer({ onPosted, onClose }) {
+  const { t, dir } = useT();
   const { user } = useAuth();
   const [text, setText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState('');
   const [showIdeas, setShowIdeas] = useState(false);
   const textareaRef = useRef(null);
+
+  const ideaPrompts = useMemo(
+    () => [
+      t('content.journey.composer.ideaPrompt1'),
+      t('content.journey.composer.ideaPrompt2'),
+      t('content.journey.composer.ideaPrompt3'),
+      t('content.journey.composer.ideaPrompt4'),
+    ],
+    [t],
+  );
 
   // Auto-focus on mount
   useEffect(() => {
@@ -54,7 +60,7 @@ export default function JourneyComposer({ onPosted, onClose }) {
 
   function pickIdea(prompt) {
     if (text.trim().length > 10) {
-      const ok = window.confirm('להחליף את הטקסט הקיים ברעיון הזה?');
+      const ok = window.confirm(t('content.journey.composer.replaceConfirm'));
       if (!ok) return;
     }
     setText(prompt);
@@ -67,7 +73,9 @@ export default function JourneyComposer({ onPosted, onClose }) {
     setSubmitting(true);
     setServerError('');
 
-    const authorName = `${user.first || ''} ${user.last || ''}`.trim() || 'חבר';
+    const authorName =
+      `${user.first || ''} ${user.last || ''}`.trim() ||
+      t('content.journey.composer.authorFallback');
     const docPayload = {
       authorId: user.uid,
       authorName,
@@ -80,7 +88,7 @@ export default function JourneyComposer({ onPosted, onClose }) {
       onPosted?.({ id, ...docPayload });
       onClose?.();
     } catch (err) {
-      setServerError(err?.message || 'שגיאה בשמירת הפוסט. נסה שוב.');
+      setServerError(err?.message || t('content.journey.composer.errSavePost'));
       setSubmitting(false);
     }
   }
@@ -98,7 +106,7 @@ export default function JourneyComposer({ onPosted, onClose }) {
         padding: '1rem',
       }}
       onClick={handleBackdropClick}
-      dir="rtl"
+      dir={dir}
     >
       <div
         style={{
@@ -125,12 +133,13 @@ export default function JourneyComposer({ onPosted, onClose }) {
           }}
         >
           <div style={{ fontSize: 17, fontWeight: 600, color: NAVY }}>
-            <span aria-hidden="true">📔 </span>שתף עדכון יומי
+            <span aria-hidden="true">📔 </span>
+            {t('content.journey.composer.title')}
           </div>
           <button
             onClick={() => !submitting && onClose?.()}
             disabled={submitting}
-            aria-label="סגור"
+            aria-label={t('content.journey.composer.closeAria')}
             style={{
               background: 'none',
               border: 'none',
@@ -152,7 +161,7 @@ export default function JourneyComposer({ onPosted, onClose }) {
             ref={textareaRef}
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="מה התקדם היום? (עד 200 תווים)"
+            placeholder={t('content.journey.composer.placeholder')}
             maxLength={MAX_LEN + 20 /* allow paste-then-trim UX */}
             disabled={submitting}
             dir="auto"
@@ -188,7 +197,9 @@ export default function JourneyComposer({ onPosted, onClose }) {
               fontSize: 12,
             }}
           >
-            <span style={{ color: '#aaa' }}>{tooLong ? 'מעבר למגבלה — קצר את הטקסט' : ''}</span>
+            <span style={{ color: '#aaa' }}>
+              {tooLong ? t('content.journey.composer.tooLong') : ''}
+            </span>
             <span
               style={{
                 color: counterColor,
@@ -234,7 +245,7 @@ export default function JourneyComposer({ onPosted, onClose }) {
               }}
             >
               <span aria-hidden="true">💡 </span>
-              רעיונות לפוסט {showIdeas ? '▴' : '▾'}
+              {t('content.journey.composer.ideasToggle')} {showIdeas ? '▴' : '▾'}
             </button>
             {showIdeas && (
               <div
@@ -249,14 +260,14 @@ export default function JourneyComposer({ onPosted, onClose }) {
                   padding: '8px 10px',
                 }}
               >
-                {IDEA_PROMPTS.map((p) => (
+                {ideaPrompts.map((p) => (
                   <button
                     key={p}
                     type="button"
                     onClick={() => pickIdea(p)}
                     disabled={submitting}
                     style={{
-                      textAlign: 'right',
+                      textAlign: dir === 'rtl' ? 'right' : 'left',
                       background: '#fff',
                       border: '1px solid #E8E5DE',
                       borderRadius: 6,
@@ -305,7 +316,7 @@ export default function JourneyComposer({ onPosted, onClose }) {
                 fontFamily: 'inherit',
               }}
             >
-              ביטול
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
@@ -329,7 +340,9 @@ export default function JourneyComposer({ onPosted, onClose }) {
                 if (valid && !submitting) e.currentTarget.style.background = BLUE;
               }}
             >
-              {submitting ? 'מפרסם…' : 'פרסם'}
+              {submitting
+                ? t('content.journey.composer.publishing')
+                : t('content.journey.composer.publish')}
             </button>
           </div>
         </form>
@@ -346,7 +359,7 @@ export default function JourneyComposer({ onPosted, onClose }) {
             borderRadius: 6,
           }}
         >
-          יומן מסע — לא בלוג. שתי שורות שמזכירות לך כמה התקדמת.
+          {t('content.journey.composer.footerHint')}
         </div>
       </div>
     </div>

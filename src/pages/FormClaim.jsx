@@ -4,6 +4,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { s, Header, FieldRow, StrengthBar, TEAL, NAVY } from '../components/shared';
 import { migrateLegacyCategory } from '../utils/categories';
+import { useT } from '../i18n';
 
 function parseContact(contact, contactType) {
   const result = { phone: '', li: '', website: '', email: '' };
@@ -64,6 +65,7 @@ function mapCategories(mainField, subField) {
 export { parseContact, mapCategories };
 
 export default function FormClaim() {
+  const { t } = useT();
   const [registrants, setRegistrants] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -101,9 +103,10 @@ export default function FormClaim() {
 
   async function claim() {
     const errs = {};
-    if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) errs.email = 'אימייל לא תקין';
-    if (pass.length < 8) errs.pass = 'לפחות 8 תווים';
-    if (pass !== pass2) errs.pass2 = 'הסיסמאות אינן תואמות';
+    if (!email.trim() || !/\S+@\S+\.\S+/.test(email))
+      errs.email = t('auth.formClaim.errors.invalidEmail');
+    if (pass.length < 8) errs.pass = t('auth.formClaim.errors.passwordTooShort');
+    if (pass !== pass2) errs.pass2 = t('auth.formClaim.errors.passwordMismatch');
     setErrors(errs);
     if (Object.keys(errs).length) return;
 
@@ -126,7 +129,7 @@ export default function FormClaim() {
         const phoneSnap = await db.getDoc('phoneIndex', phone);
         if (phoneSnap.exists()) {
           await cred.user.delete();
-          setGlobalErr('מספר הטלפון כבר רשום במערכת. פנה למנהל.');
+          setGlobalErr(t('auth.formClaim.errors.phoneTaken'));
           setSubmitting(false);
           return;
         }
@@ -167,8 +170,9 @@ export default function FormClaim() {
 
       setDone(true);
     } catch (e) {
-      if (e.code === 'auth/email-already-in-use') setGlobalErr('אימייל זה כבר רשום במערכת');
-      else setGlobalErr('שגיאה: ' + e.message);
+      if (e.code === 'auth/email-already-in-use')
+        setGlobalErr(t('auth.formClaim.errors.emailTaken'));
+      else setGlobalErr(t('auth.formClaim.errors.errorPrefix', { message: e.message }));
       setSubmitting(false);
     }
   }
@@ -181,10 +185,10 @@ export default function FormClaim() {
           <div style={{ ...s.card, textAlign: 'center', padding: '2.5rem 1.5rem' }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>&#x2705;</div>
             <div style={{ fontSize: 20, fontWeight: 600, color: '#1C2638', marginBottom: 12 }}>
-              החשבון נוצר בהצלחה!
+              {t('auth.formClaim.doneTitle')}
             </div>
             <div style={{ fontSize: 15, color: '#555', lineHeight: 1.8, marginBottom: 24 }}>
-              הפרופיל שלך מוכן — אתה יכול להיכנס לקהילה.
+              {t('auth.formClaim.doneBody')}
             </div>
             <Link
               to="/"
@@ -196,7 +200,7 @@ export default function FormClaim() {
                 width: 'auto',
               }}
             >
-              כניסה לקהילה
+              {t('auth.formClaim.doneEnter')}
             </Link>
           </div>
         </div>
@@ -211,24 +215,26 @@ export default function FormClaim() {
           to="/login"
           style={{ ...s.btnSolid, textDecoration: 'none', display: 'inline-block' }}
         >
-          חזרה להתחברות
+          {t('auth.formClaim.backToLogin')}
         </Link>
       </Header>
       <div style={{ ...s.body, maxWidth: 500 }}>
         {!selected ? (
           <div style={s.card}>
             <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
-              <div style={{ fontSize: 20, fontWeight: 500, color: '#222' }}>נרשמת בטופס?</div>
+              <div style={{ fontSize: 20, fontWeight: 500, color: '#222' }}>
+                {t('auth.formClaim.title')}
+              </div>
               <div style={{ fontSize: 13, color: '#888', marginTop: 4 }}>
-                חפש/י את השם שלך כדי להפעיל את החשבון
+                {t('auth.formClaim.subtitle')}
               </div>
             </div>
 
-            <FieldRow label="שם מלא">
+            <FieldRow label={t('auth.formClaim.fullNameLabel')}>
               <input
                 style={s.input}
                 dir="auto"
-                placeholder="הקלד/י את שמך..."
+                placeholder={t('auth.formClaim.fullNamePlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 autoFocus
@@ -236,14 +242,16 @@ export default function FormClaim() {
             </FieldRow>
 
             {loading && (
-              <div style={{ textAlign: 'center', color: '#888', padding: '1rem' }}>טוען...</div>
+              <div style={{ textAlign: 'center', color: '#888', padding: '1rem' }}>
+                {t('auth.formClaim.loading')}
+              </div>
             )}
 
             {!loading && search.trim().length >= 2 && results.length === 0 && (
               <div style={{ textAlign: 'center', color: '#888', padding: '1rem', fontSize: 14 }}>
-                לא נמצאו תוצאות. נסה/י שם אחר או{' '}
+                {t('auth.formClaim.noResultsPrefix')}{' '}
                 <Link to="/register" style={{ color: TEAL }}>
-                  הירשם/י רגיל
+                  {t('auth.formClaim.noResultsRegisterLink')}
                 </Link>
               </div>
             )}
@@ -281,9 +289,11 @@ export default function FormClaim() {
         ) : (
           <div style={s.card}>
             <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-              <div style={{ fontSize: 20, fontWeight: 500, color: '#222' }}>אימות פרטים</div>
+              <div style={{ fontSize: 20, fontWeight: 500, color: '#222' }}>
+                {t('auth.formClaim.verifyTitle')}
+              </div>
               <div style={{ fontSize: 13, color: '#888', marginTop: 4 }}>
-                וודא/י שזה אתה ובחר/י אימייל וסיסמה
+                {t('auth.formClaim.verifySubtitle')}
               </div>
             </div>
 
@@ -305,13 +315,13 @@ export default function FormClaim() {
               )}
               {selected.whatTheyDo && (
                 <div style={{ fontSize: 13, color: '#555', marginBottom: 4, lineHeight: 1.6 }}>
-                  <span style={{ color: '#888' }}>עושה: </span>
+                  <span style={{ color: '#888' }}>{t('auth.formClaim.doesPrefix')}</span>
                   {selected.whatTheyDo}
                 </div>
               )}
               {selected.seeking && (
                 <div style={{ fontSize: 13, color: '#555' }}>
-                  <span style={{ color: '#888' }}>מחפש: </span>
+                  <span style={{ color: '#888' }}>{t('auth.formClaim.seekingPrefix')}</span>
                   {selected.seeking}
                 </div>
               )}
@@ -334,7 +344,7 @@ export default function FormClaim() {
                 display: 'block',
               }}
             >
-              לא אני — חזרה לחיפוש
+              {t('auth.formClaim.notMe')}
             </button>
 
             {globalErr && (
@@ -352,8 +362,8 @@ export default function FormClaim() {
               </div>
             )}
 
-            <div style={s.sectionTitle}>הגדרת פרטי כניסה</div>
-            <FieldRow label="אימייל *">
+            <div style={s.sectionTitle}>{t('auth.formClaim.sectionLogin')}</div>
+            <FieldRow label={t('auth.formClaim.emailLabel')}>
               <input
                 style={s.input}
                 type="email"
@@ -363,7 +373,7 @@ export default function FormClaim() {
               />
               {errors.email && <div style={s.err}>{errors.email}</div>}
             </FieldRow>
-            <FieldRow label="סיסמא * (לפחות 8 תווים)">
+            <FieldRow label={t('auth.formClaim.passwordLabel')}>
               <input
                 style={s.input}
                 type="password"
@@ -373,7 +383,7 @@ export default function FormClaim() {
               <StrengthBar password={pass} />
               {errors.pass && <div style={s.err}>{errors.pass}</div>}
             </FieldRow>
-            <FieldRow label="אימות סיסמא *">
+            <FieldRow label={t('auth.formClaim.passwordConfirmLabel')}>
               <input
                 style={s.input}
                 type="password"
@@ -388,7 +398,7 @@ export default function FormClaim() {
               onClick={claim}
               disabled={submitting}
             >
-              {submitting ? 'יוצר חשבון...' : 'צור חשבון והיכנס'}
+              {submitting ? t('auth.formClaim.submitting') : t('auth.formClaim.submit')}
             </button>
           </div>
         )}

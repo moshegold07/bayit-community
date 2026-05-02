@@ -1,0 +1,42 @@
+{
+  "common": {
+    "loading": "טוען...",
+    "error": "שגיאה",
+    "retry": "נסה שוב",
+    "save": "שמור",
+    "cancel": "ביטול",
+    "close": "סגור",
+    "delete": "מחק",
+    "edit": "ערוך",
+    "submit": "שלח",
+    "search": "חיפוש...",
+    "share": "שתף",
+    "copy": "העתק",
+    "copied": "הועתק ✓",
+    "showMore": "הצג עוד",
+    "showLess": "הצג פחות",
+    "yes": "כן",
+    "no": "לא",
+    "noResults": "לא נמצאו תוצאות"
+  },
+  "nav": {
+    "home": "בית",
+    "members": "חברים",
+    "forums": "פורומים",
+    "ventures": "מיזמים",
+    "journey": "יומן מסע",
+    "messages": "הודעות",
+    "matching": "שדכ\"ן",
+    "admin": "ניהול",
+    "dev": "פיתוח",
+    "houseRules": "חוקי הבית",
+    "editProfile": "עריכת פרופיל",
+    "logout": "התנתקות",
+    "greeting": "שלום, {name}"
+  },
+  "lang": {
+    "switch": "שפה",
+    "he": "עברית",
+    "en": "English"
+  }
+}

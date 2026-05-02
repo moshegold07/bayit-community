@@ -6,6 +6,7 @@ import { useProfileModal } from '../contexts/ProfileModalContext';
 import { BLUE, BLUE_LT, NAVY, GOLD } from './shared';
 import BadgeDisplay from './BadgeDisplay';
 import CategoryDisplay from './CategoryDisplay';
+import { useT } from '../i18n';
 
 const AV = ['#1A8A7D', '#2A5A8A', '#8B6AAE', '#C47A3A', '#5A8A6A'];
 function avColor(id = '') {
@@ -26,7 +27,7 @@ function isVisible(visibility, key) {
   return visibility[key] !== false;
 }
 
-const overlayStyle = {
+const baseOverlayStyle = {
   position: 'fixed',
   inset: 0,
   background: 'rgba(28, 38, 56, 0.55)',
@@ -35,7 +36,6 @@ const overlayStyle = {
   justifyContent: 'center',
   zIndex: 1000,
   padding: '1rem',
-  direction: 'rtl',
 };
 
 const cardStyle = {
@@ -95,6 +95,7 @@ function ExternalLink({ href, label }) {
 }
 
 export default function MemberProfileModal() {
+  const { t, dir } = useT();
   const { openUid, closeProfile } = useProfileModal();
   const { user, isPending } = useAuth();
   const navigate = useNavigate();
@@ -126,12 +127,12 @@ export default function MemberProfileModal() {
         const snap = await db.getDoc('users', openUid);
         if (cancelled) return;
         if (!snap.exists()) {
-          setErr('המשתמש לא נמצא');
+          setErr(t('members.modal.userNotFound'));
           setMember(null);
         } else {
           const data = snap.data();
           if (data.status !== 'active') {
-            setErr('הפרופיל אינו זמין');
+            setErr(t('members.modal.profileUnavailable'));
             setMember(null);
           } else {
             setMember({ uid: openUid, ...data });
@@ -140,7 +141,7 @@ export default function MemberProfileModal() {
       } catch (e) {
         if (!cancelled) {
           console.error('Failed to load member profile:', e);
-          setErr('שגיאה בטעינת הפרופיל');
+          setErr(t('members.modal.loadError'));
         }
       }
       if (!cancelled) setLoading(false);
@@ -168,14 +169,26 @@ export default function MemberProfileModal() {
   const vis = member?.visibility;
 
   return (
-    <div style={overlayStyle} onClick={closeProfile} role="dialog" aria-modal="true">
+    <div
+      style={{ ...baseOverlayStyle, direction: dir }}
+      onClick={closeProfile}
+      role="dialog"
+      aria-modal="true"
+    >
       <div style={cardStyle} onClick={(e) => e.stopPropagation()}>
-        <button type="button" onClick={closeProfile} aria-label="סגור" style={closeBtnStyle}>
+        <button
+          type="button"
+          onClick={closeProfile}
+          aria-label={t('members.modal.closeAria')}
+          style={closeBtnStyle}
+        >
           ×
         </button>
 
         {loading && (
-          <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>טוען פרופיל...</div>
+          <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
+            {t('members.modal.loading')}
+          </div>
         )}
 
         {err && !loading && (
@@ -212,7 +225,9 @@ export default function MemberProfileModal() {
                 {initials(member)}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 18, fontWeight: 700, color: NAVY }}>{name || 'ללא שם'}</div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: NAVY }}>
+                  {name || t('members.modal.noName')}
+                </div>
                 {isVisible(vis, 'city') && member.city && (
                   <div style={{ fontSize: 13, color: '#888', marginTop: 2 }}>{member.city}</div>
                 )}
@@ -232,10 +247,14 @@ export default function MemberProfileModal() {
             )}
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {isVisible(vis, 'does') && <Field label="מה אני עושה">{member.does}</Field>}
-              {isVisible(vis, 'needs') && <Field label="מה אני מחפש">{member.needs}</Field>}
-              <Field label="נקודת חוזק">{member.strength}</Field>
-              <Field label="יכול לעזור ב">{member.canHelpWith}</Field>
+              {isVisible(vis, 'does') && (
+                <Field label={t('members.modal.fields.does')}>{member.does}</Field>
+              )}
+              {isVisible(vis, 'needs') && (
+                <Field label={t('members.modal.fields.needs')}>{member.needs}</Field>
+              )}
+              <Field label={t('members.modal.fields.strength')}>{member.strength}</Field>
+              <Field label={t('members.modal.fields.canHelpWith')}>{member.canHelpWith}</Field>
 
               {(isVisible(vis, 'li') && member.li) ||
               (isVisible(vis, 'website') && member.website) ||
@@ -253,7 +272,7 @@ export default function MemberProfileModal() {
                 >
                   {isVisible(vis, 'phone') && member.phone && (
                     <div style={{ fontSize: 13, color: '#333' }}>
-                      <span style={{ color: '#666' }}>טלפון: </span>
+                      <span style={{ color: '#666' }}>{t('members.modal.fields.phone')}</span>
                       <a
                         href={`tel:${member.phone}`}
                         style={{ color: BLUE, textDecoration: 'none' }}
@@ -264,13 +283,13 @@ export default function MemberProfileModal() {
                   )}
                   {isVisible(vis, 'li') && member.li && (
                     <div style={{ fontSize: 13 }}>
-                      <span style={{ color: '#666' }}>לינקדאין: </span>
+                      <span style={{ color: '#666' }}>{t('members.modal.fields.li')}</span>
                       <ExternalLink href={member.li} label={member.li} />
                     </div>
                   )}
                   {isVisible(vis, 'website') && member.website && (
                     <div style={{ fontSize: 13 }}>
-                      <span style={{ color: '#666' }}>אתר: </span>
+                      <span style={{ color: '#666' }}>{t('members.modal.fields.website')}</span>
                       <ExternalLink href={member.website} label={member.website} />
                     </div>
                   )}
@@ -299,7 +318,7 @@ export default function MemberProfileModal() {
                     cursor: 'pointer',
                   }}
                 >
-                  שלח הודעה
+                  {t('members.modal.sendMessage')}
                 </button>
               )}
               <button
@@ -317,7 +336,7 @@ export default function MemberProfileModal() {
                   cursor: 'pointer',
                 }}
               >
-                סגור
+                {t('common.close')}
               </button>
             </div>
           </>
