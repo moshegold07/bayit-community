@@ -7,7 +7,7 @@ const MAX_SCORE = 10;
 const FRIENDS_PER_POINT = 1;
 
 function buildShareLink(uid) {
-  return `https://bayit-community.com/?ref=${uid || ''}`;
+  return `https://bayit-community.com/r/${uid || ''}`;
 }
 
 async function copyToClipboard(text) {
@@ -41,6 +41,7 @@ export default function ScoreCube({ compact = false }) {
   const { user } = useAuth();
   const score = Math.max(0, Number(user?.score) || 0);
   const referredCount = Math.max(0, Number(user?.referredCount) || 0);
+  const shareClickCount = Math.max(0, Number(user?.shareClickCount) || 0);
   const unlocked = score >= MAX_SCORE;
   const remainingPoints = Math.max(0, MAX_SCORE - score);
   const remainingFriends = remainingPoints * FRIENDS_PER_POINT;
@@ -175,9 +176,14 @@ export default function ScoreCube({ compact = false }) {
                 }}
               />
             </div>
-            <div style={{ fontSize: 12, color: '#555', marginBottom: 6 }}>
+            <div style={{ fontSize: 12, color: '#555', marginBottom: shareClickCount > 0 ? 2 : 6 }}>
               {referredCount} חברים הצטרפו דרכך
             </div>
+            {shareClickCount > 0 && (
+              <div style={{ fontSize: 11, color: '#888', marginBottom: 6 }}>
+                {shareClickCount} קליקים על הקישור
+              </div>
+            )}
             <div
               style={{
                 fontSize: 12,
@@ -237,9 +243,14 @@ export default function ScoreCube({ compact = false }) {
         />
       </div>
 
-      <div style={{ fontSize: 13, color: '#555', marginBottom: 6 }}>
+      <div style={{ fontSize: 13, color: '#555', marginBottom: shareClickCount > 0 ? 2 : 6 }}>
         {referredCount} חברים הצטרפו דרכך
       </div>
+      {shareClickCount > 0 && (
+        <div style={{ fontSize: 12, color: '#888', marginBottom: 6 }}>
+          {shareClickCount} קליקים על הקישור
+        </div>
+      )}
 
       <div
         style={{

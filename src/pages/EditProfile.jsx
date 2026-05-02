@@ -6,6 +6,7 @@ import { s, FieldRow } from '../components/shared';
 import CategoryPicker from '../components/CategoryPicker';
 import BadgeDisplay from '../components/BadgeDisplay';
 import ScoreCube from '../components/ScoreCube';
+import ReferralsList from '../components/ReferralsList';
 
 const VISIBILITY_FIELDS = [
   { key: 'phone', label: 'טלפון' },
@@ -184,6 +185,10 @@ export default function EditProfile() {
         </h3>
         <div style={{ marginBottom: 18 }}>
           <ScoreCube />
+        </div>
+
+        <div style={{ marginTop: 16 }}>
+          <ReferralsList />
         </div>
 
         <div style={s.sectionTitle}>פרטים אישיים</div>
