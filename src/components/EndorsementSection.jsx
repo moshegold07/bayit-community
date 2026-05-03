@@ -134,9 +134,7 @@ export default function EndorsementSection({
 
       {showForm && (
         <div style={{ marginTop: 8 }}>
-          {error && (
-            <div style={{ color: '#A32D2D', fontSize: 12, marginBottom: 6 }}>{error}</div>
-          )}
+          {error && <div style={{ color: '#A32D2D', fontSize: 12, marginBottom: 6 }}>{error}</div>}
           <textarea
             dir="rtl"
             value={text}

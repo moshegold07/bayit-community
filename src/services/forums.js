@@ -138,11 +138,10 @@ const repliesPath = (forumId, postId) => `forums/${forumId}/posts/${postId}/repl
 
 export async function listReplies(forumId, postId) {
   if (!forumId || !postId) throw new Error('listReplies: ids required');
-  const docs = await db.getDocs(
-    repliesPath(forumId, postId),
-    [],
-    { field: 'createdAt', direction: 'ASCENDING' },
-  );
+  const docs = await db.getDocs(repliesPath(forumId, postId), [], {
+    field: 'createdAt',
+    direction: 'ASCENDING',
+  });
   return mapDocs(docs);
 }
 

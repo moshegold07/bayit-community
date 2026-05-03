@@ -485,12 +485,7 @@ export default function Members() {
       const [usersResult, formResult] = await Promise.all([
         db.getDocs('users', [{ field: 'status', op: 'EQUAL', value: 'active' }], null, 200),
         db
-          .getDocs(
-            'formRegistrants',
-            [{ field: 'claimed', op: 'EQUAL', value: false }],
-            null,
-            200,
-          )
+          .getDocs('formRegistrants', [{ field: 'claimed', op: 'EQUAL', value: false }], null, 200)
           .catch(() => []),
       ]);
       setMembers(usersResult.map((d) => ({ uid: d.id, ...d.data() })));
