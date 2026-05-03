@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'firebase/app-check';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'fake-api-key',
@@ -11,6 +12,19 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+
+const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+if (typeof window !== 'undefined' && recaptchaSiteKey) {
+  try {
+    initializeAppCheck(app, {
+      provider: new ReCaptchaEnterpriseProvider(recaptchaSiteKey),
+      isTokenAutoRefreshEnabled: true,
+    });
+  } catch (err) {
+    console.error('[firebase] App Check init failed:', err);
+  }
+}
+
 export const auth = getAuth(app);
 
 // Direct Firestore REST API wrapper — bypasses SDK connection issues
