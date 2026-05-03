@@ -13,6 +13,7 @@ export default function EndorsementSection({
   const [showForm, setShowForm] = useState(false);
   const [text, setText] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   async function fetchEndorsements() {
     try {
@@ -20,7 +21,8 @@ export default function EndorsementSection({
         { field: 'toUid', op: 'EQUAL', value: targetUid },
       ]);
       setEndorsements(docs.map((d) => ({ id: d.id, ...d.data() })));
-    } catch {
+    } catch (err) {
+      console.error('[EndorsementSection]', err);
       setEndorsements([]);
     }
     setLoading(false);
@@ -37,6 +39,7 @@ export default function EndorsementSection({
   async function handleSubmit() {
     const trimmed = text.trim();
     if (!trimmed || trimmed.length > 300) return;
+    setError('');
     setSubmitting(true);
     try {
       await db.addDoc('endorsements', {
@@ -49,8 +52,9 @@ export default function EndorsementSection({
       setText('');
       setShowForm(false);
       await fetchEndorsements();
-    } catch {
-      // silent fail
+    } catch (err) {
+      console.error('[EndorsementSection]', err);
+      setError('שליחת ההמלצה נכשלה, נסה שוב');
     }
     setSubmitting(false);
   }
@@ -58,7 +62,8 @@ export default function EndorsementSection({
   function formatDate(dateStr) {
     try {
       return new Date(dateStr).toLocaleDateString('he-IL');
-    } catch {
+    } catch (err) {
+      console.error('[EndorsementSection]', err);
       return '';
     }
   }
@@ -129,6 +134,9 @@ export default function EndorsementSection({
 
       {showForm && (
         <div style={{ marginTop: 8 }}>
+          {error && (
+            <div style={{ color: '#A32D2D', fontSize: 12, marginBottom: 6 }}>{error}</div>
+          )}
           <textarea
             dir="rtl"
             value={text}

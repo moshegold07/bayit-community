@@ -2,15 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
-import { s, BLUE } from '../components/shared';
+import { s, BLUE, avColor } from '../components/shared';
 import UserLink from '../components/UserLink';
-
-const AV = ['#1A8A7D', '#2A5A8A', '#8B6AAE', '#C47A3A', '#5A8A6A'];
-function avColor(id) {
-  let h = 0;
-  for (const c of id) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
-  return AV[h % 5];
-}
 
 export default function Chat() {
   const { conversationId } = useParams();
@@ -22,6 +15,7 @@ export default function Chat() {
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState('');
+  const [loadError, setLoadError] = useState('');
   const bottomRef = useRef(null);
   const msgPath = 'conversations/' + conversationId + '/messages';
 
@@ -58,8 +52,9 @@ export default function Chat() {
           setConv(convData);
           await loadMessages();
         }
-      } catch {
-        // Failed to load conversation
+      } catch (err) {
+        console.error('[Chat] load conversation failed:', err);
+        if (!cancelled) setLoadError(err.message || 'שגיאה בטעינת השיחה');
       }
       if (!cancelled) setLoading(false);
     })();
@@ -116,7 +111,9 @@ export default function Chat() {
   if (!conv) {
     return (
       <div style={s.body}>
-        <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>השיחה לא נמצאה</div>
+        <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
+          {loadError || 'השיחה לא נמצאה'}
+        </div>
         <button
           onClick={() => navigate('/messages')}
           style={{ ...s.btnPrimary, maxWidth: 200, margin: '0 auto', display: 'block' }}

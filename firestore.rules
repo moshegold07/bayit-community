@@ -42,8 +42,10 @@ service cloud.firestore {
     }
 
     match /phoneIndex/{phoneId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn();
+      allow read: if isSignedIn() && resource.data.uid == request.auth.uid;
+      allow create: if isSignedIn() &&
+        request.resource.data.uid == request.auth.uid &&
+        request.resource.data.keys().hasOnly(['uid']);
       allow delete: if isAdmin();
     }
 
@@ -129,9 +131,13 @@ service cloud.firestore {
       match /posts/{postId} {
         allow read: if isSignedIn();
         allow create: if isActiveUser() &&
-          request.resource.data.authorId == request.auth.uid;
+          request.resource.data.authorId == request.auth.uid &&
+          request.resource.data.body.size() <= 5000 &&
+          request.resource.data.title.size() <= 200;
         allow update: if isActiveUser() &&
-          (!touchesHiddenFields() || isAdmin());
+          (!touchesHiddenFields() || isAdmin()) &&
+          request.resource.data.body.size() <= 5000 &&
+          request.resource.data.title.size() <= 200;
         allow delete: if isAdmin() ||
           (isActiveUser() && resource.data.authorId == request.auth.uid);
         match /replies/{replyId} {
@@ -179,7 +185,10 @@ service cloud.firestore {
         resource.data.userId == request.auth.uid;
       allow create: if isActiveUser() &&
         request.resource.data.userId != request.auth.uid &&
-        request.resource.data.keys().hasOnly(['userId', 'type', 'title', 'body', 'link', 'read', 'createdAt']);
+        request.resource.data.keys().hasOnly(['userId', 'type', 'title', 'body', 'link', 'read', 'createdAt']) &&
+        request.resource.data.type in ['like', 'comment', 'mention', 'endorsement'] &&
+        request.resource.data.title.size() <= 100 &&
+        request.resource.data.body.size() <= 500;
       allow update: if isSignedIn() &&
         resource.data.userId == request.auth.uid;
       allow delete: if isSignedIn() &&
@@ -189,15 +198,15 @@ service cloud.firestore {
     match /endorsements/{endorseId} {
       allow read: if isSignedIn();
       allow create: if isActiveUser() &&
-        request.resource.data.fromUid == request.auth.uid;
+        request.resource.data.fromUid == request.auth.uid &&
+        endorseId == request.auth.uid + '_' + request.resource.data.toUid;
       allow delete: if isAdmin() ||
         (isActiveUser() && resource.data.fromUid == request.auth.uid);
     }
 
     match /activityFeed/{activityId} {
       allow read: if isSignedIn();
-      allow create: if isActiveUser() &&
-        request.resource.data.keys().hasOnly(['type', 'actorName', 'title', 'link', 'createdAt']);
+      allow create: if isAdmin();
     }
 
     match /tickets/{ticketId} {
@@ -235,6 +244,10 @@ service cloud.firestore {
     match /referralClicks/{clickId} {
       allow read: if isAdmin();
       allow create, update, delete: if false;  // server-only via admin SDK
+    }
+
+    match /deletedUsers/{id} {
+      allow create, read: if isAdmin();
     }
   }
 }

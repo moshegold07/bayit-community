@@ -1,14 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { db } from '../firebase';
-import { s, BLUE, AMBER, TEAL, NAVY, safeHref } from '../components/shared';
+import { s, BLUE, AMBER, TEAL, NAVY, safeHref, avColor } from '../components/shared';
 import BadgeDisplay, { BADGE_DEFS } from '../components/BadgeDisplay';
 
-const AV_COLORS = ['#1A6FBF', '#0F4F8A', '#1A8080', '#7A4F9A', '#B05020'];
-function avColor(id) {
-  let h = 0;
-  for (let c of id || '') h = (h * 31 + c.charCodeAt(0)) & 0xffff;
-  return AV_COLORS[h % 5];
-}
 function initials(m) {
   return (m.first?.[0] || '') + (m.last?.[0] || '');
 }
@@ -297,7 +291,7 @@ export default function Admin() {
 
   async function load() {
     try {
-      const docs = await db.getDocs('users');
+      const docs = await db.getDocs('users', [], null, 500);
       setUsers(docs.map((d) => ({ uid: d.id, ...d.data() })));
       const rulesSnap = await db.getDoc('settings', 'houseRules');
       if (rulesSnap.exists()) setRulesText(rulesSnap.data().text || '');
@@ -312,7 +306,7 @@ export default function Admin() {
         });
       }
       try {
-        const fDocs = await db.getDocs('formRegistrants');
+        const fDocs = await db.getDocs('formRegistrants', [], null, 500);
         setFormRegs(fDocs.map((d) => ({ id: d.id, ...d.data() })));
       } catch (_e) {
         /* empty */
@@ -355,7 +349,7 @@ export default function Admin() {
       setImportStatus(`יובאו ${count} רשומות בהצלחה`);
       setImportJson('');
       // Reload
-      const fDocs = await db.getDocs('formRegistrants');
+      const fDocs = await db.getDocs('formRegistrants', [], null, 500);
       setFormRegs(fDocs.map((d) => ({ id: d.id, ...d.data() })));
     } catch (e) {
       setImportStatus('שגיאה: ' + e.message);

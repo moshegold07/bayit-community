@@ -36,6 +36,18 @@ jobs:
       - name: Build
         run: npm run build
 
+  test-coverage:
+    name: Test Coverage (advisory)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci --no-audit --no-fund
+      # Use `|| true` so the job is advisory while we ramp coverage thresholds.
+      - run: npm run test:coverage || true
+
   deploy:
     name: Deploy to Vercel
     needs: build-and-test

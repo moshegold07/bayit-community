@@ -1,0 +1,11 @@
+title = "bayit-community gitleaks"
+[extend]
+useDefault = true
+[allowlist]
+description = "Allowed files"
+paths = [
+  '''(.*?)\.lock$''',
+  '''package-lock\.json''',
+  '''dist/.*''',
+  '''node_modules/.*''',
+]

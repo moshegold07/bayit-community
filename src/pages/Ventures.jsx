@@ -28,7 +28,7 @@ export default function Ventures() {
     let cancelled = false;
     (async () => {
       try {
-        const docs = await db.getDocs('ventures');
+        const docs = await db.getDocs('ventures', [], null, 100);
         if (!cancelled) {
           setVentures(docs.map((d) => ({ id: d.id, ...d.data() })));
         }

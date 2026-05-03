@@ -33,8 +33,13 @@ function readCode(req) {
   return code;
 }
 
+// Firebase Auth UIDs are alphanumeric, typically 28 chars. Allow 20-40 to be
+// conservative without rejecting legitimate codes. Anything else is malformed
+// and should hard-redirect without touching Firestore.
+const CODE_RE = /^[A-Za-z0-9]{20,40}$/;
+
 function isValidCode(code) {
-  return typeof code === 'string' && code.length >= 10 && code.length <= 50;
+  return typeof code === 'string' && CODE_RE.test(code);
 }
 
 export default async function handler(req, res) {

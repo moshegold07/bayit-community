@@ -1,13 +1,6 @@
 import { useState } from 'react';
 import { db } from '../firebase';
-import { BLUE } from './shared';
-
-const AV = ['#1A8A7D', '#2A5A8A', '#8B6AAE', '#C47A3A', '#5A8A6A'];
-function avColor(id) {
-  let h = 0;
-  for (const c of id) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
-  return AV[h % 5];
-}
+import { BLUE, avColor } from './shared';
 
 export default function GroupCreateModal({ members, currentUser, onClose, onCreated }) {
   const [groupName, setGroupName] = useState('');

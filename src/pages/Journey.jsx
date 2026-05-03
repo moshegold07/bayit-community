@@ -17,12 +17,14 @@ export default function Journey() {
     let cancelled = false;
     (async () => {
       try {
-        const docs = await db.getDocs('journeyPosts', [], {
-          field: 'createdAt',
-          direction: 'DESCENDING',
-        });
+        const docs = await db.getDocs(
+          'journeyPosts',
+          [],
+          { field: 'createdAt', direction: 'DESCENDING' },
+          50,
+        );
         if (!cancelled) {
-          const mapped = docs.map((d) => ({ id: d.id, ...d.data() })).slice(0, 50);
+          const mapped = docs.map((d) => ({ id: d.id, ...d.data() }));
           setPosts(mapped);
         }
       } catch {

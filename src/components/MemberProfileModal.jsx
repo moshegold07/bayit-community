@@ -3,17 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { useProfileModal } from '../contexts/ProfileModalContext';
-import { BLUE, BLUE_LT, NAVY, GOLD } from './shared';
+import { BLUE, BLUE_LT, NAVY, GOLD, avColor } from './shared';
 import BadgeDisplay from './BadgeDisplay';
 import CategoryDisplay from './CategoryDisplay';
 import { useT } from '../i18n';
 
-const AV = ['#1A8A7D', '#2A5A8A', '#8B6AAE', '#C47A3A', '#5A8A6A'];
-function avColor(id = '') {
-  let h = 0;
-  for (const c of id) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
-  return AV[h % 5];
-}
 function initials(m = {}) {
   return (m.first?.[0] || '') + (m.last?.[0] || '');
 }

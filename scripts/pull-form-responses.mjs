@@ -10,7 +10,7 @@
 import { google } from 'googleapis';
 import admin from 'firebase-admin';
 
-const SHEET_ID = '1FscPo0AWhu5GUvVCcLOKGaL99UShE2WBCC3MUg7OkUQ';
+const SHEET_ID = process.env.SHEET_ID || '1FscPo0AWhu5GUvVCcLOKGaL99UShE2WBCC3MUg7OkUQ';
 const TAB = 'תגובות לטופס 1';
 const EXECUTE = process.argv.includes('--execute');
 

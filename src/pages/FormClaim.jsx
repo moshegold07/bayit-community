@@ -34,7 +34,7 @@ function parseContact(contact, contactType) {
     else if (c.includes('.')) result.website = 'https://' + c.split(/[\s,;]/)[0];
   }
 
-  // Extract phone from mixed fields (e.g. "0525318894 ; linkedin...")
+  // Extract phone from mixed fields (e.g. "0500000000 ; linkedin...")
   if (!result.phone) {
     const phoneMatch = c.match(/(?:^|[\s,;])(\+?\d[\d\s-]{6,14}\d)(?:$|[\s,;])/);
     if (phoneMatch) {

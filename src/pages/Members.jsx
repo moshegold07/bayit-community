@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
@@ -482,16 +482,19 @@ export default function Members() {
 
   useEffect(() => {
     async function load() {
-      const docs = await db.getDocs('users', [{ field: 'status', op: 'EQUAL', value: 'active' }]);
-      setMembers(docs.map((d) => ({ uid: d.id, ...d.data() })));
-      try {
-        const fDocs = await db.getDocs('formRegistrants', [
-          { field: 'claimed', op: 'EQUAL', value: false },
-        ]);
-        setFormRegs(fDocs.map((d) => ({ id: d.id, ...d.data() })));
-      } catch (_e) {
-        /* empty */
-      }
+      const [usersResult, formResult] = await Promise.all([
+        db.getDocs('users', [{ field: 'status', op: 'EQUAL', value: 'active' }], null, 200),
+        db
+          .getDocs(
+            'formRegistrants',
+            [{ field: 'claimed', op: 'EQUAL', value: false }],
+            null,
+            200,
+          )
+          .catch(() => []),
+      ]);
+      setMembers(usersResult.map((d) => ({ uid: d.id, ...d.data() })));
+      setFormRegs(formResult.map((d) => ({ id: d.id, ...d.data() })));
       setLoading(false);
     }
     load();
@@ -514,41 +517,43 @@ export default function Members() {
   const parentOptions = TAXONOMY.filter((p) => parentsInUse.has(p.key));
   const cities = [...new Set(allForStats.map((m) => m.city).filter(Boolean))].sort();
 
-  const list = members.filter((m) => {
-    const txt = [m.first, m.last, m.city, m.domain, m.does, m.needs, m.strength, m.canHelpWith]
-      .join(' ')
-      .toLowerCase();
-    const cats = resolveMemberCategories(m);
-    const matchesDomain = !filterDomain
-      ? true
-      : cats.length === 0
-        ? filterDomain === 'other'
-        : cats.some((c) => parentOf(migrateLegacyCategory(c) || c) === filterDomain);
-    return (
-      (!search || txt.includes(search.toLowerCase())) &&
-      matchesDomain &&
-      (!filterCity || m.city === filterCity)
-    );
-  });
+  const list = useMemo(() => {
+    const q = search.toLowerCase();
+    return members.filter((m) => {
+      const txt = [m.first, m.last, m.city, m.domain, m.does, m.needs, m.strength, m.canHelpWith]
+        .join(' ')
+        .toLowerCase();
+      const cats = resolveMemberCategories(m);
+      const matchesDomain = !filterDomain
+        ? true
+        : cats.length === 0
+          ? filterDomain === 'other'
+          : cats.some((c) => parentOf(migrateLegacyCategory(c) || c) === filterDomain);
+      return (
+        (!search || txt.includes(q)) && matchesDomain && (!filterCity || m.city === filterCity)
+      );
+    });
+  }, [members, search, filterDomain, filterCity]);
 
   // formRegs share the same filters so the "Other" bar (etc.) actually surfaces
   // matching pending registrants and isn't a dead-end UX.
-  const filteredFormRegs = formRegs.filter((r) => {
-    const txt = [r.fullName, r.location, r.mainField, r.subField, r.whatTheyDo]
-      .join(' ')
-      .toLowerCase();
-    const cats = [r.subField, r.mainField].filter((f) => f && f !== 'אחר');
-    const matchesDomain = !filterDomain
-      ? true
-      : cats.length === 0
-        ? filterDomain === 'other'
-        : cats.some((c) => parentOf(migrateLegacyCategory(c) || c) === filterDomain);
-    return (
-      (!search || txt.includes(search.toLowerCase())) &&
-      matchesDomain &&
-      (!filterCity || r.location === filterCity)
-    );
-  });
+  const filteredFormRegs = useMemo(() => {
+    const q = search.toLowerCase();
+    return formRegs.filter((r) => {
+      const txt = [r.fullName, r.location, r.mainField, r.subField, r.whatTheyDo]
+        .join(' ')
+        .toLowerCase();
+      const cats = [r.subField, r.mainField].filter((f) => f && f !== 'אחר');
+      const matchesDomain = !filterDomain
+        ? true
+        : cats.length === 0
+          ? filterDomain === 'other'
+          : cats.some((c) => parentOf(migrateLegacyCategory(c) || c) === filterDomain);
+      return (
+        (!search || txt.includes(q)) && matchesDomain && (!filterCity || r.location === filterCity)
+      );
+    });
+  }, [formRegs, search, filterDomain, filterCity]);
 
   const selStyle = { ...s.input, flex: 1, minWidth: 130 };
 

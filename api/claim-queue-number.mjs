@@ -1,6 +1,7 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { checkRate } from './_lib/rate-limit.mjs';
 
 function getApp() {
   if (getApps().length) return getApps()[0];
@@ -37,6 +38,18 @@ export default async function handler(req, res) {
     }
     const decoded = await getAuth(app).verifyIdToken(idToken);
     const uid = decoded.uid;
+
+    // Rate limit: 5 claims per uid per day. Prevents spam-creation of ventures
+    // even if the client bypasses UI checks.
+    const rl = checkRate(req, 'claim:' + uid, 5, 86400000);
+    if (!rl.ok) {
+      res.setHeader('Retry-After', Math.ceil(rl.retryAfterMs / 1000));
+      res.status(429).json({
+        error: 'יותר מדי בקשות — נסו שוב בעוד 24 שעות',
+        code: 'rate_limited',
+      });
+      return;
+    }
 
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
     const title = String(body.title || '').trim();

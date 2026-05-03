@@ -1,6 +1,7 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
+import { checkRate, getClientIp } from './_lib/rate-limit.mjs';
 
 function getApp() {
   if (getApps().length) return getApps()[0];
@@ -38,6 +39,19 @@ function parseCreatedAt(value) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
+
+  // Rate limit referral tracking by IP: 100/hour. Auth happens after this so
+  // we use IP (cheap) to defend against unauthenticated flood attempts.
+  const ip = getClientIp(req);
+  const rl = checkRate(req, 'ref:' + ip, 100, 3600000);
+  if (!rl.ok) {
+    res.setHeader('Retry-After', Math.ceil(rl.retryAfterMs / 1000));
+    res.status(429).json({
+      error: 'יותר מדי בקשות — נסו שוב בעוד שעה',
+      code: 'rate_limited',
+    });
     return;
   }
 

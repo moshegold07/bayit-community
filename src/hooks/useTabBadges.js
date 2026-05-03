@@ -85,10 +85,15 @@ export function useTabBadges(userId) {
 
       // Notification count
       try {
-        const notifDocs = await db.getDocs('notifications', [
-          { field: 'userId', op: 'EQUAL', value: userId },
-          { field: 'read', op: 'EQUAL', value: false },
-        ]);
+        const notifDocs = await db.getDocs(
+          'notifications',
+          [
+            { field: 'userId', op: 'EQUAL', value: userId },
+            { field: 'read', op: 'EQUAL', value: false },
+          ],
+          null,
+          1,
+        );
         if (!cancelled) setNotificationCount(notifDocs.length);
       } catch {
         if (!cancelled) setNotificationCount(0);
